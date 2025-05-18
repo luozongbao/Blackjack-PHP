@@ -13,21 +13,15 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check if the application is installed
-// if (!file_exists(__DIR__ . '/includes/config.php')) {
-//     // Application not installed - redirect to installation page
-//     header('Location: includes/install.php');
-//     exit;
-// } else {
-    // Application is installed - check if user is logged in
-    include_once __DIR__ . '/includes/database.php';
-    
-    // If user is not logged in, redirect to login page
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: views/login.php');
-        exit;
-    } else {
-        // User is logged in, redirect to game page
-        header('Location: views/game.php');
-        exit;
-    }
-// }
+
+include_once __DIR__ . '/includes/database.php';
+
+// If user is not logged in, redirect to login page
+if (!isset($_SESSION['user_id'])) {
+    header('Location: views/login.php');
+    exit;
+} else {
+    // User is logged in, redirect to game page
+    header('Location: views/game.php');
+    exit;
+}

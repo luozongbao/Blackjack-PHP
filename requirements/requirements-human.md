@@ -55,6 +55,7 @@
 - Sign up form
 - Forget Password Form
 - Reset Password Form
+- Lobby Page - use as a landing page after login and showing stats and menu
 - settings Page
     - number of deck per shoe
     - shuffleing method
