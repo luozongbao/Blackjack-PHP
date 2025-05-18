@@ -39,6 +39,7 @@
         - Settings
         - Profile
         - Logout
+- Installation Page
 - Profile page
     - Display Name [Editable]
     - UserName [Not Editable]
