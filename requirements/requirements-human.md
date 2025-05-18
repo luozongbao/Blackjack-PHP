@@ -1,5 +1,5 @@
 # Black Projects 
-    I want to create a blackjack game on PHP
+    I want to create a blackjack game on PHP Mariadb javascript
 ## Requirements
 - using MYSQL to keep record of user profile, and stats
 - User Profile 
