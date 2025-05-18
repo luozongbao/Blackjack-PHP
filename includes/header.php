@@ -23,13 +23,13 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - ' : ''; ?>Blackjack PHP</title>
-    <link rel="stylesheet" href="/Blackjack-PHP/assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
     <header class="navbar">
         <div class="navbar-container">
             <div class="navbar-brand">
-                <a href="/Blackjack-PHP/index.php">Blackjack PHP</a>
+                <a href="index.php">Blackjack PHP</a>
             </div>
             
             <?php include_once __DIR__ . '/navigation.php'; ?>

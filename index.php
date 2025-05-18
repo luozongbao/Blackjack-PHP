@@ -18,10 +18,10 @@ include_once __DIR__ . '/includes/database.php';
 
 // If user is not logged in, redirect to login page
 if (!isset($_SESSION['user_id'])) {
-    header('Location: views/login.php');
+    header('Location: login.php');
     exit;
 } else {
     // User is logged in, redirect to game page
-    header('Location: views/game.php');
+    header('Location: lobby.php');
     exit;
 }

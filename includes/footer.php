@@ -7,6 +7,6 @@
     </footer>
     
     <!-- JavaScript files -->
-    <script src="/Blackjack-PHP/assets/js/game.js"></script>
+    <script src="../assets/js/game.js"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // Include database connection
-require_once '../includes/database.php';
+require_once 'includes/database.php';
 
 // Set page title
 $pageTitle = 'Register';
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<?php include_once '../includes/header.php'; ?>
+<?php include_once 'includes/header.php'; ?>
 
 <div class="form-container">
     <h1>Create a New Account</h1>
@@ -182,4 +182,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 </div>
 
-<?php include_once '../includes/footer.php'; ?>
+<?php include_once 'includes/footer.php'; ?>

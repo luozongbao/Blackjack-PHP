@@ -18,7 +18,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Include database connection
-require_once '../includes/database.php';
+require_once 'includes/database.php';
 
 // Set page title
 $pageTitle = 'Dashboard';
@@ -95,7 +95,7 @@ $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0)
     : 0;
 ?>
 
-<?php include_once '../includes/header.php'; ?>
+<?php include_once 'includes/header.php'; ?>
 
 <div class="card mb-3">
     <h1>Welcome, <?php echo htmlspecialchars($_SESSION['display_name']); ?>!</h1>
@@ -252,4 +252,4 @@ $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0)
     </div>
 </div>
 
-<?php include_once '../includes/footer.php'; ?>
+<?php include_once 'includes/footer.php'; ?>

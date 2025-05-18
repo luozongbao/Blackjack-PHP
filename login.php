@@ -17,7 +17,7 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // Include database connection
-require_once '../includes/database.php';
+require_once 'includes/database.php';
 
 $error = '';
 $success = '';
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Blackjack PHP</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="container">
@@ -108,6 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     
-    <?php include_once '../includes/footer.php'; ?>
+    <?php include_once 'includes/footer.php'; ?>
 </body>
 </html>
