@@ -390,6 +390,58 @@ button:hover {
     }
 }
 
+/* ===== Profile Page Styles ===== */
+.profile-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-container .card {
+    margin-bottom: 20px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.col-md-6 {
+    flex: 0 0 calc(50% - 20px);
+    padding: 0 10px;
+    width: 100%;
+}
+
+.profile-item {
+    margin-bottom: 15px;
+}
+
+.profile-item label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.profile-item span {
+    display: block;
+    padding: 8px 0;
+    font-size: 1.1rem;
+}
+
+.profile-item small {
+    display: block;
+    color: var(--border-color);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 100%;
+    }
+}
+
 /* ===== Utility Classes ===== */
 .text-center {
     text-align: center;
