@@ -49,8 +49,11 @@
 - login page 
     - username
     - passowrd
-    - signup
+    - signup new user
     - forget password
+- Sign up form
+- Forget Password Form
+- Reset Password Form
 - settings Page
     - number of deck per shoe
     - shuffleing method
