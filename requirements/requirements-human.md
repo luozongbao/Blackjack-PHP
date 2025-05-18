@@ -45,8 +45,6 @@
     - UserName [Not Editable]
     - Change Password section
     - Email [Editable]
-    - Session Stats Display Section
-    - All time Stats Display Section
 - login page 
     - username
     - passowrd
