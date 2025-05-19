@@ -1,11 +1,5 @@
 -- Blackjack Game Database Schema
 
--- Drop existing tables if they exist
--- DROP TABLE IF EXISTS game_hands;
--- DROP TABLE IF EXISTS game_sessions;
--- DROP TABLE IF EXISTS user_settings;
--- DROP TABLE IF EXISTS users;
-
 -- Create users table for user authentication and profile information
 CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -104,9 +98,10 @@ CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_sessions_user_id ON game_sessions(user_id);
 CREATE INDEX idx_game_hands_session_id ON game_hands(session_id);
 
--- -- Insert default admin user (password: admin123)
--- INSERT INTO users (username, password, display_name, email)
--- VALUES ('admin', '$2y$10$abcdefghijklmnopqrstuuWwxyZ1234567890abcdefghijkl', 'Administrator', 'admin@example.com');
-
--- -- Insert default user settings for admin
--- INSERT INTO user_settings (user_id) VALUES (1);
+-- Create password reset attempts table to track and limit attempts
+CREATE TABLE IF NOT EXISTS password_reset_attempts (
+    attempt_id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_address VARCHAR(45) NOT NULL,
+    attempt_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX (ip_address, attempt_time)
+);

@@ -22,6 +22,12 @@ require_once 'includes/database.php';
 $error = '';
 $success = '';
 
+// Process any session messages
+if (isset($_SESSION['success'])) {
+    $success = $_SESSION['success'];
+    unset($_SESSION['success']);
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate required fields
