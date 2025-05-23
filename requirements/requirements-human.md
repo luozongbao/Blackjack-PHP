@@ -1,5 +1,5 @@
 # Black Projects 
-    I want to create a blackjack game on PHP
+    I want to create a blackjack game on PHP Mariadb javascript
 ## Requirements
 - using MYSQL to keep record of user profile, and stats
 - User Profile 
@@ -39,18 +39,21 @@
         - Settings
         - Profile
         - Logout
+- Installation Page
 - Profile page
     - Display Name [Editable]
     - UserName [Not Editable]
     - Change Password section
     - Email [Editable]
-    - Session Stats Display Section
-    - All time Stats Display Section
 - login page 
     - username
     - passowrd
-    - signup
+    - signup new user
     - forget password
+- Sign up form
+- Forget Password Form
+- Reset Password Form
+- Lobby Page - use as a landing page after login and showing stats and menu
 - settings Page
     - number of deck per shoe
     - shuffleing method
@@ -60,15 +63,15 @@
     - Deal Style 
         Options:
         - American (Default): Dealt two cards (Dealer Check for Blackjack after dealt 2 cards and faceup card is showing 10)
-        - European: Dealt one card, lose all double and splits money if dealer has blackjack 
-        - Macau: Dealt one card, lose only original bet
+        - European: Dealt one card.  On dealer has blackjack, lose all double and splits money if dealer has blackjack 
+        - Macau: Dealt one card. On dealer has blackjack, lose only original bet
     - Rules
-        - Dealer draw to: ['Any 17', 'Hard 17']
-        - Backjack Pay: ['3:2', '1:1']
-        - Allow Surrender: [Allow Early Surrender, Allow Late Surrender, Not Allow Surrender]
-        - Allow Double after Split: [Yes, No]
-        - Allow Insurance: [Yes, No]
-        - Allow Double: ['On Any Two Cards', 'On Hand Value 9, 10, 11']
+        - Dealer draw to: ['Any 17' (default), 'Hard 17']
+        - Backjack Pay: ['3:2' (default), '1:1']
+        - Allow Surrender: [Allow Early Surrender (default), Allow Late Surrender, Not Allow Surrender]
+        - Allow Double after Split: [Yes (default), No]
+        - Allow Insurance: [Yes (default), No]
+        - Allow Double: ['On Any Two Cards' (default), 'On Hand Value 9, 10, 11']
         - Number of Splits Allow: [1, 2, 3 (default), 4]
     - Restart Section 
         - Initial Money: [Default:10000$]

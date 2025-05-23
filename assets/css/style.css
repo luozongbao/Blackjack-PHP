@@ -1,0 +1,596 @@
+/**
+ * Blackjack PHP - Main Stylesheet
+ *
+ * A comprehensive stylesheet for the Blackjack PHP application
+ * Based on the color scheme from the installation page
+ */
+
+/* ===== Base Styles ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    /* Color Variables */
+    --primary-color: #1abc9c;
+    --primary-dark: #16a085;
+    --secondary-color: #3498db;
+    --secondary-dark: #2980b9;
+    --dark-bg: #2c3e50;
+    --light-text: #ecf0f1;
+    --container-bg: #34495e;
+    --border-color: #7f8c8d;
+    --input-bg: #ecf0f1;
+    --input-text: #2c3e50;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --info-color: #3498db;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: var(--secondary-dark);
+    text-decoration: underline;
+}
+
+/* ===== Container Styles ===== */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.card {
+    background-color: var(--container-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* ===== Form Styles ===== */
+.form-container {
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: var(--container-bg);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+}
+
+/* ===== Button Styles ===== */
+.btn,
+button {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.btn:hover,
+button:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-dark);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+/* ===== Alert/Message Styles ===== */
+.alert {
+    padding: 10px;
+    border-left: 4px solid;
+    margin-bottom: 15px;
+    border-radius: 0 4px 4px 0;
+}
+
+.alert-success {
+    color: var(--success-color);
+    background-color: rgba(46, 204, 113, 0.1);
+    border-color: var(--success-color);
+}
+
+.alert-danger,
+.error {
+    color: var(--danger-color);
+    background-color: rgba(231, 76, 60, 0.1);
+    border-color: var(--danger-color);
+}
+
+.alert-warning {
+    color: var(--warning-color);
+    background-color: rgba(243, 156, 18, 0.1);
+    border-color: var(--warning-color);
+}
+
+.alert-info {
+    color: var(--info-color);
+    background-color: rgba(52, 152, 219, 0.1);
+    border-color: var(--info-color);
+}
+
+/* ===== Navigation ===== */
+.navbar {
+    background-color: var(--container-bg);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 0.5rem 1rem;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.navbar-nav {
+    display: flex;
+    list-style: none;
+}
+
+.nav-item {
+    margin-left: 1.5rem;
+}
+
+.nav-link {
+    color: var(--light-text);
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.nav-link.active {
+    color: var(--primary-color);
+}
+
+/* ===== Game Table Styles ===== */
+.game-container {
+    max-width: 900px;
+    margin: 20px auto;
+    position: relative;
+}
+
+.dealer-section,
+.player-section {
+    background-color: var(--container-bg);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    min-height: 200px;
+    position: relative;
+}
+
+.dealer-section {
+    background-color: rgba(52, 73, 94, 0.8);
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.player-section {
+    background-color: rgba(52, 73, 94, 0.9);
+    border-top: 3px solid var(--primary-color);
+}
+
+.section-title {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 20px 0;
+}
+
+.card-placeholder {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    width: 100px;
+    height: 140px;
+    border-radius: 8px;
+}
+
+.playing-card {
+    width: 100px;
+    height: 140px;
+    background-color: white;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
+}
+
+.playing-card:hover {
+    transform: translateY(-10px);
+}
+
+.action-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.action-button {
+    padding: 8px 12px;
+    min-width: 80px;
+    font-size: 0.9rem;
+}
+
+/* ===== Profile & Stats Styles ===== */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.stats-card {
+    background-color: var(--container-bg);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.stats-title {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+    .navbar-container {
+        flex-direction: column;
+    }
+    
+    .navbar-brand {
+        margin-bottom: 1rem;
+    }
+    
+    .navbar-nav {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .nav-item {
+        margin: 0.5rem 0;
+        text-align: center;
+    }
+    
+    .form-container {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== Profile Page Styles ===== */
+.profile-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.profile-container .card {
+    margin-bottom: 20px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -10px;
+}
+
+.col-md-6 {
+    flex: 0 0 calc(50% - 20px);
+    padding: 0 10px;
+    width: 100%;
+}
+
+.profile-item {
+    margin-bottom: 15px;
+}
+
+/* ===== Settings Page Styles ===== */
+.settings-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.settings-container .card {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+}
+
+.settings-container h3 {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.radio-option,
+.checkbox-option {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.radio-option:hover,
+.checkbox-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.radio-option label,
+.checkbox-option label {
+    display: inline;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.radio-option small,
+.checkbox-option small {
+    display: block;
+    margin-top: 5px;
+    margin-left: 25px;
+    color: var(--border-color);
+    font-style: italic;
+}
+
+.form-range {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 5px;  
+    background: #d3d3d3;
+    outline: none;
+}
+
+.form-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; 
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.form-range::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.range-value {
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.profile-item label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.profile-item span {
+    display: block;
+    padding: 8px 0;
+    font-size: 1.1rem;
+}
+
+.profile-item small {
+    display: block;
+    color: var(--border-color);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .col-md-6 {
+        flex: 0 0 100%;
+    }
+}
+
+/* ===== Utility Classes ===== */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-primary {
+    color: var(--primary-color);
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.mb-1 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1.5rem;
+}
+
+.mt-1 {
+    margin-top: 0.5rem;
+}
+
+.mt-2 {
+    margin-top: 1rem;
+}
+
+.mt-3 {
+    margin-top: 1.5rem;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.w-100 {
+    width: 100%;
+}
