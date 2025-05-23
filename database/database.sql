@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS user_settings (
     shuffle_method ENUM('auto', 'shoe') NOT NULL DEFAULT 'auto',
     deck_penetration INT NOT NULL DEFAULT 80,  -- Percentage value (default 80%)
     deal_style ENUM('american', 'european', 'macau') NOT NULL DEFAULT 'american',
-    dealer_draw_to ENUM('any17', 'hard17') NOT NULL DEFAULT 'hard17',
+    dealer_draw_to ENUM('any17', 'hard17') NOT NULL DEFAULT 'any17',
     blackjack_payout ENUM('3:2', '1:1') NOT NULL DEFAULT '3:2',
-    surrender_option ENUM('early', 'late', 'none') NOT NULL DEFAULT 'late',
+    surrender_option ENUM('early', 'late', 'none') NOT NULL DEFAULT 'early',
     double_after_split BOOLEAN NOT NULL DEFAULT TRUE,
     allow_insurance BOOLEAN NOT NULL DEFAULT TRUE,
     double_on ENUM('any', '9-10-11') NOT NULL DEFAULT 'any',
