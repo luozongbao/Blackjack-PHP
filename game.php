@@ -260,6 +260,77 @@ include 'includes/header.php';
         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
 
+    <!-- Shoe Information Section -->
+    <div class="card shoe-info-section" id="shoe-info">
+        <?php if ($gameState && isset($gameState['shoeInfo'])): ?>
+            <?php $shoeInfo = $gameState['shoeInfo']; ?>
+            <div class="shoe-display">
+                <div class="shoe-header">
+                    <span class="shoe-title">🂠 Shoe Status</span>
+                    <span class="shuffle-method">
+                        <?php if ($shoeInfo['shuffleMethod'] === 'auto'): ?>
+                            🔄 Auto Shuffling Machine
+                        <?php else: ?>
+                            🃏 Manual Shuffle
+                        <?php endif; ?>
+                    </span>
+                </div>
+                <div class="shoe-stats">
+                    <div class="penetration-display">
+                        <div class="penetration-label">Penetration:</div>
+                        <div class="penetration-percentage"><?php echo number_format($shoeInfo['penetrationPercentage'], 1); ?>%</div>
+                        <div class="penetration-bar">
+                            <div class="penetration-progress" style="width: <?php echo min(100, $shoeInfo['penetrationPercentage']); ?>%"></div>
+                        </div>
+                    </div>
+                    <div class="cards-info">
+                        <div class="cards-remaining">
+                            <strong><?php echo $shoeInfo['cardsRemaining']; ?></strong> cards remaining
+                        </div>
+                        <div class="cards-total">
+                            of <?php echo $shoeInfo['totalCards']; ?> total
+                        </div>
+                        <?php if ($shoeInfo['needsReshuffle']): ?>
+                            <div class="reshuffle-indicator">
+                                ⚠️ Reshuffle needed
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="shoe-display">
+                <div class="shoe-header">
+                    <span class="shoe-title">🂠 Shoe Status</span>
+                    <span class="shuffle-method">
+                        <?php if (isset($settings['shuffle_frequency']) && $settings['shuffle_frequency'] === 'auto'): ?>
+                            🔄 Auto Shuffling Machine
+                        <?php else: ?>
+                            🃏 Manual Shuffle
+                        <?php endif; ?>
+                    </span>
+                </div>
+                <div class="shoe-stats">
+                    <div class="penetration-display">
+                        <div class="penetration-label">Penetration:</div>
+                        <div class="penetration-percentage">0.0%</div>
+                        <div class="penetration-bar">
+                            <div class="penetration-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="cards-info">
+                        <div class="cards-remaining">
+                            <strong>-</strong> cards remaining
+                        </div>
+                        <div class="cards-total">
+                            Ready for new game
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
     <!-- Dealer Section -->
     <div class="dealer-section">
         <div class="section-title">Dealer</div>
@@ -454,6 +525,7 @@ function gameAction(action) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            updateShoeInfo(data.gameState);
             location.reload(); // Reload to update game state
         } else {
             alert('Error: ' + data.error);
@@ -463,6 +535,48 @@ function gameAction(action) {
         console.error('Error:', error);
         alert('An error occurred. Please try again.');
     });
+}
+
+function updateShoeInfo(gameState) {
+    if (!gameState || !gameState.shoeInfo) return;
+    
+    const shoeInfo = gameState.shoeInfo;
+    const shoeInfoSection = document.getElementById('shoe-info');
+    
+    if (shoeInfoSection) {
+        // Update penetration percentage
+        const penetrationPercentage = shoeInfoSection.querySelector('.penetration-percentage');
+        if (penetrationPercentage) {
+            penetrationPercentage.textContent = parseFloat(shoeInfo.penetrationPercentage).toFixed(1) + '%';
+        }
+        
+        // Update penetration progress bar
+        const penetrationProgress = shoeInfoSection.querySelector('.penetration-progress');
+        if (penetrationProgress) {
+            const width = Math.min(100, shoeInfo.penetrationPercentage);
+            penetrationProgress.style.width = width + '%';
+        }
+        
+        // Update cards remaining
+        const cardsRemaining = shoeInfoSection.querySelector('.cards-remaining strong');
+        if (cardsRemaining) {
+            cardsRemaining.textContent = shoeInfo.cardsRemaining;
+        }
+        
+        // Update reshuffle indicator
+        const reshuffleIndicator = shoeInfoSection.querySelector('.reshuffle-indicator');
+        if (shoeInfo.needsReshuffle) {
+            if (!reshuffleIndicator) {
+                const cardsInfo = shoeInfoSection.querySelector('.cards-info');
+                const indicator = document.createElement('div');
+                indicator.className = 'reshuffle-indicator';
+                indicator.textContent = '⚠️ Reshuffle needed';
+                cardsInfo.appendChild(indicator);
+            }
+        } else if (reshuffleIndicator) {
+            reshuffleIndicator.remove();
+        }
+    }
 }
 
 function newGame() {
@@ -476,12 +590,50 @@ function newGame() {
     })
     .then(response => response.json())
     .then(data => {
+        // Reset shoe information display
+        resetShoeInfo();
         location.reload();
     })
     .catch(error => {
         console.error('Error:', error);
         location.reload();
     });
+}
+
+function resetShoeInfo() {
+    const shoeInfoSection = document.getElementById('shoe-info');
+    
+    if (shoeInfoSection) {
+        // Reset penetration percentage
+        const penetrationPercentage = shoeInfoSection.querySelector('.penetration-percentage');
+        if (penetrationPercentage) {
+            penetrationPercentage.textContent = '0.0%';
+        }
+        
+        // Reset penetration progress bar
+        const penetrationProgress = shoeInfoSection.querySelector('.penetration-progress');
+        if (penetrationProgress) {
+            penetrationProgress.style.width = '0%';
+        }
+        
+        // Reset cards remaining
+        const cardsRemaining = shoeInfoSection.querySelector('.cards-remaining strong');
+        if (cardsRemaining) {
+            cardsRemaining.textContent = '-';
+        }
+        
+        // Update cards total message
+        const cardsTotal = shoeInfoSection.querySelector('.cards-total');
+        if (cardsTotal) {
+            cardsTotal.textContent = 'Ready for new game';
+        }
+        
+        // Remove reshuffle indicator
+        const reshuffleIndicator = shoeInfoSection.querySelector('.reshuffle-indicator');
+        if (reshuffleIndicator) {
+            reshuffleIndicator.remove();
+        }
+    }
 }
 
 // Prevent page navigation during active game

@@ -548,6 +548,35 @@ class BlackjackGame {
     }
     
     /**
+     * Get current penetration percentage
+     */
+    private function getPenetrationPercentage() {
+        if (!$this->deck || !$this->originalDeckSize) {
+            return 0;
+        }
+        
+        $cardsDealt = $this->originalDeckSize - $this->deck->getCardCount();
+        return ($cardsDealt / $this->originalDeckSize) * 100;
+    }
+    
+    /**
+     * Get shoe status information
+     */
+    private function getShoeInfo() {
+        $penetrationPercentage = $this->getPenetrationPercentage();
+        
+        return [
+            'shuffleMethod' => $this->settings['shuffle_method'],
+            'penetrationPercentage' => $penetrationPercentage,
+            'penetrationThreshold' => $this->settings['deck_penetration'],
+            'cardsRemaining' => $this->deck ? $this->deck->getCardCount() : 0,
+            'totalCards' => $this->originalDeckSize ?? 0,
+            'needsReshuffle' => $this->settings['shuffle_method'] === 'shoe' && 
+                              $penetrationPercentage >= $this->settings['deck_penetration']
+        ];
+    }
+    
+    /**
      * Get current game state for client
      */
     public function getGameState() {
@@ -562,7 +591,8 @@ class BlackjackGame {
             'canStand' => $this->canStand(),
             'canDouble' => $this->canDouble(),
             'canSplit' => $this->canSplit(),
-            'canSurrender' => $this->canSurrender()
+            'canSurrender' => $this->canSurrender(),
+            'shoeInfo' => $this->getShoeInfo()
         ];
     }
     
