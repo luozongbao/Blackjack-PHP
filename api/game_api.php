@@ -68,8 +68,11 @@ try {
     switch ($action) {
         case 'start_game':
             $betAmount = (float) ($_POST['bet_amount'] ?? 0);
-            if ($betAmount <= 0) {
-                throw new Exception("Invalid bet amount");
+            if ($betAmount <= 0 || $betAmount < 100) {
+                throw new Exception("Minimum bet amount is $100");
+            }
+            if ($betAmount % 100 !== 0) {
+                throw new Exception("Bet amount must be in multiples of $100");
             }
             if ($betAmount > $sessionData['current_money']) {
                 throw new Exception("Insufficient funds");

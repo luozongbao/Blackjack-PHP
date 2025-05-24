@@ -77,8 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         switch ($action) {
             case 'start_game':
                 $betAmount = (float) ($_POST['bet_amount'] ?? 0);
-                if ($betAmount <= 0) {
-                    throw new Exception("Invalid bet amount");
+                if ($betAmount <= 0 || $betAmount < 100) {
+                    throw new Exception("Minimum bet amount is $100");
+                }
+                if ($betAmount % 100 !== 0) {
+                    throw new Exception("Bet amount must be in multiples of $100");
                 }
                 if ($betAmount > $sessionData['current_money']) {
                     throw new Exception("Insufficient funds");
@@ -310,10 +313,10 @@ include 'includes/header.php';
                         <input type="number" 
                                id="bet_amount" 
                                name="bet_amount" 
-                               min="1" 
+                               min="100" 
                                max="<?php echo $sessionData['current_money']; ?>"
-                               step="0.01" 
-                               value="10"
+                               step="100" 
+                               value="100"
                                class="form-control"
                                style="width: 120px;">
                     </div>

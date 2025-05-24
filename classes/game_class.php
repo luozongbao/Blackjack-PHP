@@ -449,7 +449,7 @@ class BlackjackGame {
                 return $card->toArray(); 
             }, $this->dealerHand->getCards())),
             'dealer_score' => $this->dealerHand->getScore(),
-            'dealer_has_blackjack' => $this->dealerHand->isBlackjack(),
+            'dealer_has_blackjack' => $this->dealerHand->isBlackjack() ? 1 : 0,
             'player_hands' => json_encode(array_map(function($hand) { 
                 return $hand->toArray(); 
             }, $this->playerHands)),
