@@ -601,6 +601,11 @@ class BlackjackUI {
 
     getSuitSymbol(suit) {
         const symbols = {
+            'Hearts': '♥',
+            'Diamonds': '♦', 
+            'Clubs': '♣',
+            'Spades': '♠',
+            // Also handle lowercase for compatibility
             'hearts': '♥',
             'diamonds': '♦',
             'clubs': '♣',
@@ -610,7 +615,8 @@ class BlackjackUI {
     }
 
     getSuitColor(suit) {
-        return (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black';
+        return (suit === 'Hearts' || suit === 'Diamonds' || 
+                suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black';
     }
     
     updateShoeInfo(shoeData) {

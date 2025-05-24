@@ -948,7 +948,7 @@ function getSuitSymbol(suit) {
 }
 
 function getSuitColor(suit) {
-    return (suit === 'Hearts' || suit === 'Diamonds') ? 'red-suit' : 'black-suit';
+    return (suit === 'Hearts' || suit === 'Diamonds') ? 'red' : 'black';
 }
 
 function updateActionButtons(gameState) {

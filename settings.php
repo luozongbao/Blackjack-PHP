@@ -208,9 +208,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $session = $sessionStmt->fetch();
             
             $success = 'Session restarted successfully! Your balance has been reset to $' . number_format($settings['initial_money'], 2);
+            }
         } catch (PDOException $e) {
             $error = 'Error restarting session: ' . $e->getMessage();
         }
+    }
     }
     
     // Reset all-time stats
@@ -240,7 +242,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Error resetting statistics: ' . $e->getMessage();
         }
     }
-}
 
 include_once 'includes/header.php';
 ?>
