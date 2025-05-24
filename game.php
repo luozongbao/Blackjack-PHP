@@ -210,16 +210,19 @@ include 'includes/header.php';
     <!-- Dealer Section -->
     <div class="dealer-section">
         <div class="section-title">Dealer</div>
-        <div class="cards-container" id="dealer-cards">
+        <div class="cards-container dealer-cards" id="dealer-cards">
             <?php if ($gameState && $gameState['dealerHand']['cards']): ?>
                 <?php foreach ($gameState['dealerHand']['cards'] as $index => $card): ?>
                     <?php if ($gameState['gameState'] === 'player_turn' && $index === 1 && count($gameState['dealerHand']['cards']) === 2): ?>
                         <div class="playing-card card-back" data-card="hidden">
-                            <div class="card-back-design">🂠</div>
+                            <div class="card-back-design">♠</div>
                         </div>
                     <?php else: ?>
-                        <div class="playing-card" data-card="<?php echo $card['rank'] . $card['suit']; ?>">
-                            <div class="card-rank"><?php echo $card['rank']; ?></div>
+                        <div class="playing-card" 
+                             data-card="<?php echo $card['rank'] . $card['suit']; ?>"
+                             data-rank="<?php echo $card['rank']; ?>"
+                             data-suit="<?php echo getSuitSymbol($card['suit']); ?>">
+                            <div class="card-rank <?php echo getSuitColor($card['suit']); ?>"><?php echo $card['rank']; ?></div>
                             <div class="card-suit <?php echo getSuitColor($card['suit']); ?>"><?php echo getSuitSymbol($card['suit']); ?></div>
                         </div>
                     <?php endif; ?>
@@ -265,10 +268,13 @@ include 'includes/header.php';
                         <span class="bet-amount">Bet: $<?php echo number_format($hand['bet'], 2); ?></span>
                     </div>
                     
-                    <div class="cards-container">
+                    <div class="cards-container player-cards">
                         <?php foreach ($hand['cards'] as $card): ?>
-                            <div class="playing-card" data-card="<?php echo $card['rank'] . $card['suit']; ?>">
-                                <div class="card-rank"><?php echo $card['rank']; ?></div>
+                            <div class="playing-card" 
+                                 data-card="<?php echo $card['rank'] . $card['suit']; ?>"
+                                 data-rank="<?php echo $card['rank']; ?>"
+                                 data-suit="<?php echo getSuitSymbol($card['suit']); ?>">
+                                <div class="card-rank <?php echo getSuitColor($card['suit']); ?>"><?php echo $card['rank']; ?></div>
                                 <div class="card-suit <?php echo getSuitColor($card['suit']); ?>"><?php echo getSuitSymbol($card['suit']); ?></div>
                             </div>
                         <?php endforeach; ?>

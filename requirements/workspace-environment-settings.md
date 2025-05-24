@@ -6,15 +6,16 @@
     - Nginx
     - configure
         - user: zongbao
+    - Server Name: bj.home
 ## Pages
-    - Lobby
-    - Game Table
-    - Setings (Saving in Database)
+    - Lobby (Implemented)
+    - Game Table (Implemeneting)
+    - Setings (Implemented, settings Save in Database)
         + Game configuration
         + Game Rules
         + Dealing Style
         + Session Management
-    - Profile
+    - Profile (Implemented)
 ## Folder Structure
     - api (folder)
     - database (folder)
