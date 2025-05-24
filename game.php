@@ -4,6 +4,10 @@
  * Main game interface for playing blackjack
  */
 
+// Load classes BEFORE starting session to avoid deserialization errors
+require_once 'includes/database.php';
+require_once 'classes/game_class.php';
+
 session_start();
 
 // Check if user is logged in
@@ -23,9 +27,6 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
-
-require_once 'includes/database.php';
-require_once 'classes/game_class.php';
 
 $db = getDb();
 $pageTitle = 'Game Table';
@@ -430,45 +431,47 @@ include 'includes/header.php';
         <div class="section-title">Player</div>
         
         <?php if ($gameState && $gameState['playerHands']): ?>
-            <?php foreach ($gameState['playerHands'] as $handIndex => $hand): ?>
-                <div class="player-hand <?php echo $handIndex === $gameState['currentHandIndex'] ? 'active-hand' : ''; ?>" 
-                     data-hand="<?php echo $handIndex; ?>">
-                    
-                    <div class="hand-info">
-                        <span class="hand-label">
-                            Hand <?php echo $handIndex + 1; ?>
-                            <?php if (count($gameState['playerHands']) > 1): ?>
-                                <?php if ($handIndex === $gameState['currentHandIndex'] && $gameState['gameState'] === 'player_turn'): ?>
-                                    (Current)
+            <div id="player-hands-container">
+                <?php foreach ($gameState['playerHands'] as $handIndex => $hand): ?>
+                    <div class="player-hand <?php echo $handIndex === $gameState['currentHandIndex'] ? 'active-hand' : ''; ?>" 
+                         data-hand="<?php echo $handIndex; ?>">
+                        
+                        <div class="hand-info">
+                            <span class="hand-label">
+                                Hand <?php echo $handIndex + 1; ?>
+                                <?php if (count($gameState['playerHands']) > 1): ?>
+                                    <?php if ($handIndex === $gameState['currentHandIndex'] && $gameState['gameState'] === 'player_turn'): ?>
+                                        (Current)
+                                    <?php endif; ?>
                                 <?php endif; ?>
-                            <?php endif; ?>
-                        </span>
-                        <span class="bet-amount">Bet: $<?php echo number_format($hand['bet'], 2); ?></span>
+                            </span>
+                            <span class="bet-amount">Bet: $<?php echo number_format($hand['bet'], 2); ?></span>
+                        </div>
+                        
+                        <div class="cards-container player-cards">
+                            <?php foreach ($hand['cards'] as $card): ?>
+                                <div class="playing-card" 
+                                     data-card="<?php echo $card['rank'] . $card['suit']; ?>"
+                                     data-rank="<?php echo $card['rank']; ?>"
+                                     data-suit="<?php echo getSuitSymbol($card['suit']); ?>">
+                                    <div class="card-rank <?php echo getSuitColor($card['suit']); ?>"><?php echo $card['rank']; ?></div>
+                                    <div class="card-suit <?php echo getSuitColor($card['suit']); ?>"><?php echo getSuitSymbol($card['suit']); ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        
+                        <div class="hand-score">
+                            Score: <?php echo $hand['score']; ?>
+                            <?php if ($hand['isSoft']): ?>(Soft)<?php endif; ?>
+                            <?php if ($hand['isBlackjack']): ?>(Blackjack!)<?php endif; ?>
+                            <?php if ($hand['score'] > 21): ?>(Busted!)<?php endif; ?>
+                            <?php if ($hand['isSurrendered']): ?>(Surrendered)<?php endif; ?>
+                        </div>
                     </div>
-                    
-                    <div class="cards-container player-cards">
-                        <?php foreach ($hand['cards'] as $card): ?>
-                            <div class="playing-card" 
-                                 data-card="<?php echo $card['rank'] . $card['suit']; ?>"
-                                 data-rank="<?php echo $card['rank']; ?>"
-                                 data-suit="<?php echo getSuitSymbol($card['suit']); ?>">
-                                <div class="card-rank <?php echo getSuitColor($card['suit']); ?>"><?php echo $card['rank']; ?></div>
-                                <div class="card-suit <?php echo getSuitColor($card['suit']); ?>"><?php echo getSuitSymbol($card['suit']); ?></div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                    
-                    <div class="hand-score">
-                        Score: <?php echo $hand['score']; ?>
-                        <?php if ($hand['isSoft']): ?>(Soft)<?php endif; ?>
-                        <?php if ($hand['isBlackjack']): ?>(Blackjack!)<?php endif; ?>
-                        <?php if ($hand['score'] > 21): ?>(Busted!)<?php endif; ?>
-                        <?php if ($hand['isSurrendered']): ?>(Surrendered)<?php endif; ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
         <?php else: ?>
-            <div class="cards-container">
+            <div id="player-hands-container">
                 <div class="card-placeholder">Player Cards</div>
             </div>
         <?php endif; ?>
@@ -778,61 +781,81 @@ function updateDealerHand(dealerHand, gameState) {
 function updatePlayerHands(playerHands, currentHandIndex) {
     console.log('Updating player hands:', playerHands);
     
+    const playerHandsContainer = document.getElementById('player-hands-container');
+    if (!playerHandsContainer) {
+        console.error('Player hands container not found');
+        return;
+    }
+    
+    // Clear existing content first
+    playerHandsContainer.innerHTML = '';
+    
+    // Create player hand elements for each hand
     playerHands.forEach((hand, handIndex) => {
-        const handElement = document.querySelector(`.player-hand[data-hand="${handIndex}"]`);
-        console.log(`Looking for player hand ${handIndex}:`, handElement);
+        console.log(`Creating player hand ${handIndex} with ${hand.cards.length} cards`);
         
-        if (!handElement) {
-            console.warn(`Player hand element ${handIndex} not found`);
-            return;
+        // Create the player hand element
+        const handElement = document.createElement('div');
+        handElement.className = `player-hand ${handIndex === currentHandIndex ? 'active-hand' : ''}`;
+        handElement.setAttribute('data-hand', handIndex);
+        
+        // Create hand info
+        const handInfo = document.createElement('div');
+        handInfo.className = 'hand-info';
+        
+        const handLabel = document.createElement('span');
+        handLabel.className = 'hand-label';
+        handLabel.textContent = `Hand ${handIndex + 1}`;
+        if (playerHands.length > 1 && handIndex === currentHandIndex) {
+            handLabel.textContent += ' (Current)';
         }
         
-        // Update active hand class
-        if (handIndex === currentHandIndex) {
-            handElement.classList.add('active-hand');
-        } else {
-            handElement.classList.remove('active-hand');
-        }
+        const betAmount = document.createElement('span');
+        betAmount.className = 'bet-amount';
+        betAmount.textContent = `Bet: $${hand.bet.toFixed(2)}`;
         
-        // Update cards
-        const cardsContainer = handElement.querySelector('.cards-container.player-cards');
-        console.log(`Cards container for hand ${handIndex}:`, cardsContainer);
+        handInfo.appendChild(handLabel);
+        handInfo.appendChild(betAmount);
         
-        if (cardsContainer) {
-            cardsContainer.innerHTML = '';
-            console.log(`Updating ${hand.cards.length} cards for hand ${handIndex}`);
+        // Create cards container
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'cards-container player-cards';
+        
+        // Add cards
+        hand.cards.forEach(card => {
+            console.log(`Adding card: ${card.rank} of ${card.suit}`);
+            const cardElement = document.createElement('div');
+            cardElement.className = 'playing-card';
+            cardElement.setAttribute('data-card', card.rank + card.suit);
+            cardElement.setAttribute('data-rank', card.rank);
+            cardElement.setAttribute('data-suit', getSuitSymbol(card.suit));
             
-            hand.cards.forEach(card => {
-                console.log(`Adding card: ${card.rank} of ${card.suit}`);
-                const cardElement = document.createElement('div');
-                cardElement.className = 'playing-card';
-                cardElement.setAttribute('data-card', card.rank + card.suit);
-                cardElement.setAttribute('data-rank', card.rank);
-                cardElement.setAttribute('data-suit', getSuitSymbol(card.suit));
-                
-                const suitColor = getSuitColor(card.suit);
-                cardElement.innerHTML = `
-                    <div class="card-rank ${suitColor}">${card.rank}</div>
-                    <div class="card-suit ${suitColor}">${getSuitSymbol(card.suit)}</div>
-                `;
-                
-                cardsContainer.appendChild(cardElement);
-            });
-        } else {
-            console.error(`Cards container not found for hand ${handIndex}`);
-        }
+            const suitColor = getSuitColor(card.suit);
+            cardElement.innerHTML = `
+                <div class="card-rank ${suitColor}">${card.rank}</div>
+                <div class="card-suit ${suitColor}">${getSuitSymbol(card.suit)}</div>
+            `;
+            
+            cardsContainer.appendChild(cardElement);
+        });
         
-        // Update hand score
-        const handScore = handElement.querySelector('.hand-score');
-        if (handScore) {
-            let scoreText = `Score: ${hand.score}`;
-            if (hand.isBlackjack) {
-                scoreText += ' (Blackjack!)';
-            } else if (hand.score > 21) {
-                scoreText += ' (Busted!)';
-            }
-            handScore.textContent = scoreText;
-        }
+        // Create hand score
+        const handScore = document.createElement('div');
+        handScore.className = 'hand-score';
+        let scoreText = `Score: ${hand.score}`;
+        if (hand.isSoft) scoreText += ' (Soft)';
+        if (hand.isBlackjack) scoreText += ' (Blackjack!)';
+        else if (hand.score > 21) scoreText += ' (Busted!)';
+        if (hand.isSurrendered) scoreText += ' (Surrendered)';
+        handScore.textContent = scoreText;
+        
+        // Assemble the hand element
+        handElement.appendChild(handInfo);
+        handElement.appendChild(cardsContainer);
+        handElement.appendChild(handScore);
+        
+        // Add to container
+        playerHandsContainer.appendChild(handElement);
     });
 }
 
