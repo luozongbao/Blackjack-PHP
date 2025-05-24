@@ -81,31 +81,45 @@ try {
             $game = new BlackjackGame($settings, $sessionId, $db);
             $gameState = $game->startGame($betAmount);
             $_SESSION['game'] = $game;
-            break;
+            
+            // Save complete game state
+            $game->saveCompleteGameState();
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Cards dealt! Make your move.',
+                'gameState' => $gameState
+            ]);
+            exit;
             
         case 'hit':
             if (!$game) throw new Exception("No active game");
             $gameState = $game->hit();
+            $game->saveCompleteGameState();
             break;
             
         case 'stand':
             if (!$game) throw new Exception("No active game");
             $gameState = $game->stand();
+            $game->saveCompleteGameState();
             break;
             
         case 'double':
             if (!$game) throw new Exception("No active game");
             $gameState = $game->doubleDown();
+            $game->saveCompleteGameState();
             break;
             
         case 'split':
             if (!$game) throw new Exception("No active game");
             $gameState = $game->split();
+            $game->saveCompleteGameState();
             break;
             
         case 'surrender':
             if (!$game) throw new Exception("No active game");
             $gameState = $game->surrender();
+            $game->saveCompleteGameState();
             break;
             
         case 'new_game':

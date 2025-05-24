@@ -65,7 +65,21 @@ if (!isset($_SESSION['game'])) {
 }
 
 $game = $_SESSION['game'];
+
+// If no game in session, try to load from database
+if (!$game) {
+    $game = BlackjackGame::loadFromSession($sessionId, $settings, $db);
+    if ($game) {
+        $_SESSION['game'] = $game;
+    }
+}
+
+// Get current game state (always check, even if game exists)
 $gameState = null;
+if ($game) {
+    $gameState = $game->getGameState();
+}
+
 $error = null;
 $success = null;
 
@@ -90,6 +104,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $game = new BlackjackGame($settings, $sessionId, $db);
                 $gameState = $game->startGame($betAmount);
                 $_SESSION['game'] = $game;
+                
+                // Immediately save complete game state to database
+                $game->saveCompleteGameState();
+                
+                $success = "Game started successfully!";
                 break;
                 
             case 'hit':
@@ -118,6 +137,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
                 
             case 'new_game':
+                if ($game) {
+                    $game->clearSessionState();
+                }
                 $_SESSION['game'] = null;
                 $game = null;
                 
@@ -160,6 +182,12 @@ if ($game) {
     $gameState = $game->getGameState();
 }
 
+// Debug: Log game state for troubleshooting
+error_log("DEBUG: Game state check - gameState: " . ($gameState ? $gameState['gameState'] : 'NULL'));
+if ($gameState && isset($gameState['canHit'])) {
+    error_log("DEBUG: canHit: " . ($gameState['canHit'] ? 'true' : 'false'));
+}
+
 // Refresh session data for display
 $stmt = $db->prepare("SELECT * FROM game_sessions WHERE session_id = ?");
 $stmt->execute([$sessionId]);
@@ -167,8 +195,6 @@ $sessionData = $stmt->fetch(PDO::FETCH_ASSOC);
 
 include 'includes/header.php';
 ?>
-
-<script src="assets/js/game.js"></script>
 
 <div class="game-container">
     <!-- Game Header with Money and Stats -->
@@ -193,7 +219,21 @@ include 'includes/header.php';
                 </div>
             </div>
             <div class="text-right">
-                <div><strong>Total Bet:</strong> $<?php echo number_format($sessionData['session_total_bet'], 2); ?></div>
+                <?php if ($gameState && ($gameState['gameState'] === 'player_turn' || $gameState['gameState'] === 'dealer_turn' || $gameState['gameState'] === 'game_over')): ?>
+                    <!-- Show current game's total bet -->
+                    <?php
+                        $currentGameTotalBet = 0;
+                        if (isset($gameState['playerHands'])) {
+                            foreach ($gameState['playerHands'] as $hand) {
+                                $currentGameTotalBet += $hand['bet'];
+                            }
+                        }
+                    ?>
+                    <div><strong>Current Game Bet:</strong> $<?php echo number_format($currentGameTotalBet, 2); ?></div>
+                <?php else: ?>
+                    <!-- Show session total bet when no active game -->
+                    <div><strong>Session Total Bet:</strong> $<?php echo number_format($sessionData['session_total_bet'], 2); ?></div>
+                <?php endif; ?>
                 <div><strong>Total Won:</strong> $<?php echo number_format($sessionData['session_total_won'], 2); ?></div>
                 <div class="<?php echo ($sessionData['session_total_won'] - $sessionData['session_total_loss']) >= 0 ? 'text-success' : 'text-danger'; ?>">
                     <strong>Net:</strong> $<?php echo number_format($sessionData['session_total_won'] - $sessionData['session_total_loss'], 2); ?>
@@ -443,16 +483,31 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const formData = new FormData(betForm);
             
-            fetch('game.php', {
+            fetch('debug_ajax.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error: ' + data.error);
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.text(); // Get as text first to see what we're getting
+            })
+            .then(text => {
+                console.log('Raw response:', text);
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Parsed data:', data);
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.error);
+                        if (data.debug) {
+                            console.log('Debug info:', data.debug);
+                        }
+                    }
+                } catch (parseError) {
+                    console.error('JSON parse error:', parseError);
+                    alert('Server returned invalid response: ' + text.substring(0, 200));
                 }
             })
             .catch(error => {

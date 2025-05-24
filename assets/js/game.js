@@ -85,17 +85,25 @@ class BlackjackUI {
             formData.append(key, data[key]);
         });
 
-        return fetch('api/game_api.php', {
+        return fetch('./api/game_api.php', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin'
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Game action response:', data);
             if (data.success) {
                 // Update UI with new game state
+                this.showSuccess(data.message || 'Action completed successfully');
                 setTimeout(() => {
                     location.reload();
-                }, 500);
+                }, 1000);
             } else {
                 this.showError(data.error || 'An error occurred');
             }
@@ -230,6 +238,32 @@ class BlackjackUI {
         if (errorDiv) {
             errorDiv.style.display = 'none';
         }
+    }
+
+    showSuccess(message) {
+        this.hideLoading();
+        
+        let successDiv = document.getElementById('game-success');
+        if (!successDiv) {
+            successDiv = document.createElement('div');
+            successDiv.id = 'game-success';
+            successDiv.className = 'alert alert-success game-success';
+            
+            const gameContainer = document.querySelector('.game-container');
+            if (gameContainer) {
+                gameContainer.insertBefore(successDiv, gameContainer.firstChild);
+            }
+        }
+        
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+        
+        // Auto hide after 3 seconds
+        setTimeout(() => {
+            if (successDiv) {
+                successDiv.style.display = 'none';
+            }
+        }, 3000);
     }
 
     // Card value calculator for client-side display

@@ -71,6 +71,15 @@ class BlackjackGame {
             throw new Exception("Insufficient funds");
         }
         
+        // Deduct bet amount from current money and update session_total_bet
+        $stmt = $this->db->prepare("
+            UPDATE game_sessions 
+            SET current_money = current_money - ?,
+                session_total_bet = session_total_bet + ?
+            WHERE session_id = ?
+        ");
+        $stmt->execute([$betAmount, $betAmount, $this->sessionId]);
+        
         // Initialize hands
         $this->dealerHand = new Hand();
         $this->playerHands = [new Hand($betAmount)];
@@ -202,6 +211,15 @@ class BlackjackGame {
             throw new Exception("Insufficient funds for double down");
         }
         
+        // Deduct additional bet from current money and update session_total_bet
+        $stmt = $this->db->prepare("
+            UPDATE game_sessions 
+            SET current_money = current_money - ?,
+                session_total_bet = session_total_bet + ?
+            WHERE session_id = ?
+        ");
+        $stmt->execute([$additionalBet, $additionalBet, $this->sessionId]);
+        
         $currentHand->doubleBet();
         $currentHand->addCard($this->deck->dealCard());
         $currentHand->stand();
@@ -234,6 +252,15 @@ class BlackjackGame {
         if (!$this->hasEnoughMoney($splitBet)) {
             throw new Exception("Insufficient funds for split");
         }
+        
+        // Deduct split bet from current money and update session_total_bet
+        $stmt = $this->db->prepare("
+            UPDATE game_sessions 
+            SET current_money = current_money - ?,
+                session_total_bet = session_total_bet + ?
+            WHERE session_id = ?
+        ");
+        $stmt->execute([$splitBet, $splitBet, $this->sessionId]);
         
         // Split the hand
         $secondCard = $currentHand->split();
@@ -415,12 +442,13 @@ class BlackjackGame {
         $totalWon = $results['totalWon'];
         $totalLost = $results['totalLost'];
         
+        // Add winnings to current money (bet was already deducted when placed)
+        // Also note: totalWon already includes the original bet for winning hands
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money + ?,
                 session_total_won = session_total_won + ?,
                 session_total_loss = session_total_loss + ?,
-                session_total_bet = session_total_bet + ?,
                 session_games_played = session_games_played + 1,
                 session_games_won = session_games_won + ?,
                 session_games_push = session_games_push + ?,
@@ -429,10 +457,9 @@ class BlackjackGame {
         ");
         
         $stmt->execute([
-            $netResult,
+            $totalWon,  // Add only winnings (which include bet return for winning hands)
             $totalWon,
             $totalLost,
-            $totalBet,
             $gameWon,
             $gamePush,
             $gameLost,
@@ -502,6 +529,9 @@ class BlackjackGame {
             
             $this->gameId = $this->db->lastInsertId();
         }
+        
+        // Also save complete game state to session for easy restoration
+        $this->saveCompleteGameState();
     }
     
     /**
@@ -536,6 +566,86 @@ class BlackjackGame {
         ];
     }
     
+    /**
+     * Save complete game state to session record
+     */
+    private function saveCompleteGameState() {
+        $gameStateData = [
+            'gameState' => $this->gameState,
+            'currentHandIndex' => $this->currentHandIndex,
+            'dealerHand' => $this->dealerHand->toArray(),
+            'playerHands' => array_map(function($hand) { 
+                return $hand->toArray(); 
+            }, $this->playerHands),
+            'deckState' => [
+                'remaining' => $this->deck->getCardCount(),
+                'originalSize' => $this->originalDeckSize
+            ]
+        ];
+        
+        $stmt = $this->db->prepare("
+            UPDATE game_sessions 
+            SET game_state = ?
+            WHERE session_id = ?
+        ");
+        $stmt->execute([
+            json_encode($gameStateData),
+            $this->sessionId
+        ]);
+    }
+    
+    /**
+     * Create game from saved state
+     */
+    public static function loadFromSession($sessionId, $settings, $db) {
+        $stmt = $db->prepare("SELECT game_state FROM game_sessions WHERE session_id = ?");
+        $stmt->execute([$sessionId]);
+        $sessionData = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$sessionData || !$sessionData['game_state']) {
+            return null;
+        }
+        
+        $gameStateData = json_decode($sessionData['game_state'], true);
+        if (!$gameStateData) {
+            return null;
+        }
+        
+        $game = new self($settings, $sessionId, $db);
+        
+        // Restore game state
+        $game->gameState = $gameStateData['gameState'];
+        $game->currentHandIndex = $gameStateData['currentHandIndex'];
+        
+        // Restore dealer hand
+        $game->dealerHand = new Hand();
+        foreach ($gameStateData['dealerHand']['cards'] as $cardData) {
+            $card = new Card($cardData['suit'], $cardData['rank']);
+            $game->dealerHand->addCard($card);
+        }
+        $game->dealerHand->setBet($gameStateData['dealerHand']['bet']);
+        
+        // Restore player hands
+        $game->playerHands = [];
+        foreach ($gameStateData['playerHands'] as $handData) {
+            $hand = new Hand();
+            foreach ($handData['cards'] as $cardData) {
+                $card = new Card($cardData['suit'], $cardData['rank']);
+                $hand->addCard($card);
+            }
+            $hand->setBet($handData['bet']);
+            if ($handData['isDoubled']) $hand->markDoubled();
+            if ($handData['isStood']) $hand->markStood();
+            if ($handData['isSurrendered']) $hand->markSurrendered();
+            $game->playerHands[] = $hand;
+        }
+        
+        // Restore deck state approximately
+        $game->originalDeckSize = $gameStateData['deckState']['originalSize'] ?? ($settings['decks_per_shoe'] * 52);
+        
+        return $game;
+    }
+
     // Action validation methods
     private function canHit() {
         return $this->gameState === self::STATE_PLAYER_TURN && 
@@ -583,5 +693,17 @@ class BlackjackGame {
         } else { // late
             return $isFirstHand;
         }
+    }
+    
+    /**
+     * Clear game state from session (call when game ends)
+     */
+    public function clearSessionState() {
+        $stmt = $this->db->prepare("
+            UPDATE game_sessions 
+            SET game_state = NULL
+            WHERE session_id = ?
+        ");
+        $stmt->execute([$this->sessionId]);
     }
 }
