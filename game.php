@@ -198,6 +198,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['game'] = null;
                 $game = null;
                 
+                // Create a new empty game state for betting
+                $gameState = [
+                    'gameState' => 'betting',
+                    'playerHands' => [],
+                    'dealerHand' => null,
+                    'currentHandIndex' => 0,
+                    'canHit' => false,
+                    'canStand' => false,
+                    'canDouble' => false,
+                    'canSplit' => false,
+                    'canSurrender' => false
+                ];
+                
                 // Refresh session data
                 $stmt = $db->prepare("SELECT * FROM game_sessions WHERE session_id = ?");
                 $stmt->execute([$sessionId]);

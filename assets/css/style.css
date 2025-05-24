@@ -30,6 +30,11 @@
     --info-color: #3498db;
 }
 
+/* Global font for card suit symbols */
+.card-suit {
+    font-family: "Arial Unicode MS", "Segoe UI Symbol", "DejaVu Sans", "Noto Color Emoji", sans-serif !important;
+}
+
 body {
     background-color: var(--dark-bg);
     color: var(--light-text);

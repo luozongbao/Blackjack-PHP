@@ -7,6 +7,7 @@ class BlackjackUI {
     constructor() {
         this.gameActive = false;
         this.animating = false;
+        this.currentGameState = null;
         this.init();
     }
 
@@ -327,6 +328,9 @@ class BlackjackUI {
         
         const gameState = data.gameState;
         
+        // Store current game state for reference
+        this.currentGameState = gameState.gameState;
+        
         // Update player hands
         if (gameState.playerHands) {
             this.updatePlayerHands(gameState.playerHands, gameState.currentHandIndex);
@@ -342,7 +346,7 @@ class BlackjackUI {
         
         // Update money display
         if (data.sessionData && data.sessionData.current_money) {
-            const moneyDisplay = document.querySelector('.money-amount');
+            const moneyDisplay = document.querySelector('.money-display');
             if (moneyDisplay) {
                 moneyDisplay.textContent = '$' + parseFloat(data.sessionData.current_money).toLocaleString('en-US', {
                     minimumFractionDigits: 2,
@@ -463,6 +467,150 @@ class BlackjackUI {
                 element.textContent = `Hand ${gameState.currentHandIndex + 1} Turn`;
             }
         });
+    }
+
+    updatePlayerHands(playerHands, currentHandIndex) {
+        console.log('Updating player hands:', playerHands);
+        
+        const playerHandsContainer = document.getElementById('player-hands-container');
+        if (!playerHandsContainer) {
+            console.error('Player hands container not found');
+            return;
+        }
+        
+        // Clear existing content first
+        playerHandsContainer.innerHTML = '';
+        
+        // Create player hand elements for each hand
+        playerHands.forEach((hand, handIndex) => {
+            console.log(`Creating player hand ${handIndex} with ${hand.cards.length} cards`);
+            
+            // Create the player hand element
+            const handElement = document.createElement('div');
+            handElement.className = `player-hand ${handIndex === currentHandIndex ? 'active-hand' : ''}`;
+            handElement.setAttribute('data-hand', handIndex);
+            
+            // Create hand info
+            const handInfo = document.createElement('div');
+            handInfo.className = 'hand-info';
+            
+            const handLabel = document.createElement('span');
+            handLabel.className = 'hand-label';
+            handLabel.textContent = `Hand ${handIndex + 1}`;
+            if (playerHands.length > 1 && handIndex === currentHandIndex) {
+                handLabel.textContent += ' (Current)';
+            }
+            
+            const betAmount = document.createElement('span');
+            betAmount.className = 'bet-amount';
+            betAmount.textContent = `Bet: $${hand.bet.toFixed(2)}`;
+            
+            handInfo.appendChild(handLabel);
+            handInfo.appendChild(betAmount);
+            
+            // Create cards container
+            const cardsContainer = document.createElement('div');
+            cardsContainer.className = 'cards-container player-cards';
+            
+            // Add cards
+            hand.cards.forEach(card => {
+                console.log(`Adding card: ${card.rank} of ${card.suit}`);
+                const cardElement = document.createElement('div');
+                cardElement.className = 'playing-card';
+                cardElement.setAttribute('data-card', card.rank + card.suit);
+                cardElement.setAttribute('data-rank', card.rank);
+                cardElement.setAttribute('data-suit', this.getSuitSymbol(card.suit));
+                
+                const suitColor = this.getSuitColor(card.suit);
+                cardElement.innerHTML = `
+                    <div class="card-rank ${suitColor}">${card.rank}</div>
+                    <div class="card-suit ${suitColor}">${this.getSuitSymbol(card.suit)}</div>
+                `;
+                
+                cardsContainer.appendChild(cardElement);
+            });
+            
+            // Create hand score
+            const handScore = document.createElement('div');
+            handScore.className = 'hand-score';
+            let scoreText = `Score: ${hand.score}`;
+            if (hand.isSoft) scoreText += ' (Soft)';
+            if (hand.isBlackjack) scoreText += ' (Blackjack!)';
+            else if (hand.score > 21) scoreText += ' (Busted!)';
+            if (hand.isSurrendered) scoreText += ' (Surrendered)';
+            handScore.textContent = scoreText;
+            
+            // Assemble the hand element
+            handElement.appendChild(handInfo);
+            handElement.appendChild(cardsContainer);
+            handElement.appendChild(handScore);
+            
+            // Add to container
+            playerHandsContainer.appendChild(handElement);
+        });
+    }
+
+    updateDealerHand(dealerHand) {
+        const dealerCards = document.getElementById('dealer-cards');
+        const dealerScore = document.getElementById('dealer-score');
+        
+        if (dealerCards) {
+            dealerCards.innerHTML = '';
+            
+            dealerHand.cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'playing-card';
+                
+                // Hide second card during player turn
+                if (this.currentGameState === 'player_turn' && index === 1 && dealerHand.cards.length === 2) {
+                    cardElement.classList.add('card-back');
+                    cardElement.setAttribute('data-card', 'hidden');
+                    cardElement.innerHTML = '<div class="card-back-design">♠</div>';
+                } else {
+                    cardElement.setAttribute('data-card', card.rank + card.suit);
+                    cardElement.setAttribute('data-rank', card.rank);
+                    cardElement.setAttribute('data-suit', this.getSuitSymbol(card.suit));
+                    
+                    const suitColor = this.getSuitColor(card.suit);
+                    cardElement.innerHTML = `
+                        <div class="card-rank ${suitColor}">${card.rank}</div>
+                        <div class="card-suit ${suitColor}">${this.getSuitSymbol(card.suit)}</div>
+                    `;
+                }
+                
+                dealerCards.appendChild(cardElement);
+            });
+        }
+        
+        // Update dealer score
+        if (dealerScore) {
+            let scoreText = '';
+            if (this.currentGameState === 'player_turn') {
+                scoreText = `Score: ${dealerHand.cards[0].value} + ?`;
+            } else {
+                scoreText = `Score: ${dealerHand.score}`;
+                if (dealerHand.isBlackjack) {
+                    scoreText += ' (Blackjack!)';
+                } else if (dealerHand.score > 21) {
+                    scoreText += ' (Busted!)';
+                }
+            }
+            dealerScore.textContent = scoreText;
+        }
+    }
+
+    getSuitSymbol(suit) {
+        const symbols = {
+            'hearts': '♥',
+            'diamonds': '♦',
+            'clubs': '♣',
+            'spades': '♠'
+        };
+        return symbols[suit] || suit;
+    }
+
+    getSuitColor(suit) {
+        return (suit === 'hearts' || suit === 'diamonds') ? 'red' : 'black';
     }
     
     updateShoeInfo(shoeData) {
