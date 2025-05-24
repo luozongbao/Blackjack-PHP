@@ -40,12 +40,15 @@ class BlackjackGame {
      */
     private function initializeDeck() {
         $needNewDeck = false;
+        $needShuffle = false;
         
         if (!$this->deck) {
             $needNewDeck = true;
         } elseif ($this->settings['shuffle_method'] === 'auto') {
-            $needNewDeck = true;
+            // Auto shuffle machine: shuffle existing deck every game, don't create new deck
+            $needShuffle = true;
         } elseif ($this->settings['shuffle_method'] === 'shoe') {
+            // Manual shuffle: only reshuffle when penetration threshold is reached
             $needNewDeck = $this->deck->needsReshuffle(
                 $this->originalDeckSize, 
                 $this->settings['deck_penetration']
@@ -55,6 +58,9 @@ class BlackjackGame {
         if ($needNewDeck) {
             $this->deck = new Deck($this->settings['decks_per_shoe']);
             $this->originalDeckSize = $this->deck->getCardCount();
+        } elseif ($needShuffle) {
+            // Just shuffle existing deck without creating new one
+            $this->deck->shuffle();
         }
     }
     

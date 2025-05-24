@@ -155,7 +155,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception("Insufficient funds");
                 }
                 
-                $game = new BlackjackGame($settings, $sessionId, $db);
+                // Only create new game if none exists or current game is not in betting state
+                if (!$game || ($gameState && $gameState['gameState'] !== 'betting')) {
+                    $game = new BlackjackGame($settings, $sessionId, $db);
+                }
+                
                 $gameState = $game->startGame($betAmount);
                 $_SESSION['game'] = $game;
                 
@@ -207,6 +211,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception("Invalid action: " . $action);
                 }
         }
+        
+        // Refresh session data after any game action to get updated money
+        $stmt = $db->prepare("SELECT * FROM game_sessions WHERE session_id = ?");
+        $stmt->execute([$sessionId]);
+        $sessionData = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (isset($_POST['ajax'])) {
             header('Content-Type: application/json');
@@ -358,7 +367,7 @@ include 'includes/header.php';
                 <div class="shoe-header">
                     <span class="shoe-title">🂠 Shoe Status</span>
                     <span class="shuffle-method">
-                        <?php if (isset($settings['shuffle_frequency']) && $settings['shuffle_frequency'] === 'auto'): ?>
+                        <?php if (isset($settings['shuffle_method']) && $settings['shuffle_method'] === 'auto'): ?>
                             🔄 Auto Shuffling Machine
                         <?php else: ?>
                             🃏 Manual Shuffle

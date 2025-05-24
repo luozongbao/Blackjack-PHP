@@ -45,12 +45,26 @@ class BlackjackUI {
             return;
         }
 
+        // Disable form to prevent double submission
+        const submitButton = form.querySelector('button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = 'Dealing...';
+        }
+
         this.animating = true;
         this.showLoading('Dealing cards...');
         
         this.makeGameAction('start_game', { bet_amount: betAmount })
             .then(() => {
                 this.addDealAnimation();
+            })
+            .catch(() => {
+                // Re-enable form on error
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Deal Cards';
+                }
             })
             .finally(() => {
                 this.animating = false;
@@ -66,10 +80,20 @@ class BlackjackUI {
             e.preventDefault();
             const actionName = action.match(/gameAction\('(.+?)'\)/)[1];
             
+            // Disable button to prevent double clicks
+            e.target.disabled = true;
+            const originalText = e.target.textContent;
+            e.target.textContent = 'Processing...';
+            
             this.animating = true;
             this.showLoading(this.getActionMessage(actionName));
             
             this.makeGameAction(actionName)
+                .catch(() => {
+                    // Re-enable button on error
+                    e.target.disabled = false;
+                    e.target.textContent = originalText;
+                })
                 .finally(() => {
                     this.animating = false;
                     this.hideLoading();
@@ -100,11 +124,9 @@ class BlackjackUI {
         .then(data => {
             console.log('Game action response:', data);
             if (data.success) {
-                // Update UI with new game state
+                // Update UI with new game state without page reload
                 this.showSuccess(data.message || 'Action completed successfully');
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
+                this.updateGameStateFromResponse(data);
             } else {
                 this.showError(data.error || 'An error occurred');
             }
@@ -299,6 +321,195 @@ class BlackjackUI {
             currency: 'USD'
         }).format(amount);
     }
+
+    updateGameStateFromResponse(data) {
+        if (!data.gameState) return;
+        
+        const gameState = data.gameState;
+        
+        // Update player hands
+        if (gameState.playerHands) {
+            this.updatePlayerHands(gameState.playerHands, gameState.currentHandIndex);
+        }
+        
+        // Update dealer hand
+        if (gameState.dealerHand) {
+            this.updateDealerHand(gameState.dealerHand);
+        }
+        
+        // Update action buttons based on game state
+        this.updateActionButtonsFromState(gameState);
+        
+        // Update money display
+        if (data.sessionData && data.sessionData.current_money) {
+            const moneyDisplay = document.querySelector('.money-amount');
+            if (moneyDisplay) {
+                moneyDisplay.textContent = '$' + parseFloat(data.sessionData.current_money).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+        }
+        
+        // Update game status section
+        this.updateGameStatusFromState(gameState);
+        
+        // Update shoe information
+        if (gameState.shoe) {
+            this.updateShoeInfo(gameState.shoe);
+        }
+    }
+    
+    updateActionButtonsFromState(gameState) {
+        const actionSection = document.getElementById('action-section');
+        if (!actionSection) return;
+        
+        if (gameState.gameState === 'betting') {
+            // Show betting form
+            this.showBettingForm(actionSection);
+        } else if (gameState.gameState === 'player_turn') {
+            // Show action buttons
+            this.showActionButtons(actionSection, gameState);
+        } else if (gameState.gameState === 'game_over') {
+            // Show results and new game button
+            this.showGameResults(actionSection, gameState);
+        }
+    }
+    
+    showBettingForm(container) {
+        container.innerHTML = `
+            <form method="POST" id="bet-form" class="d-flex align-center">
+                <input type="hidden" name="action" value="start_game">
+                <input type="hidden" name="ajax" value="1">
+                
+                <div class="form-group" style="margin-right: 15px;">
+                    <label for="bet_amount">Bet Amount:</label>
+                    <input type="number" 
+                           id="bet_amount" 
+                           name="bet_amount" 
+                           min="100" 
+                           step="100" 
+                           value="100"
+                           class="form-control"
+                           style="width: 120px;">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Deal Cards</button>
+            </form>
+        `;
+        
+        // Re-attach event listener
+        const betForm = document.getElementById('bet-form');
+        if (betForm) {
+            betForm.addEventListener('submit', (e) => this.handleBetSubmission(e));
+        }
+    }
+    
+    showActionButtons(container, gameState) {
+        let buttonsHtml = '<div class="game-actions">';
+        
+        if (gameState.canHit) {
+            buttonsHtml += '<button class="btn btn-secondary action-button" onclick="gameAction(\'hit\')">Hit</button>';
+        }
+        
+        if (gameState.canStand) {
+            buttonsHtml += '<button class="btn btn-primary action-button" onclick="gameAction(\'stand\')">Stand</button>';
+        }
+        
+        if (gameState.canDouble) {
+            buttonsHtml += '<button class="btn btn-warning action-button" onclick="gameAction(\'double\')">Double Down</button>';
+        }
+        
+        if (gameState.canSplit) {
+            buttonsHtml += '<button class="btn btn-info action-button" onclick="gameAction(\'split\')">Split</button>';
+        }
+        
+        if (gameState.canSurrender) {
+            buttonsHtml += '<button class="btn btn-danger action-button" onclick="gameAction(\'surrender\')">Surrender</button>';
+        }
+        
+        buttonsHtml += '</div>';
+        container.innerHTML = buttonsHtml;
+        
+        // Re-attach event listeners for action buttons
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', (e) => this.handleActionClick(e));
+        });
+    }
+    
+    showGameResults(container, gameState) {
+        let resultText = '';
+        if (gameState.results && gameState.results.length > 0) {
+            resultText = gameState.results.map(result => 
+                `Hand ${result.handIndex + 1}: ${result.result} - ${result.winnings >= 0 ? '+' : ''}$${result.winnings}`
+            ).join('<br>');
+        }
+        
+        container.innerHTML = `
+            <div class="game-results">
+                ${resultText ? `<div class="results-summary">${resultText}</div>` : ''}
+                <button class="btn btn-primary" onclick="newGame()">New Game</button>
+            </div>
+        `;
+    }
+    
+    updateGameStatusFromState(gameState) {
+        // Update any status indicators based on game state
+        const statusElements = document.querySelectorAll('.game-status');
+        statusElements.forEach(element => {
+            if (gameState.gameState === 'game_over' && gameState.results) {
+                element.textContent = 'Game Over';
+            } else if (gameState.gameState === 'player_turn') {
+                element.textContent = `Hand ${gameState.currentHandIndex + 1} Turn`;
+            }
+        });
+    }
+    
+    updateShoeInfo(shoeData) {
+        const shoeInfoSection = document.getElementById('shoe-info');
+        if (!shoeInfoSection || !shoeData) return;
+        
+        // Update penetration percentage
+        const penetrationPercentage = shoeInfoSection.querySelector('.penetration-percentage');
+        if (penetrationPercentage) {
+            penetrationPercentage.textContent = `${shoeData.penetrationPercentage.toFixed(1)}%`;
+        }
+        
+        // Update penetration bar
+        const penetrationProgress = shoeInfoSection.querySelector('.penetration-progress');
+        if (penetrationProgress) {
+            penetrationProgress.style.width = `${Math.min(100, shoeData.penetrationPercentage)}%`;
+        }
+        
+        // Update cards remaining
+        const cardsRemaining = shoeInfoSection.querySelector('.cards-remaining strong');
+        if (cardsRemaining) {
+            cardsRemaining.textContent = shoeData.cardsRemaining;
+        }
+        
+        // Update shuffle method indicator
+        const shuffleMethod = shoeInfoSection.querySelector('.shuffle-method');
+        if (shuffleMethod) {
+            shuffleMethod.innerHTML = shoeData.shuffleMethod === 'auto' 
+                ? '🔄 Auto Shuffling Machine' 
+                : '🃏 Manual Shuffle';
+        }
+        
+        // Update reshuffle indicator
+        let reshuffleIndicator = shoeInfoSection.querySelector('.reshuffle-indicator');
+        if (shoeData.needsReshuffle) {
+            if (!reshuffleIndicator) {
+                reshuffleIndicator = document.createElement('div');
+                reshuffleIndicator.className = 'reshuffle-indicator';
+                shoeInfoSection.querySelector('.cards-info').appendChild(reshuffleIndicator);
+            }
+            reshuffleIndicator.textContent = '⚠️ Reshuffle needed';
+        } else if (reshuffleIndicator) {
+            reshuffleIndicator.remove();
+        }
+    }
+
+    // ...existing code...
 }
 
 // Global game action functions (called from PHP-generated onclick handlers)
