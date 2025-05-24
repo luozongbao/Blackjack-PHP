@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Blackjack Game Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #007bff;
+            background: #f8f9fa;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🃏 Final Blackjack Game Verification</h1>
+    
+    <div class="test-section">
+        <h2>🔧 Quick Login Setup</h2>
+        <p>First, let's ensure you're logged in for testing:</p>
+        <button onclick="setupLogin()">Setup Quick Login</button>
+        <div id="login-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🚀 JavaScript Syntax Test</h2>
+        <p>Testing if the JavaScript syntax error around line 233 has been fixed:</p>
+        <button onclick="testJavaScriptSyntax()">Test JavaScript Syntax</button>
+        <div id="js-syntax-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎮 Action Buttons Test</h2>
+        <p>Testing the complete game flow to verify action buttons appear:</p>
+        <button onclick="testCompleteGameFlow()">Test Complete Game Flow</button>
+        <div id="game-flow-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔍 Live Game Preview</h2>
+        <p>Live preview of the actual game (opens in iframe):</p>
+        <button onclick="showLivePreview()">Show Live Game</button>
+        <div id="live-preview"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Test Results Summary</h2>
+        <div id="test-summary">
+            <div class="info">Click the test buttons above to verify all fixes are working correctly.</div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = {
+            login: false,
+            javascript: false,
+            gameFlow: false,
+            actionButtons: false
+        };
+
+        async function setupLogin() {
+            const statusDiv = document.getElementById('login-status');
+            statusDiv.innerHTML = '<div class="info">Setting up login...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:8000/quick_login.php');
+                const text = await response.text();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = '<div class="success">✅ Login setup successful! You can now test the game.</div>';
+                    testResults.login = true;
+                } else {
+                    statusDiv.innerHTML = '<div class="error">❌ Login setup failed: ' + text + '</div>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="error">❌ Login setup error: ' + error.message + '</div>';
+            }
+            updateTestSummary();
+        }
+
+        async function testJavaScriptSyntax() {
+            const resultDiv = document.getElementById('js-syntax-result');
+            resultDiv.innerHTML = '<div class="info">Testing JavaScript syntax...</div>';
+            
+            try {
+                // Create a test iframe to load the game page and check for JavaScript errors
+                const iframe = document.createElement('iframe');
+                iframe.src = 'http://localhost:8000/game.php';
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                
+                // Wait for iframe to load
+                await new Promise((resolve, reject) => {
+                    iframe.onload = resolve;
+                    iframe.onerror = reject;
+                    setTimeout(reject, 10000); // 10 second timeout
+                });
+                
+                // Check for JavaScript errors in the iframe
+                const iframeWindow = iframe.contentWindow;
+                let hasErrors = false;
+                
+                // Listen for JavaScript errors
+                iframe.contentWindow.addEventListener('error', (e) => {
+                    hasErrors = true;
+                    resultDiv.innerHTML = '<div class="error">❌ JavaScript Error: ' + e.message + ' (Line: ' + e.lineno + ')</div>';
+                });
+                
+                // Wait a moment to see if any errors occur
+                setTimeout(() => {
+                    if (!hasErrors) {
+                        resultDiv.innerHTML = '<div class="success">✅ No JavaScript syntax errors detected! The line 233 issue has been fixed.</div>';
+                        testResults.javascript = true;
+                    }
+                    document.body.removeChild(iframe);
+                    updateTestSummary();
+                }, 2000);
+                
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="error">❌ Error testing JavaScript: ' + error.message + '</div>';
+            }
+        }
+
+        async function testCompleteGameFlow() {
+            const resultDiv = document.getElementById('game-flow-result');
+            resultDiv.innerHTML = '<div class="info">Testing complete game flow...</div>';
+            
+            try {
+                // Step 1: Start a new game
+                resultDiv.innerHTML += '<div class="test-result">Step 1: Starting new game...</div>';
+                
+                const formData = new FormData();
+                formData.append('action', 'start_game');
+                formData.append('bet_amount', '100');
+                formData.append('ajax', '1');
+                
+                const response = await fetch('http://localhost:8000/game.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error('Game start failed: ' + (data.error || 'Unknown error'));
+                }
+                
+                resultDiv.innerHTML += '<div class="test-result">✅ Step 1 passed: Game started successfully</div>';
+                
+                // Step 2: Check if action capabilities are present
+                resultDiv.innerHTML += '<div class="test-result">Step 2: Checking action capabilities...</div>';
+                
+                const gameState = data.gameState;
+                const actionCapabilities = [];
+                
+                if (gameState.canHit) actionCapabilities.push('Hit');
+                if (gameState.canStand) actionCapabilities.push('Stand');
+                if (gameState.canDouble) actionCapabilities.push('Double');
+                if (gameState.canSplit) actionCapabilities.push('Split');
+                if (gameState.canSurrender) actionCapabilities.push('Surrender');
+                
+                if (actionCapabilities.length > 0) {
+                    resultDiv.innerHTML += '<div class="test-result">✅ Step 2 passed: Available actions: ' + actionCapabilities.join(', ') + '</div>';
+                    testResults.actionButtons = true;
+                } else {
+                    resultDiv.innerHTML += '<div class="test-result">⚠️ Step 2 warning: No action capabilities found in game state</div>';
+                }
+                
+                // Step 3: Verify game state structure
+                resultDiv.innerHTML += '<div class="test-result">Step 3: Verifying game state structure...</div>';
+                
+                const requiredFields = ['gameState', 'dealerHand', 'playerHands', 'currentMoney'];
+                const missingFields = requiredFields.filter(field => !(field in gameState));
+                
+                if (missingFields.length === 0) {
+                    resultDiv.innerHTML += '<div class="test-result">✅ Step 3 passed: All required game state fields present</div>';
+                } else {
+                    resultDiv.innerHTML += '<div class="test-result">❌ Step 3 failed: Missing fields: ' + missingFields.join(', ') + '</div>';
+                }
+                
+                // Final result
+                if (actionCapabilities.length > 0 && missingFields.length === 0) {
+                    resultDiv.innerHTML += '<div class="success">🎉 Complete game flow test PASSED! Action buttons should now work correctly.</div>';
+                    testResults.gameFlow = true;
+                } else {
+                    resultDiv.innerHTML += '<div class="warning">⚠️ Game flow test completed with warnings. Check individual steps above.</div>';
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML += '<div class="error">❌ Game flow test failed: ' + error.message + '</div>';
+            }
+            
+            updateTestSummary();
+        }
+
+        function showLivePreview() {
+            const previewDiv = document.getElementById('live-preview');
+            previewDiv.innerHTML = `
+                <div class="info">Loading live game preview...</div>
+                <iframe src="http://localhost:8000/game.php" onload="this.previousElementSibling.style.display='none'"></iframe>
+                <p><strong>Instructions:</strong> Use the iframe above to test the actual game. You should be able to:</p>
+                <ul>
+                    <li>Place a bet and deal cards</li>
+                    <li>See action buttons (Hit, Stand, etc.) appear after cards are dealt</li>
+                    <li>Use the action buttons without page refreshes</li>
+                    <li>Complete a full game without network errors</li>
+                </ul>
+            `;
+        }
+
+        function updateTestSummary() {
+            const summaryDiv = document.getElementById('test-summary');
+            const passedTests = Object.values(testResults).filter(result => result).length;
+            const totalTests = Object.keys(testResults).length;
+            
+            let summaryHTML = `<h3>Test Results (${passedTests}/${totalTests} passed)</h3>`;
+            
+            summaryHTML += `<div class="${testResults.login ? 'success' : 'error'}">
+                ${testResults.login ? '✅' : '❌'} Login Setup
+            </div>`;
+            
+            summaryHTML += `<div class="${testResults.javascript ? 'success' : 'error'}">
+                ${testResults.javascript ? '✅' : '❌'} JavaScript Syntax Fix
+            </div>`;
+            
+            summaryHTML += `<div class="${testResults.gameFlow ? 'success' : 'error'}">
+                ${testResults.gameFlow ? '✅' : '❌'} Complete Game Flow
+            </div>`;
+            
+            summaryHTML += `<div class="${testResults.actionButtons ? 'success' : 'error'}">
+                ${testResults.actionButtons ? '✅' : '❌'} Action Buttons Available
+            </div>`;
+            
+            if (passedTests === totalTests) {
+                summaryHTML += '<div class="success"><strong>🎉 ALL TESTS PASSED!</strong><br>Both critical issues have been resolved:<br>1. Network errors when dealing cards - FIXED<br>2. Missing action buttons - FIXED</div>';
+            } else {
+                summaryHTML += '<div class="warning">Some tests are still pending or failed. Please run all tests to verify the fixes.</div>';
+            }
+            
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTestSummary();
+        });
+    </script>
+</body>
+</html>

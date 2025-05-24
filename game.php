@@ -78,18 +78,48 @@ if (!isset($_SESSION['game'])) {
 
 $game = $_SESSION['game'];
 
-// If no game in session, try to load from database
+// Validate game object and handle corruption
+if ($game) {
+    try {
+        // Test if the game object is functional
+        $testState = $game->getGameState();
+        
+        // If we get here, the game object is working
+    } catch (Exception $e) {
+        // Game object is corrupted, clear it and reload from database
+        error_log("Game object corrupted, reloading: " . $e->getMessage());
+        $_SESSION['game'] = null;
+        $game = null;
+    }
+}
+
+// If no game in session or corrupted, try to load from database
 if (!$game) {
-    $game = BlackjackGame::loadFromSession($sessionId, $settings, $db);
-    if ($game) {
-        $_SESSION['game'] = $game;
+    try {
+        $game = BlackjackGame::loadFromSession($sessionId, $settings, $db);
+        if ($game) {
+            $_SESSION['game'] = $game;
+        }
+    } catch (Exception $e) {
+        // Failed to load from database, ensure clean state
+        error_log("Failed to load game from session: " . $e->getMessage());
+        $_SESSION['game'] = null;
+        $game = null;
     }
 }
 
 // Get current game state (always check, even if game exists)
 $gameState = null;
 if ($game) {
-    $gameState = $game->getGameState();
+    try {
+        $gameState = $game->getGameState();
+    } catch (Exception $e) {
+        // Game state retrieval failed, clear corrupted game
+        error_log("Failed to get game state: " . $e->getMessage());
+        $_SESSION['game'] = null;
+        $game = null;
+        $gameState = null;
+    }
 }
 
 $error = null;
@@ -127,9 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $game = new BlackjackGame($settings, $sessionId, $db);
                 $gameState = $game->startGame($betAmount);
                 $_SESSION['game'] = $game;
-                
-                // Immediately save complete game state to database
-                $game->saveCompleteGameState();
                 
                 $success = "Game started successfully!";
                 break;
@@ -626,7 +653,7 @@ function newGame() {
         body: formData
     })
     .then(response => response.json())
-    .then data => {
+    .then(data => {
         if (data.success) {
             // Reset shoe information display
             resetShoeInfo();
@@ -749,9 +776,16 @@ function updateDealerHand(dealerHand, gameState) {
 }
 
 function updatePlayerHands(playerHands, currentHandIndex) {
+    console.log('Updating player hands:', playerHands);
+    
     playerHands.forEach((hand, handIndex) => {
         const handElement = document.querySelector(`.player-hand[data-hand="${handIndex}"]`);
-        if (!handElement) return;
+        console.log(`Looking for player hand ${handIndex}:`, handElement);
+        
+        if (!handElement) {
+            console.warn(`Player hand element ${handIndex} not found`);
+            return;
+        }
         
         // Update active hand class
         if (handIndex === currentHandIndex) {
@@ -762,10 +796,14 @@ function updatePlayerHands(playerHands, currentHandIndex) {
         
         // Update cards
         const cardsContainer = handElement.querySelector('.cards-container.player-cards');
+        console.log(`Cards container for hand ${handIndex}:`, cardsContainer);
+        
         if (cardsContainer) {
             cardsContainer.innerHTML = '';
+            console.log(`Updating ${hand.cards.length} cards for hand ${handIndex}`);
             
             hand.cards.forEach(card => {
+                console.log(`Adding card: ${card.rank} of ${card.suit}`);
                 const cardElement = document.createElement('div');
                 cardElement.className = 'playing-card';
                 cardElement.setAttribute('data-card', card.rank + card.suit);
@@ -780,6 +818,8 @@ function updatePlayerHands(playerHands, currentHandIndex) {
                 
                 cardsContainer.appendChild(cardElement);
             });
+        } else {
+            console.error(`Cards container not found for hand ${handIndex}`);
         }
         
         // Update hand score

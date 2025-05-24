@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack Test - All Issues</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ccc; margin: 10px 0; padding: 15px; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        button { margin: 5px; padding: 10px 15px; }
+        .debug-log { background: #f5f5f5; padding: 10px; margin: 10px 0; max-height: 300px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🃏 Blackjack Game - Comprehensive Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Session Debug</h2>
+        <button onclick="testSessionDebug()">Check Session Status</button>
+        <div id="session-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Quick Login and Game Start</h2>
+        <button onclick="performQuickLogin()">Quick Login</button>
+        <button onclick="startNewGame()">Start New Game</button>
+        <div id="game-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Test Game Actions</h2>
+        <button onclick="testHit()">Test Hit</button>
+        <button onclick="testStand()">Test Stand</button>
+        <div id="action-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Simulate Page Return (Session Recovery)</h2>
+        <button onclick="simulatePageReturn()">Simulate Leaving and Returning</button>
+        <div id="return-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Console</h2>
+        <div id="debug-log" class="debug-log"></div>
+        <button onclick="clearDebugLog()">Clear Log</button>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            debugLog.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function clearDebugLog() {
+            document.getElementById('debug-log').innerHTML = '';
+        }
+
+        // Test 1: Session Debug
+        async function testSessionDebug() {
+            log('Testing session debug...', 'info');
+            try {
+                const response = await fetch('/debug_session.php');
+                const text = await response.text();
+                document.getElementById('session-results').innerHTML = text;
+                log('Session debug completed', 'success');
+            } catch (error) {
+                log('Session debug failed: ' + error.message, 'error');
+                document.getElementById('session-results').innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Test 2: Quick Login
+        async function performQuickLogin() {
+            log('Performing quick login...', 'info');
+            try {
+                const response = await fetch('/quick_login.php');
+                const text = await response.text();
+                
+                if (response.ok) {
+                    log('Quick login successful', 'success');
+                    document.getElementById('game-results').innerHTML = '<div class="success">Login successful! You can now start a game.</div>';
+                } else {
+                    throw new Error('Login failed');
+                }
+            } catch (error) {
+                log('Quick login failed: ' + error.message, 'error');
+                document.getElementById('game-results').innerHTML = `<div class="error">Login Error: ${error.message}</div>`;
+            }
+        }
+
+        // Test 2: Start New Game
+        async function startNewGame() {
+            log('Starting new game...', 'info');
+            try {
+                const formData = new FormData();
+                formData.append('action', 'start_game');
+                formData.append('bet_amount', '100');
+                formData.append('ajax', '1');
+
+                const response = await fetch('/game.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                log('Game start response: ' + JSON.stringify(data), 'info');
+
+                if (data.success) {
+                    log('Game started successfully!', 'success');
+                    document.getElementById('game-results').innerHTML = `
+                        <div class="success">Game Started Successfully!</div>
+                        <div>Game State: ${data.gameState.gameState}</div>
+                        <div>Player Hands: ${data.gameState.playerHands.length}</div>
+                        <div>Dealer Cards: ${data.gameState.dealerHand.cards.length}</div>
+                        <div>Can Hit: ${data.gameState.canHit}</div>
+                        <div>Can Stand: ${data.gameState.canStand}</div>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                log('Game start failed: ' + error.message, 'error');
+                document.getElementById('game-results').innerHTML = `<div class="error">Game Start Error: ${error.message}</div>`;
+            }
+        }
+
+        // Test 3: Game Actions
+        async function testHit() {
+            await testGameAction('hit');
+        }
+
+        async function testStand() {
+            await testGameAction('stand');
+        }
+
+        async function testGameAction(action) {
+            log(`Testing ${action} action...`, 'info');
+            try {
+                const formData = new FormData();
+                formData.append('action', action);
+                formData.append('ajax', '1');
+
+                const response = await fetch('/game.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                log(`${action} response: ` + JSON.stringify(data), 'info');
+
+                if (data.success) {
+                    log(`${action} action successful!`, 'success');
+                    document.getElementById('action-results').innerHTML = `
+                        <div class="success">${action} Action Successful!</div>
+                        <div>Game State: ${data.gameState.gameState}</div>
+                        <div>Player Hands: ${data.gameState.playerHands.length}</div>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                log(`${action} action failed: ` + error.message, 'error');
+                document.getElementById('action-results').innerHTML = `<div class="error">${action} Action Error: ${error.message}</div>`;
+            }
+        }
+
+        // Test 4: Simulate Page Return
+        async function simulatePageReturn() {
+            log('Simulating page return...', 'info');
+            try {
+                // First test current game state
+                const response1 = await fetch('/game.php');
+                log(`First game.php access: HTTP ${response1.status}`, response1.ok ? 'success' : 'error');
+
+                // Test AJAX authentication
+                const formData = new FormData();
+                formData.append('ajax', '1');
+
+                const response2 = await fetch('/game.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response2.ok) {
+                    throw new Error(`HTTP ${response2.status}: ${response2.statusText}`);
+                }
+
+                const data = await response2.json();
+                log('Session recovery response: ' + JSON.stringify(data), 'info');
+
+                if (data.success) {
+                    log('Session recovery successful!', 'success');
+                    document.getElementById('return-results').innerHTML = `
+                        <div class="success">Session Recovery Successful!</div>
+                        <div>Authentication: OK</div>
+                        <div>Game State Available: ${data.gameState ? 'Yes' : 'No'}</div>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Session recovery failed');
+                }
+            } catch (error) {
+                log('Session recovery failed: ' + error.message, 'error');
+                document.getElementById('return-results').innerHTML = `<div class="error">Session Recovery Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-start session debug on page load
+        window.onload = function() {
+            log('Test page loaded', 'info');
+            testSessionDebug();
+        };
+    </script>
+</body>
+</html>

@@ -736,4 +736,24 @@ class BlackjackGame {
         ");
         $stmt->execute([$this->sessionId]);
     }
+    
+    /**
+     * Handle serialization - exclude PDO object
+     */
+    public function __sleep() {
+        return array_diff(array_keys(get_object_vars($this)), ['db']);
+    }
+    
+    /**
+     * Handle unserialization - reconnect to database
+     */
+    public function __wakeup() {
+        global $db;
+        if ($db) {
+            $this->db = $db;
+        } else {
+            require_once __DIR__ . '/../includes/database.php';
+            $this->db = getDb();
+        }
+    }
 }
