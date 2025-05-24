@@ -186,6 +186,16 @@ if ($game) {
 error_log("DEBUG: Game state check - gameState: " . ($gameState ? $gameState['gameState'] : 'NULL'));
 if ($gameState && isset($gameState['canHit'])) {
     error_log("DEBUG: canHit: " . ($gameState['canHit'] ? 'true' : 'false'));
+    error_log("DEBUG: canStand: " . ($gameState['canStand'] ? 'true' : 'false'));
+    error_log("DEBUG: canDouble: " . ($gameState['canDouble'] ? 'true' : 'false'));
+    error_log("DEBUG: Player hands count: " . count($gameState['playerHands']));
+}
+
+// Additional debug for display
+if ($gameState) {
+    echo "<!-- DEBUG: Game State: " . $gameState['gameState'] . " -->\n";
+    echo "<!-- DEBUG: Can Hit: " . ($gameState['canHit'] ? 'true' : 'false') . " -->\n";
+    echo "<!-- DEBUG: Can Stand: " . ($gameState['canStand'] ? 'true' : 'false') . " -->\n";
 }
 
 // Refresh session data for display
@@ -473,50 +483,6 @@ function newGame() {
         location.reload();
     });
 }
-
-// Handle bet form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const betForm = document.getElementById('bet-form');
-    if (betForm) {
-        betForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(betForm);
-            
-            fetch('debug_ajax.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                return response.text(); // Get as text first to see what we're getting
-            })
-            .then(text => {
-                console.log('Raw response:', text);
-                try {
-                    const data = JSON.parse(text);
-                    console.log('Parsed data:', data);
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.error);
-                        if (data.debug) {
-                            console.log('Debug info:', data.debug);
-                        }
-                    }
-                } catch (parseError) {
-                    console.error('JSON parse error:', parseError);
-                    alert('Server returned invalid response: ' + text.substring(0, 200));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            });
-        });
-    }
-});
 
 // Prevent page navigation during active game
 <?php if ($game && $gameState['gameState'] !== 'game_over' && $gameState['gameState'] !== 'betting'): ?>

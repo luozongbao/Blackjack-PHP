@@ -80,12 +80,13 @@ class BlackjackUI {
     makeGameAction(action, data = {}) {
         const formData = new FormData();
         formData.append('action', action);
+        formData.append('ajax', '1'); // Add ajax parameter for game.php handling
         
         Object.keys(data).forEach(key => {
             formData.append(key, data[key]);
         });
 
-        return fetch('./api/game_api.php', {
+        return fetch('game.php', {
             method: 'POST',
             body: formData,
             credentials: 'same-origin'
