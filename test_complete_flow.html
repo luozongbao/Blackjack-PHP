@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Game Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; background: #f9f9f9; }
+        .result { background: #fff; padding: 10px; margin: 10px 0; border: 1px solid #ddd; }
+        .error { background: #ffe6e6; border-color: #ffcccc; }
+        .success { background: #e6ffe6; border-color: #ccffcc; }
+        button { padding: 10px 20px; margin: 5px; }
+        pre { background: #f0f0f0; padding: 10px; overflow-x: auto; }
+        .log { max-height: 300px; overflow-y: auto; background: #000; color: #0f0; padding: 10px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Complete Game Flow Test</h1>
+    
+    <div class="test-section">
+        <h2>Step 1: Authentication</h2>
+        <button onclick="testAuth()">Test Authentication</button>
+        <button onclick="setMockAuth()">Set Mock Authentication</button>
+        <div id="auth-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 2: Game Page Access</h2>
+        <button onclick="testGamePageAccess()">Test Game Page Access</button>
+        <div id="page-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 3: Start Game (Deal Cards)</h2>
+        <button onclick="testStartGame()">Test Start Game AJAX</button>
+        <div id="start-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Step 4: Game Actions</h2>
+        <button onclick="testHit()">Test Hit</button>
+        <button onclick="testStand()">Test Stand</button>
+        <div id="action-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="debug-log" class="log"></div>
+    </div>
+
+    <script>
+        let logElement = document.getElementById('debug-log');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            logElement.innerHTML = '';
+        }
+        
+        function showResult(elementId, success, data) {
+            const element = document.getElementById(elementId);
+            element.className = 'result ' + (success ? 'success' : 'error');
+            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+        
+        function testAuth() {
+            log('Testing authentication...');
+            const formData = new FormData();
+            formData.append('ajax', '1');
+            
+            fetch('game.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`Auth test response status: ${response.status}`);
+                return response.text();
+            })
+            .then(text => {
+                log(`Auth test response text: ${text.substring(0, 200)}...`);
+                try {
+                    const data = JSON.parse(text);
+                    showResult('auth-result', data.success, data);
+                } catch (e) {
+                    showResult('auth-result', false, { error: 'Invalid JSON response', response: text.substring(0, 500) });
+                }
+            })
+            .catch(error => {
+                log(`Auth test error: ${error.message}`);
+                showResult('auth-result', false, { error: error.message });
+            });
+        }
+        
+        function setMockAuth() {
+            log('Setting mock authentication...');
+            fetch('quick_login.php')
+            .then(response => response.text())
+            .then(text => {
+                log('Mock auth response received');
+                showResult('auth-result', true, { message: 'Mock authentication set', response: text.substring(0, 200) });
+            })
+            .catch(error => {
+                log(`Mock auth error: ${error.message}`);
+                showResult('auth-result', false, { error: error.message });
+            });
+        }
+        
+        function testGamePageAccess() {
+            log('Testing game page access...');
+            fetch('game.php')
+            .then(response => {
+                log(`Game page response status: ${response.status}`);
+                return response.text();
+            })
+            .then(text => {
+                const isGamePage = text.includes('action-section') || text.includes('bet-form');
+                showResult('page-result', isGamePage, { 
+                    isGamePage, 
+                    responseLength: text.length,
+                    contains: {
+                        actionSection: text.includes('action-section'),
+                        betForm: text.includes('bet-form'),
+                        loginForm: text.includes('login-form')
+                    }
+                });
+            })
+            .catch(error => {
+                log(`Game page error: ${error.message}`);
+                showResult('page-result', false, { error: error.message });
+            });
+        }
+        
+        function testStartGame() {
+            log('Testing start game AJAX...');
+            const formData = new FormData();
+            formData.append('action', 'start_game');
+            formData.append('bet_amount', '100');
+            formData.append('ajax', '1');
+            
+            fetch('game.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`Start game response status: ${response.status}`);
+                return response.text();
+            })
+            .then(text => {
+                log(`Start game response: ${text.substring(0, 300)}...`);
+                try {
+                    const data = JSON.parse(text);
+                    showResult('start-result', data.success, data);
+                    log(`Game started successfully: ${data.success}`);
+                } catch (e) {
+                    showResult('start-result', false, { 
+                        error: 'Invalid JSON response', 
+                        response: text.substring(0, 500),
+                        parseError: e.message 
+                    });
+                }
+            })
+            .catch(error => {
+                log(`Start game error: ${error.message}`);
+                showResult('start-result', false, { error: error.message });
+            });
+        }
+        
+        function testHit() {
+            log('Testing hit action...');
+            const formData = new FormData();
+            formData.append('action', 'hit');
+            formData.append('ajax', '1');
+            
+            fetch('game.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`Hit response status: ${response.status}`);
+                return response.text();
+            })
+            .then(text => {
+                log(`Hit response: ${text.substring(0, 200)}...`);
+                try {
+                    const data = JSON.parse(text);
+                    showResult('action-result', data.success, data);
+                } catch (e) {
+                    showResult('action-result', false, { 
+                        error: 'Invalid JSON response', 
+                        response: text.substring(0, 500) 
+                    });
+                }
+            })
+            .catch(error => {
+                log(`Hit error: ${error.message}`);
+                showResult('action-result', false, { error: error.message });
+            });
+        }
+        
+        function testStand() {
+            log('Testing stand action...');
+            const formData = new FormData();
+            formData.append('action', 'stand');
+            formData.append('ajax', '1');
+            
+            fetch('game.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log(`Stand response status: ${response.status}`);
+                return response.text();
+            })
+            .then(text => {
+                log(`Stand response: ${text.substring(0, 200)}...`);
+                try {
+                    const data = JSON.parse(text);
+                    showResult('action-result', data.success, data);
+                } catch (e) {
+                    showResult('action-result', false, { 
+                        error: 'Invalid JSON response', 
+                        response: text.substring(0, 500) 
+                    });
+                }
+            })
+            .catch(error => {
+                log(`Stand error: ${error.message}`);
+                showResult('action-result', false, { error: error.message });
+            });
+        }
+        
+        // Auto-start testing
+        log('Test page loaded. Ready for testing.');
+    </script>
+</body>
+</html>

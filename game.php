@@ -8,6 +8,18 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
+    // Handle AJAX requests differently
+    if (isset($_POST['ajax']) || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest')) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => 'Authentication required',
+            'redirect' => 'login.php'
+        ]);
+        exit;
+    }
+    
+    // Regular redirect for non-AJAX requests
     header('Location: login.php');
     exit;
 }
@@ -87,6 +99,17 @@ $success = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
+    // Handle authentication test (no action specified)
+    if (empty($action) && isset($_POST['ajax'])) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'message' => 'Authentication successful',
+            'gameState' => $gameState
+        ]);
+        exit;
+    }
+    
     try {
         switch ($action) {
             case 'start_game':
@@ -150,7 +173,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
                 
             default:
-                throw new Exception("Invalid action");
+                if (empty($action)) {
+                    throw new Exception("No action specified");
+                } else {
+                    throw new Exception("Invalid action: " . $action);
+                }
         }
         
         if (isset($_POST['ajax'])) {
@@ -533,7 +560,12 @@ function gameAction(action) {
             updateGameUI(data.gameState);
             updateShoeInfo(data.gameState);
         } else {
-            alert('Error: ' + data.error);
+            if (data.redirect) {
+                // Handle authentication redirect
+                window.location.href = data.redirect;
+            } else {
+                alert('Error: ' + data.error);
+            }
         }
     })
     .catch(error => {
@@ -931,7 +963,12 @@ function handleBetFormSubmit(e) {
             updateGameUI(data.gameState);
             updateShoeInfo(data.gameState);
         } else {
-            alert('Error: ' + data.error);
+            if (data.redirect) {
+                // Handle authentication redirect
+                window.location.href = data.redirect;
+            } else {
+                alert('Error: ' + data.error);
+            }
         }
     })
     .catch(error => {

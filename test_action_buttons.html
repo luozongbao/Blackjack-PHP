@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Buttons Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        .log { background: #000; color: #0f0; padding: 10px; font-family: monospace; height: 200px; overflow-y: auto; }
+        #action-section { border: 2px dashed #ccc; padding: 20px; min-height: 100px; margin: 20px 0; }
+        .game-actions { border: 2px solid #00f; padding: 10px; margin: 10px 0; }
+        .btn { padding: 8px 16px; margin: 5px; border: none; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Action Buttons Debug Test</h1>
+    
+    <div class="test-section">
+        <h2>Current Action Section</h2>
+        <div id="action-section">
+            <p>This will be replaced with action buttons</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Controls</h2>
+        <button onclick="setMockAuth()">1. Set Mock Auth</button>
+        <button onclick="testStartGame()">2. Test Start Game</button>
+        <button onclick="simulateGameState()">3. Simulate Player Turn</button>
+        <button onclick="testActionButtons()">4. Test Action Buttons Directly</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Log</h2>
+        <div id="debug-log" class="log"></div>
+    </div>
+
+    <script>
+        let logElement = document.getElementById('debug-log');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            logElement.innerHTML = '';
+        }
+        
+        // Copy the exact functions from game.php for testing
+        function updateGameSections(gameState) {
+            log('updateGameSections called with gameState: ' + gameState.gameState);
+            const actionSection = document.getElementById('action-section');
+            if (!actionSection) {
+                log('ERROR: action-section element not found!');
+                return;
+            }
+            
+            log('Found action-section element');
+            
+            if (gameState.gameState === 'betting') {
+                log('Setting up betting form');
+                actionSection.innerHTML = \`
+                    <form method="POST" id="bet-form" class="d-flex align-center">
+                        <input type="hidden" name="action" value="start_game">
+                        <input type="hidden" name="ajax" value="1">
+                        
+                        <div class="form-group" style="margin-right: 15px;">
+                            <label for="bet_amount">Bet Amount:</label>
+                            <input type="number" 
+                                   id="bet_amount" 
+                                   name="bet_amount" 
+                                   min="100" 
+                                   max="\${gameState.currentMoney || 1000}"
+                                   step="100" 
+                                   value="100"
+                                   class="form-control"
+                                   style="width: 120px;">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Deal Cards</button>
+                    </form>
+                \`;
+            } else if (gameState.gameState === 'player_turn') {
+                log('Setting up game actions for player turn');
+                actionSection.innerHTML = '<div class="game-actions"></div>';
+                updateActionButtons(gameState);
+            } else if (gameState.gameState === 'game_over') {
+                log('Setting up game over screen');
+                actionSection.innerHTML = \`
+                    <div class="game-results">
+                        <button class="btn btn-primary" onclick="newGame()">New Game</button>
+                    </div>
+                \`;
+            }
+        }
+        
+        function updateActionButtons(gameState) {
+            log('updateActionButtons called');
+            const gameActions = document.querySelector('.game-actions');
+            if (!gameActions) {
+                log('ERROR: .game-actions element not found!');
+                return;
+            }
+            
+            log('Found .game-actions element');
+            
+            // Clear existing buttons
+            gameActions.innerHTML = '';
+            log('Cleared existing buttons');
+            
+            // Create and show available action buttons
+            if (gameState.canHit) {
+                log('Adding Hit button');
+                const hitBtn = document.createElement('button');
+                hitBtn.className = 'btn btn-secondary action-button';
+                hitBtn.textContent = 'Hit';
+                hitBtn.onclick = () => log('Hit button clicked!');
+                gameActions.appendChild(hitBtn);
+            }
+            
+            if (gameState.canStand) {
+                log('Adding Stand button');
+                const standBtn = document.createElement('button');
+                standBtn.className = 'btn btn-primary action-button';
+                standBtn.textContent = 'Stand';
+                standBtn.onclick = () => log('Stand button clicked!');
+                gameActions.appendChild(standBtn);
+            }
+            
+            if (gameState.canDouble) {
+                log('Adding Double button');
+                const doubleBtn = document.createElement('button');
+                doubleBtn.className = 'btn btn-warning action-button';
+                doubleBtn.textContent = 'Double';
+                doubleBtn.onclick = () => log('Double button clicked!');
+                gameActions.appendChild(doubleBtn);
+            }
+            
+            log('Finished adding buttons. Total buttons: ' + gameActions.children.length);
+        }
+        
+        function updateGameUI(gameState) {
+            log('updateGameUI called');
+            if (!gameState) {
+                log('ERROR: No gameState provided to updateGameUI');
+                return;
+            }
+            
+            // Update game sections visibility
+            updateGameSections(gameState);
+        }
+        
+        function setMockAuth() {
+            log('Setting mock authentication...');
+            fetch('/quick_login.php')
+            .then(response => response.text())
+            .then(text => {
+                log('Mock auth complete');
+            })
+            .catch(error => {
+                log('Mock auth error: ' + error.message);
+            });
+        }
+        
+        function testStartGame() {
+            log('Testing start game...');
+            const formData = new FormData();
+            formData.append('action', 'start_game');
+            formData.append('bet_amount', '100');
+            formData.append('ajax', '1');
+            
+            fetch('/game.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(text => {
+                log('Start game response: ' + text.substring(0, 200));
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success && data.gameState) {
+                        log('Game started successfully, updating UI...');
+                        updateGameUI(data.gameState);
+                    } else {
+                        log('Game start failed: ' + (data.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    log('Failed to parse JSON response: ' + e.message);
+                }
+            })
+            .catch(error => {
+                log('Start game error: ' + error.message);
+            });
+        }
+        
+        function simulateGameState() {
+            log('Simulating player turn game state...');
+            const mockGameState = {
+                gameState: 'player_turn',
+                canHit: true,
+                canStand: true,
+                canDouble: true,
+                canSplit: false,
+                currentMoney: 1000
+            };
+            
+            updateGameUI(mockGameState);
+        }
+        
+        function testActionButtons() {
+            log('Testing action buttons directly...');
+            const actionSection = document.getElementById('action-section');
+            actionSection.innerHTML = '<div class="game-actions" style="border: 2px solid red;">Direct test buttons container</div>';
+            
+            const mockGameState = {
+                canHit: true,
+                canStand: true,
+                canDouble: true,
+                canSplit: false
+            };
+            
+            updateActionButtons(mockGameState);
+        }
+        
+        log('Debug page loaded and ready');
+    </script>
+</body>
+</html>
