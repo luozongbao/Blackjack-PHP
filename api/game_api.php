@@ -72,6 +72,8 @@ $settings = $settingsStmt->fetch(PDO::FETCH_ASSOC);
 // Initialize or load game
 if (isset($_SESSION['game'])) {
     $game = unserialize($_SESSION['game']);
+    // Restore database connection after unserialization
+    $game->setDatabase($db);
 } else {
     $game = new Game($db, $userId, $sessionId, $settings);
 }
@@ -221,7 +223,25 @@ switch ($action) {
 }
 
 // Save game state in session
-$_SESSION['game'] = serialize($game);
+try {
+    // Temporarily remove database connection before serialization
+    $tempDb = $game->getDatabase();
+    $game->setDatabase(null);
+    
+    $_SESSION['game'] = serialize($game);
+    
+    // Restore database connection
+    $game->setDatabase($tempDb);
+} catch (Exception $e) {
+    error_log('Serialization error: ' . $e->getMessage());
+    // Create a new game instead of failing
+    $game = new Game($db, $userId, $sessionId, $settings);
+    
+    // Remove database connection before serialization
+    $game->setDatabase(null);
+    $_SESSION['game'] = serialize($game);
+    $game->setDatabase($db);
+}
 
 // Send JSON response
 header('Content-Type: application/json');

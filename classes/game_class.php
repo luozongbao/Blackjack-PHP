@@ -778,6 +778,58 @@ class Game {
     }
     
     /**
+     * Serialization method - defines which properties to serialize
+     * Excludes the database connection as it cannot be serialized
+     * 
+     * @return array Array of property names to serialize
+     */
+    public function __sleep() {
+        return [
+            'deck',
+            'dealerHand', 
+            'playerHands',
+            'currentHandIndex',
+            'gameId',
+            'userId',
+            'sessionId',
+            'gameState',
+            'outcomes',
+            'totalBet',
+            'totalWon',
+            'shuffleMethod',
+            'dealStyle',
+            'dealerDrawTo',
+            'blackjackPayout',
+            'surrenderOption',
+            'doubleAfterSplit',
+            'allowInsurance',
+            'doubleOn',
+            'maxSplits',
+            'splitCount',
+            'insuranceTaken'
+        ];
+    }
+    
+    /**
+     * Unserialization method - restores the database connection
+     * The database connection needs to be restored from the session or global context
+     */
+    public function __wakeup() {
+        // The database connection will need to be restored externally
+        // after unserialization by calling setDatabase()
+        $this->db = null;
+    }
+    
+    /**
+     * Set the database connection after unserialization
+     * 
+     * @param PDO $db Database connection
+     */
+    public function setDatabase($db) {
+        $this->db = $db;
+    }
+
+    /**
      * Get the current hand
      * 
      * @return Hand|null The current hand or null if none
@@ -937,5 +989,14 @@ class Game {
                 'maxSplits' => $this->maxSplits
             ]
         ];
+    }
+    
+    /**
+     * Get the database connection
+     * 
+     * @return PDO|null Database connection
+     */
+    public function getDatabase() {
+        return $this->db;
     }
 }
