@@ -886,10 +886,11 @@ function updateGameSections(gameState) {
             </form>
         `;
         
-        // Re-attach the betting form event listener
+        // Re-attach the betting form event listener (handled by BlackjackUI class)
         const newBetForm = document.getElementById('bet-form');
-        if (newBetForm) {
-            newBetForm.addEventListener('submit', handleBetFormSubmit);
+        if (newBetForm && window.blackjackGame) {
+            // The BlackjackUI class will automatically bind to the new form
+            window.blackjackGame.bindEvents();
         }
     } else if (gameState.gameState === 'player_turn') {
         // Show game actions
@@ -1002,54 +1003,7 @@ window.addEventListener('beforeunload', function(e) {
 });
 <?php endif; ?>
 
-// Handle betting form submission
-function handleBetFormSubmit(e) {
-    console.log('Bet form submitted');
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const betAmount = formData.get('bet_amount');
-    console.log('Bet amount:', betAmount);
-    
-    fetch('game.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log('Bet response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Bet response data:', data);
-        if (data.success) {
-            updateGameUI(data.gameState);
-            updateShoeInfo(data.gameState);
-        } else {
-            if (data.redirect) {
-                // Handle authentication redirect
-                window.location.href = data.redirect;
-            } else {
-                if (window.blackjackGame) {
-                    window.blackjackGame.showOverlayMessage('Error: ' + data.error, 'error');
-                }
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Bet error:', error);
-        if (window.blackjackGame) {
-            window.blackjackGame.showOverlayMessage('An error occurred. Please try again.', 'error');
-        }
-    });
-}
-
-// Handle betting form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const betForm = document.getElementById('bet-form');
-    if (betForm) {
-        betForm.addEventListener('submit', handleBetFormSubmit);
-    }
-});
+// Bet form submission is now handled by BlackjackUI class in game.js
 </script>
 
 <?php

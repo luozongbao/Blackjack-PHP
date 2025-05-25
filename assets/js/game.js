@@ -18,10 +18,14 @@ class BlackjackUI {
     }
 
     bindEvents() {
+        // Remove existing event listeners to prevent duplicates
+        this.unbindEvents();
+        
         // Bet form submission
         const betForm = document.getElementById('bet-form');
         if (betForm) {
-            betForm.addEventListener('submit', (e) => this.handleBetSubmission(e));
+            this.betFormHandler = (e) => this.handleBetSubmission(e);
+            betForm.addEventListener('submit', this.betFormHandler);
         }
 
         // Action buttons
@@ -31,6 +35,14 @@ class BlackjackUI {
 
         // Prevent accidental page refresh during game
         this.setupPageLeaveWarning();
+    }
+
+    unbindEvents() {
+        // Remove bet form event listener if it exists
+        const betForm = document.getElementById('bet-form');
+        if (betForm && this.betFormHandler) {
+            betForm.removeEventListener('submit', this.betFormHandler);
+        }
     }
 
     handleBetSubmission(e) {
