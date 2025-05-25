@@ -448,8 +448,11 @@ class BlackjackGame {
         $totalWon = $results['totalWon'];
         $totalLost = $results['totalLost'];
         
-        // Add winnings to current money (bet was already deducted when placed)
-        // Also note: totalWon already includes the original bet for winning hands
+        // Calculate actual winnings (excluding original bet return)
+        $actualWinnings = $totalWon - $totalBet; // Net winnings only, not including bet return
+        
+        // Add total payout to current money (bet was already deducted when placed)
+        // For stats: track actual winnings separately from total payout
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money + ?,
@@ -463,8 +466,8 @@ class BlackjackGame {
         ");
         
         $stmt->execute([
-            $totalWon,  // Add only winnings (which include bet return for winning hands)
-            $totalWon,
+            $totalWon,  // Add full payout to current money
+            $actualWinnings,  // Track only net winnings for display
             $totalLost,
             $gameWon,
             $gamePush,

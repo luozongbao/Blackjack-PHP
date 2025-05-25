@@ -672,32 +672,6 @@ function updateShoeInfo(gameState) {
     }
 }
 
-function newGame() {
-    const formData = new FormData();
-    formData.append('action', 'new_game');
-    formData.append('ajax', '1');
-    
-    fetch('game.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Reset shoe information display
-            resetShoeInfo();
-            // Reload page for new game to reset all UI state
-            location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        location.reload();
-    });
-}
-
 function resetShoeInfo() {
     const shoeInfoSection = document.getElementById('shoe-info');
     

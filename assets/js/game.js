@@ -351,23 +351,17 @@ class BlackjackUI {
         // Update action buttons based on game state
         this.updateActionButtonsFromState(gameState);
         
-        // Update money display
-        if (data.sessionData && data.sessionData.current_money) {
-            const moneyDisplay = document.querySelector('.money-display');
-            if (moneyDisplay) {
-                moneyDisplay.textContent = '$' + parseFloat(data.sessionData.current_money).toLocaleString('en-US', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            }
+        // Update money display and stats with real-time data
+        if (data.sessionData) {
+            this.updateMoneyAndStats(data.sessionData);
         }
         
         // Update game status section
         this.updateGameStatusFromState(gameState);
         
         // Update shoe information
-        if (gameState.shoe) {
-            this.updateShoeInfo(gameState.shoe);
+        if (gameState.shoeInfo) {
+            this.updateShoeInfo(gameState.shoeInfo);
         }
     }
     
@@ -676,6 +670,126 @@ class BlackjackUI {
         }
     }
 
+    // Reset shoe information display for new game
+    resetShoeInfo() {
+        const shoeInfoSection = document.getElementById('shoe-info');
+        
+        if (shoeInfoSection) {
+            // Reset penetration percentage
+            const penetrationPercentage = shoeInfoSection.querySelector('.penetration-percentage');
+            if (penetrationPercentage) {
+                penetrationPercentage.textContent = '0.0%';
+            }
+            
+            // Reset penetration progress bar
+            const penetrationProgress = shoeInfoSection.querySelector('.penetration-progress');
+            if (penetrationProgress) {
+                penetrationProgress.style.width = '0%';
+            }
+            
+            // Reset cards remaining
+            const cardsRemaining = shoeInfoSection.querySelector('.cards-remaining strong');
+            if (cardsRemaining) {
+                cardsRemaining.textContent = '-';
+            }
+            
+            // Update cards total message
+            const cardsTotal = shoeInfoSection.querySelector('.cards-total');
+            if (cardsTotal) {
+                cardsTotal.textContent = 'Ready for new game';
+            }
+            
+            // Remove reshuffle indicator
+            const reshuffleIndicator = shoeInfoSection.querySelector('.reshuffle-indicator');
+            if (reshuffleIndicator) {
+                reshuffleIndicator.remove();
+            }
+        }
+    }
+
+    // Real-time money and stats updates
+    updateMoneyAndStats(sessionData) {
+        if (!sessionData) return;
+        
+        // Update current money
+        const moneyDisplay = document.querySelector('.money-display');
+        if (moneyDisplay) {
+            moneyDisplay.textContent = '$' + parseFloat(sessionData.current_money).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // Update session stats
+        const statsElements = {
+            games: document.querySelector('.stat-item:nth-child(1) strong').nextSibling,
+            won: document.querySelector('.stat-item:nth-child(2) strong').nextSibling,
+            lost: document.querySelector('.stat-item:nth-child(3) strong').nextSibling,
+            push: document.querySelector('.stat-item:nth-child(4) strong').nextSibling
+        };
+        
+        if (statsElements.games) statsElements.games.textContent = ' ' + sessionData.session_games_played;
+        if (statsElements.won) statsElements.won.textContent = ' ' + sessionData.session_games_won;
+        if (statsElements.lost) statsElements.lost.textContent = ' ' + sessionData.session_games_lost;
+        if (statsElements.push) statsElements.push.textContent = ' ' + sessionData.session_games_push;
+        
+        // Update total won (net winnings)
+        const totalWonElement = document.querySelector('.text-right div:nth-child(2) strong').parentElement;
+        if (totalWonElement) {
+            totalWonElement.innerHTML = '<strong>Total Won:</strong> $' + parseFloat(sessionData.session_total_won).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // Update net amount with color coding
+        const netElement = document.querySelector('.text-right div:nth-child(3)');
+        if (netElement) {
+            const netAmount = parseFloat(sessionData.session_total_won) - parseFloat(sessionData.session_total_loss);
+            const netClass = netAmount >= 0 ? 'text-success' : 'text-danger';
+            netElement.className = netClass;
+            netElement.innerHTML = '<strong>Net:</strong> $' + netAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+        
+        // Update current game bet display
+        this.updateCurrentGameBet();
+    }
+    
+    // Update current game bet display
+    updateCurrentGameBet() {
+        const currentGameBetElement = document.querySelector('.text-right div:nth-child(1)');
+        if (!currentGameBetElement) return;
+        
+        // Check if there's an active game with hands
+        if (this.currentGameState && 
+            (this.currentGameState === 'player_turn' || this.currentGameState === 'dealer_turn' || this.currentGameState === 'game_over')) {
+            
+            // Calculate total bet from all active hands
+            let totalBet = 0;
+            const playerHands = document.querySelectorAll('.player-hand');
+            playerHands.forEach(hand => {
+                const betText = hand.querySelector('.bet-amount')?.textContent || '';
+                const betMatch = betText.match(/\$([0-9,.]+)/);
+                if (betMatch) {
+                    totalBet += parseFloat(betMatch[1].replace(/,/g, ''));
+                }
+            });
+            
+            if (totalBet > 0) {
+                currentGameBetElement.innerHTML = '<strong>Current Game Bet:</strong> $' + totalBet.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+        } else {
+            // Show session total bet when no active game
+            // This will be handled by the server response
+        }
+    }
+
     // ...existing code...
 }
 
@@ -688,7 +802,40 @@ function gameAction(action) {
 
 function newGame() {
     if (window.blackjackGame) {
-        window.blackjackGame.makeGameAction('new_game');
+        // Clear dealer cards immediately for better UX
+        const dealerCards = document.getElementById('dealer-cards');
+        if (dealerCards) {
+            dealerCards.innerHTML = '<div class="card-placeholder">Dealer Cards</div>';
+        }
+        
+        // Clear player hands
+        const playerHandsContainer = document.getElementById('player-hands-container');
+        if (playerHandsContainer) {
+            playerHandsContainer.innerHTML = '<div class="card-placeholder">Player Cards</div>';
+        }
+        
+        // Make the new game action
+        window.blackjackGame.makeGameAction('new_game')
+            .then(data => {
+                if (data.success) {
+                    // Update UI with new game state
+                    window.blackjackGame.updateGameStateFromResponse(data);
+                    
+                    // Reset current game state
+                    window.blackjackGame.currentGameState = 'betting';
+                    
+                    // Show success message
+                    window.blackjackGame.showSuccess('New game started!');
+                } else {
+                    // Fallback to page reload if there's an error
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('New game error:', error);
+                // Fallback to page reload on error
+                location.reload();
+            });
     }
 }
 
