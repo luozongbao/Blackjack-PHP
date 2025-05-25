@@ -587,6 +587,16 @@ include 'includes/header.php';
             <?php endif; ?>
         </div>
     </div>
+    
+    <!-- Sound Controls -->
+    <div class="sound-controls">
+        <button id="sound-toggle" class="sound-button" title="Sound On - Click to Mute" onclick="window.blackjackGame.toggleSound()">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        <button id="music-toggle" class="sound-button" title="Music Off - Click to Play" onclick="window.blackjackGame.toggleBackgroundMusic()">
+            <i class="fas fa-music"></i>
+        </button>
+    </div>
 </div>
 
 <script>
