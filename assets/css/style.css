@@ -30,6 +30,11 @@
     --info-color: #3498db;
 }
 
+/* Global font for card suit symbols */
+.card-suit {
+    font-family: "Arial Unicode MS", "Segoe UI Symbol", "DejaVu Sans", "Noto Color Emoji", sans-serif !important;
+}
+
 body {
     background-color: var(--dark-bg);
     color: var(--light-text);
@@ -254,82 +259,711 @@ button:hover {
 
 /* ===== Game Table Styles ===== */
 .game-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 20px auto;
     position: relative;
 }
 
 .dealer-section,
 .player-section {
-    background-color: var(--container-bg);
-    border-radius: 8px;
-    padding: 20px;
+    background: linear-gradient(135deg, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.9));
+    border-radius: 15px;
+    padding: 25px;
     margin-bottom: 20px;
-    min-height: 200px;
+    min-height: 220px;
     position: relative;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .dealer-section {
-    background-color: rgba(52, 73, 94, 0.8);
-    border-bottom: 3px solid var(--primary-color);
+    border-bottom: 4px solid var(--primary-color);
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(52, 73, 94, 0.9));
 }
 
 .player-section {
-    background-color: rgba(52, 73, 94, 0.9);
-    border-top: 3px solid var(--primary-color);
+    border-top: 4px solid var(--secondary-color);
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(52, 73, 94, 0.9));
 }
 
 .section-title {
     position: absolute;
     top: -15px;
-    left: 20px;
-    background-color: var(--primary-color);
+    left: 25px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
     color: white;
-    padding: 5px 15px;
-    border-radius: 4px;
-    font-size: 1rem;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 20px 0;
-}
-
-.card-placeholder {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2px dashed rgba(255, 255, 255, 0.3);
-    width: 100px;
-    height: 140px;
-    border-radius: 8px;
-}
-
+/* ===== CSS-Based Playing Cards ===== */
 .playing-card {
-    width: 100px;
-    height: 140px;
-    background-color: white;
+    width: 80px;
+    height: 112px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border: 2px solid #2c3e50;
     border-radius: 8px;
     position: relative;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6px;
+    margin: 5px;
+    cursor: pointer;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+.playing-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+    pointer-events: none;
 }
 
 .playing-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
-.action-section {
+.card-rank {
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1;
+    align-self: flex-start;
+    z-index: 1;
+}
+
+.card-suit {
+    font-size: 1.8rem;
+    line-height: 1;
+    align-self: center;
+    margin-top: -15px;
+    z-index: 1;
+}
+
+.card-suit.red {
+    color: #e74c3c;
+}
+
+.card-suit.black {
+    color: #2c3e50;
+}
+
+/* Card rank in bottom right (rotated) */
+.playing-card::after {
+    content: attr(data-rank) attr(data-suit);
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-size: 0.7rem;
+    transform: rotate(180deg);
+    color: inherit;
+    z-index: 1;
+}
+
+/* Special styling for face cards */
+.playing-card[data-rank="J"]::before,
+.playing-card[data-rank="Q"]::before,
+.playing-card[data-rank="K"]::before {
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.2), rgba(243, 156, 18, 0.1));
+}
+
+.playing-card[data-rank="A"]::before {
+    background: linear-gradient(135deg, rgba(26, 188, 156, 0.2), rgba(22, 160, 133, 0.1));
+}
+
+/* Hidden dealer card enhanced */
+.card-back {
+    background: linear-gradient(145deg, #2c3e50, #34495e);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-back::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 80%;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        var(--primary-color) 2px,
+        var(--primary-color) 4px
+    );
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+}
+
+.card-back-design {
+    font-size: 2rem;
+    opacity: 0.8;
+    z-index: 1;
+}
+
+/* Card flip animation */
+.card-flip {
+    animation: flipCard 0.6s ease-in-out;
+}
+
+@keyframes flipCard {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(90deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+/* Enhanced card text visibility */
+.playing-card .card-rank {
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    color: #1a1a1a !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.playing-card .card-suit {
+    font-size: 2rem !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.playing-card .card-suit.red {
+    color: #c0392b !important;
+}
+
+.playing-card .card-suit.black {
+    color: #1a1a1a !important;
+}
+
+/* Enhanced card container for better layout */
+.cards-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 20px;
+    gap: 8px;
+    padding: 15px 0;
+    min-height: 130px;
+    align-items: flex-start;
+    justify-content: flex-start;
 }
 
-.action-button {
-    padding: 8px 12px;
-    min-width: 80px;
+.cards-container.dealer-cards {
+    justify-content: center;
+}
+
+.cards-container.player-cards {
+    justify-content: center;
+}
+
+/* Card placeholder styling */
+.card-placeholder {
+    width: 80px;
+    height: 112px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+}
+
+/* Responsive Design for Game */
+@media (max-width: 768px) {
+    .game-container {
+        margin: 10px;
+        padding: 0 10px;
+    }
+    
+    .dealer-section,
+    .player-section {
+        padding: 15px;
+        min-height: 180px;
+    }
+    
+    .cards-container {
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .playing-card {
+        width: 60px;
+        height: 84px;
+        font-size: 0.8rem;
+        padding: 4px;
+    }
+    
+    .card-rank {
+        font-size: 0.8rem;
+    }
+    
+    .card-suit {
+        font-size: 1.4rem;
+        margin-top: -12px;
+    }
+    
+    .card-placeholder {
+        width: 60px;
+        height: 84px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .playing-card {
+        width: 50px;
+        height: 70px;
+        font-size: 0.7rem;
+        padding: 3px;
+    }
+    
+    .card-rank {
+        font-size: 0.7rem;
+    }
+    
+    .card-suit {
+        font-size: 1.2rem;
+        margin-top: -10px;
+    }
+    
+    .card-placeholder {
+        width: 50px;
+        height: 70px;
+        font-size: 0.6rem;
+    }
+}
+
+/* ===== Blackjack Game Specific Styles ===== */
+
+/* Game Header */
+.game-header {
+    background: linear-gradient(135deg, var(--container-bg), var(--dark-bg));
+    border: 2px solid var(--primary-color);
+    margin-bottom: 25px;
+}
+
+/* Shoe Information Section */
+.shoe-info-section {
+    background: linear-gradient(135deg, var(--container-bg), var(--dark-bg));
+    border: 2px solid var(--warning-color);
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.shoe-display {
+    width: 100%;
+}
+
+.shoe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.shoe-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--warning-color);
+}
+
+.shuffle-method {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--info-color);
+    padding: 5px 12px;
+    background: rgba(52, 152, 219, 0.2);
+    border-radius: 15px;
+    border: 1px solid var(--info-color);
+}
+
+.shoe-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.penetration-display {
+    flex: 1;
+    max-width: 300px;
+}
+
+.penetration-label {
     font-size: 0.9rem;
+    color: var(--light-text);
+    margin-bottom: 5px;
+}
+
+.penetration-percentage {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--warning-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 8px;
+}
+
+.penetration-bar {
+    width: 100%;
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.penetration-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #f39c12, #e74c3c);
+    transition: width 0.5s ease;
+    border-radius: 6px;
+}
+
+.cards-info {
+    text-align: right;
+    flex: 1;
+}
+
+.cards-remaining {
+    font-size: 1.1rem;
+    color: var(--light-text);
+    margin-bottom: 5px;
+}
+
+.cards-remaining strong {
+    color: var(--success-color);
+    font-size: 1.3rem;
+}
+
+.cards-total {
+    font-size: 0.9rem;
+    color: var(--border-color);
+}
+
+.reshuffle-indicator {
+    color: var(--warning-color);
+    font-weight: bold;
+    margin-top: 5px;
+    padding: 3px 8px;
+    background: rgba(243, 156, 18, 0.2);
+    border-radius: 10px;
+    display: inline-block;
+    border: 1px solid var(--warning-color);
+}
+
+/* Responsive design for shoe info */
+@media (max-width: 768px) {
+    .shoe-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .penetration-display,
+    .cards-info {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .shoe-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+.money-display {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--success-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.stats-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Playing Cards */
+.playing-card {
+    width: 80px;
+    height: 112px;
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6px;
+    margin: 5px;
+    cursor: pointer;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+.playing-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+    pointer-events: none;
+}
+
+.playing-card:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.card-rank {
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1;
+    align-self: flex-start;
+    z-index: 1;
+}
+
+.card-suit {
+    font-size: 1.8rem;
+    line-height: 1;
+    align-self: center;
+    margin-top: -15px;
+    z-index: 1;
+}
+
+.card-suit.red {
+    color: #e74c3c;
+}
+
+.card-suit.black {
+    color: #2c3e50;
+}
+
+/* Card rank in bottom right (rotated) */
+.playing-card::after {
+    content: attr(data-rank) attr(data-suit);
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    font-size: 0.7rem;
+    transform: rotate(180deg);
+    color: inherit;
+    z-index: 1;
+}
+
+/* Special styling for face cards */
+.playing-card[data-rank="J"]::before,
+.playing-card[data-rank="Q"]::before,
+.playing-card[data-rank="K"]::before {
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.2), rgba(243, 156, 18, 0.1));
+}
+
+.playing-card[data-rank="A"]::before {
+    background: linear-gradient(135deg, rgba(26, 188, 156, 0.2), rgba(22, 160, 133, 0.1));
+}
+
+/* Hidden dealer card enhanced */
+.card-back {
+    background: linear-gradient(145deg, #2c3e50, #34495e);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-back::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 80%;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 2px,
+        var(--primary-color) 2px,
+        var(--primary-color) 4px
+    );
+    transform: translate(-50%, -50%);
+    opacity: 0.3;
+}
+
+.card-back-design {
+    font-size: 2rem;
+    opacity: 0.8;
+    z-index: 1;
+}
+
+/* Card flip animation */
+.card-flip {
+    animation: flipCard 0.6s ease-in-out;
+}
+
+@keyframes flipCard {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(90deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+/* Enhanced card text visibility */
+.playing-card .card-rank {
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+    color: #1a1a1a !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.playing-card .card-suit {
+    font-size: 2rem !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.playing-card .card-suit.red {
+    color: #c0392b !important;
+}
+
+.playing-card .card-suit.black {
+    color: #1a1a1a !important;
+}
+
+/* Enhanced card container for better layout */
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 15px 0;
+    min-height: 130px;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.cards-container.dealer-cards {
+    justify-content: center;
+}
+
+.cards-container.player-cards {
+    justify-content: center;
+}
+
+/* Card placeholder styling */
+.card-placeholder {
+    width: 80px;
+    height: 112px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    padding: 5px;
+    margin: 5px;
+}
+
+/* Responsive Design for Game */
+@media (max-width: 768px) {
+    .game-container {
+        margin: 10px;
+        padding: 0 10px;
+    }
+    
+    .dealer-section,
+    .player-section {
+        padding: 15px;
+        min-height: 180px;
+    }
+    
+    .cards-container {
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .playing-card {
+        width: 60px;
+        height: 84px;
+        font-size: 0.8rem;
+        padding: 4px;
+    }
+    
+    .card-rank {
+        font-size: 0.8rem;
+    }
+    
+    .card-suit {
+        font-size: 1.4rem;
+        margin-top: -12px;
+    }
+    
+    .card-placeholder {
+        width: 60px;
+        height: 84px;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .playing-card {
+        width: 50px;
+        height: 70px;
+        font-size: 0.7rem;
+        padding: 3px;
+    }
+    
+    .card-rank {
+        font-size: 0.7rem;
+    }
+    
+    .card-suit {
+        font-size: 1.2rem;
+        margin-top: -10px;
+    }
+    
+    .card-placeholder {
+        width: 50px;
+        height: 70px;
+        font-size: 0.6rem;
+    }
 }
 
 /* ===== Profile & Stats Styles ===== */
