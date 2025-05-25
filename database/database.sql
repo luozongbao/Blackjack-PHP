@@ -51,6 +51,10 @@ CREATE TABLE IF NOT EXISTS game_sessions (
     session_games_won INT NOT NULL DEFAULT 0,
     session_games_push INT NOT NULL DEFAULT 0,
     session_games_lost INT NOT NULL DEFAULT 0,
+
+    -- Previous Game Stats (for display purposes)
+    previous_game_won DECIMAL(12,2) NOT NULL DEFAULT 0.00,  -- Actual winnings from previous game (excludes original bet)
+    accumulated_previous_wins DECIMAL(12,2) NOT NULL DEFAULT 0.00,  -- Running total of all previous game actual winnings
     
     -- All-time Money Stats (updated at session end)
     all_time_total_loss DECIMAL(12,2) NOT NULL DEFAULT 0.00,

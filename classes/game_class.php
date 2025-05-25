@@ -48,20 +48,55 @@ class BlackjackGame {
             // Auto shuffle machine: shuffle existing deck every game, don't create new deck
             $needShuffle = true;
         } elseif ($this->settings['shuffle_method'] === 'shoe') {
-            // Manual shuffle: only reshuffle when penetration threshold is reached
-            $needNewDeck = $this->deck->needsReshuffle(
-                $this->originalDeckSize, 
-                $this->settings['deck_penetration']
-            );
+            // Shuffle Every Shoe: only reshuffle when penetration threshold is reached
+            if ($this->deck->needsReshuffle($this->originalDeckSize, $this->settings['deck_penetration'])) {
+                $needShuffle = true;
+            }
+            // Otherwise, use existing deck without shuffling
         }
         
         if ($needNewDeck) {
             $this->deck = new Deck($this->settings['decks_per_shoe']);
             $this->originalDeckSize = $this->deck->getCardCount();
         } elseif ($needShuffle) {
-            // Just shuffle existing deck without creating new one
-            $this->deck->shuffle();
+            // Reset deck to full size and shuffle for proper reshuffle
+            if ($this->settings['shuffle_method'] === 'shoe') {
+                $this->deck->resetDeck($this->settings['decks_per_shoe']);
+                $this->originalDeckSize = $this->deck->getCardCount();
+            } else {
+                // For auto shuffle, just shuffle existing cards
+                $this->deck->shuffle();
+            }
         }
+    }
+
+    /**
+     * Set deck from preserved state (for maintaining deck across games)
+     */
+    public function setDeck($deck, $originalDeckSize) {
+        $this->deck = $deck;
+        $this->originalDeckSize = $originalDeckSize;
+        
+        // Re-run initialization logic to check if shuffle is needed
+        if ($this->settings['shuffle_method'] === 'auto') {
+            $this->deck->shuffle();
+        } elseif ($this->settings['shuffle_method'] === 'shoe') {
+            if ($this->deck->needsReshuffle($this->originalDeckSize, $this->settings['deck_penetration'])) {
+                // Reset deck to full size and shuffle for proper reshuffle
+                $this->deck->resetDeck($this->settings['decks_per_shoe']);
+                $this->originalDeckSize = $this->deck->getCardCount();
+            }
+        }
+    }
+
+    /**
+     * Get deck state for preservation
+     */
+    public function getDeckState() {
+        return [
+            'deck' => $this->deck,
+            'originalSize' => $this->originalDeckSize
+        ];
     }
     
     /**
@@ -453,6 +488,8 @@ class BlackjackGame {
         
         // Add total payout to current money (bet was already deducted when placed)
         // For stats: track actual winnings separately from total payout
+        // Store actual winnings (not including bet return) as previous_game_won
+        // And update accumulated_previous_wins by adding the new previous_game_won
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money + ?,
@@ -461,7 +498,9 @@ class BlackjackGame {
                 session_games_played = session_games_played + 1,
                 session_games_won = session_games_won + ?,
                 session_games_push = session_games_push + ?,
-                session_games_lost = session_games_lost + ?
+                session_games_lost = session_games_lost + ?,
+                accumulated_previous_wins = accumulated_previous_wins + previous_game_won,
+                previous_game_won = ?
             WHERE session_id = ?
         ");
         
@@ -472,6 +511,7 @@ class BlackjackGame {
             $gameWon,
             $gamePush,
             $gameLost,
+            $actualWinnings,  // Store actual winnings (net profit/loss) as previous_game_won
             $this->sessionId
         ]);
     }

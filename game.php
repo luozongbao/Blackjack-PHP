@@ -158,12 +158,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Only create new game if none exists or current game is not in betting state
                 if (!$game || ($gameState && $gameState['gameState'] !== 'betting')) {
                     $game = new BlackjackGame($settings, $sessionId, $db);
+                    // If we had a previous game with shoe shuffle method, preserve the deck
+                    if (isset($_SESSION['preserved_deck']) && $settings['shuffle_method'] === 'shoe') {
+                        $game->setDeck($_SESSION['preserved_deck']['deck'], $_SESSION['preserved_deck']['originalSize']);
+                        unset($_SESSION['preserved_deck']); // Clean up after using
+                    }
                 }
                 
                 $gameState = $game->startGame($betAmount);
                 $_SESSION['game'] = $game;
-                
-                $success = "Game started successfully!";
                 break;
                 
             case 'hit':
@@ -193,6 +196,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
             case 'new_game':
                 if ($game) {
+                    // Preserve deck state for shoe shuffle method
+                    if ($settings['shuffle_method'] === 'shoe') {
+                        $_SESSION['preserved_deck'] = $game->getDeckState();
+                    }
                     $game->clearSessionState();
                 }
                 $_SESSION['game'] = null;
@@ -321,97 +328,72 @@ include 'includes/header.php';
                     <!-- Show $0.00 when no active game -->
                     <div><strong>Current Game Bet:</strong> $0.00</div>
                 <?php endif; ?>
-                <div class="<?php echo $sessionData['session_total_won'] >= 0 ? 'text-success' : 'text-danger'; ?>">
-                    <strong>Total Won:</strong> $<?php echo number_format($sessionData['session_total_won'], 2); ?>
+                <div class="<?php echo $sessionData['previous_game_won'] >= 0 ? 'text-success' : 'text-danger'; ?>">
+                    <strong>Previous Game Won:</strong> $<?php echo number_format($sessionData['previous_game_won'], 2); ?>
                 </div>
-                <div class="<?php echo ($sessionData['session_total_won'] - $sessionData['session_total_loss']) >= 0 ? 'text-success' : 'text-danger'; ?>">
-                    <strong>Net:</strong> $<?php echo number_format($sessionData['session_total_won'] - $sessionData['session_total_loss'], 2); ?>
+                <?php 
+                    // Net is now the accumulative total of all Previous Game Won amounts
+                    $accumulativeTotal = $sessionData['accumulated_previous_wins'] + $sessionData['previous_game_won'];
+                ?>
+                <div class="<?php echo $accumulativeTotal >= 0 ? 'text-success' : 'text-danger'; ?>">
+                    <strong>Net:</strong> $<?php echo number_format($accumulativeTotal, 2); ?>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php if ($error): ?>
-        <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
-    <?php endif; ?>
-    
-    <?php if ($success): ?>
-        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
-    <?php endif; ?>
+    <!-- PHP alerts removed to prevent disruptive layout shifts during gameplay -->
+    <!-- Error and success messages now use non-intrusive overlay system -->
 
     <!-- Shoe Information Section -->
     <div class="card shoe-info-section" id="shoe-info">
-        <?php if ($gameState && isset($gameState['shoeInfo'])): ?>
-            <?php $shoeInfo = $gameState['shoeInfo']; ?>
-            <div class="shoe-display">
-                <div class="shoe-header">
-                    <span class="shoe-title">🂠 Shoe Status</span>
-                    <div class="penetration-bar">
-                        <div class="penetration-progress" style="width: <?php echo min(100, $shoeInfo['penetrationPercentage']); ?>%"></div>
-                    </div>
-                    <span class="shuffle-method">
-                        <?php if ($shoeInfo['shuffleMethod'] === 'auto'): ?>
-                            🔄 Auto Shuffling Machine
-                        <?php else: ?>
-                            🃏 Manual Shuffle
-                        <?php endif; ?>
+        <div class="shoe-display">
+            <div class="shoe-header">
+                <span class="shoe-title">🂠 Shoe Status</span>
+                <div class="penetration-bar">
+                    <div class="penetration-progress" style="width: <?php echo ($gameState && isset($gameState['shoeInfo'])) ? min(100, $gameState['shoeInfo']['penetrationPercentage']) : 0; ?>%"></div>
+                </div>
+                <span class="shuffle-method">
+                    <?php 
+                    $shuffleMethod = 'manual'; // default
+                    if ($gameState && isset($gameState['shoeInfo']['shuffleMethod'])) {
+                        $shuffleMethod = $gameState['shoeInfo']['shuffleMethod'];
+                    } elseif (isset($settings['shuffle_method'])) {
+                        $shuffleMethod = $settings['shuffle_method'];
+                    }
+                    ?>
+                    <?php if ($shuffleMethod === 'auto'): ?>
+                        🔄 Auto Shuffling Machine
+                    <?php else: ?>
+                        🃏 Manual Shuffle
+                    <?php endif; ?>
+                </span>
+            </div>
+            <div class="shoe-stats">
+                <div class="penetration-display">
+                    <span class="penetration-percentage">
+                        <?php echo ($gameState && isset($gameState['shoeInfo'])) ? number_format($gameState['shoeInfo']['penetrationPercentage'], 1) : '0.0'; ?>%
                     </span>
                 </div>
-                <div class="shoe-stats">
-                    <div class="penetration-display">
-                        <span class="penetration-percentage"><?php echo number_format($shoeInfo['penetrationPercentage'], 1); ?>%</span>
-                    </div>
-                    <div class="cards-info">
-                        <span class="cards-remaining">
-                            <strong><?php echo $shoeInfo['cardsRemaining']; ?></strong> remaining
-                        </span>
-                        <span class="cards-total">
-                            of <?php echo $shoeInfo['totalCards']; ?> total
-                        </span>
-                        <?php if ($shoeInfo['needsReshuffle']): ?>
-                            <span class="reshuffle-indicator">
-                                ⚠️ Reshuffle needed
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        <?php else: ?>
-            <div class="shoe-display">
-                <div class="shoe-header">
-                    <span class="shoe-title">🂠 Shoe Status</span>
-                    <div class="penetration-bar">
-                        <div class="penetration-progress" style="width: 0%"></div>
-                    </div>
-                    <span class="shuffle-method">
-                        <?php if (isset($settings['shuffle_method']) && $settings['shuffle_method'] === 'auto'): ?>
-                            🔄 Auto Shuffling Machine
-                        <?php else: ?>
-                            🃏 Manual Shuffle
-                        <?php endif; ?>
+                <div class="cards-info">
+                    <span class="cards-remaining">
+                        <strong><?php echo ($gameState && isset($gameState['shoeInfo'])) ? $gameState['shoeInfo']['cardsRemaining'] : '-'; ?></strong> remaining
                     </span>
-                </div>
-                <div class="shoe-stats">
-                    <div class="penetration-display">
-                        <span class="penetration-percentage">0.0%</span>
-                    </div>
-                    <div class="cards-info">
-                        <span class="cards-remaining">
-                            <strong>-</strong> remaining
-                        </span>
-                        <span class="cards-total">
-                            of - total
-                        </span>
-                    </div>
-                </div>
-            </div>
-                        <div class="cards-total">
+                    <span class="cards-total">
+                        <?php if ($gameState && isset($gameState['shoeInfo'])): ?>
+                            of <?php echo $gameState['shoeInfo']['totalCards']; ?> total
+                        <?php else: ?>
                             Ready for new game
-                        </div>
-                    </div>
+                        <?php endif; ?>
+                    </span>
+                    <?php if ($gameState && isset($gameState['shoeInfo']) && $gameState['shoeInfo']['needsReshuffle']): ?>
+                        <span class="reshuffle-indicator">
+                            ⚠️ Reshuffle needed
+                        </span>
+                    <?php endif; ?>
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
     </div>
 
     <!-- Dealer Section -->
@@ -622,13 +604,17 @@ function gameAction(action) {
                 // Handle authentication redirect
                 window.location.href = data.redirect;
             } else {
-                alert('Error: ' + data.error);
+                if (window.blackjackGame) {
+                    window.blackjackGame.showOverlayMessage('Error: ' + data.error, 'error');
+                }
             }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred. Please try again.');
+        if (window.blackjackGame) {
+            window.blackjackGame.showOverlayMessage('An error occurred. Please try again.', 'error');
+        }
     });
 }
 
@@ -1032,13 +1018,17 @@ function handleBetFormSubmit(e) {
                 // Handle authentication redirect
                 window.location.href = data.redirect;
             } else {
-                alert('Error: ' + data.error);
+                if (window.blackjackGame) {
+                    window.blackjackGame.showOverlayMessage('Error: ' + data.error, 'error');
+                }
             }
         }
     })
     .catch(error => {
         console.error('Bet error:', error);
-        alert('An error occurred. Please try again.');
+        if (window.blackjackGame) {
+            window.blackjackGame.showOverlayMessage('An error occurred. Please try again.', 'error');
+        }
     });
 }
 

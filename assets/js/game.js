@@ -42,7 +42,7 @@ class BlackjackUI {
         const betAmount = parseFloat(form.bet_amount.value);
         
         if (betAmount <= 0) {
-            this.showError('Please enter a valid bet amount');
+            this.showOverlayMessage('Please enter a valid bet amount', 'error');
             return;
         }
 
@@ -54,7 +54,11 @@ class BlackjackUI {
         }
 
         this.animating = true;
-        this.showLoading('Dealing cards...');
+        
+        // Only show loading after 300ms for smooth experience
+        const loadingTimeout = setTimeout(() => {
+            this.showLoading('Dealing cards...');
+        }, 300);
         
         this.makeGameAction('start_game', { bet_amount: betAmount })
             .then(() => {
@@ -69,6 +73,7 @@ class BlackjackUI {
             })
             .finally(() => {
                 this.animating = false;
+                clearTimeout(loadingTimeout);
                 this.hideLoading();
             });
     }
@@ -94,7 +99,14 @@ class BlackjackUI {
             e.target.textContent = 'Processing...';
             
             this.animating = true;
-            this.showLoading(this.getActionMessage(actionName));
+            
+            // Only show loading for slower actions to avoid flicker
+            let loadingTimeout;
+            if (['double', 'split', 'surrender'].includes(actionName)) {
+                loadingTimeout = setTimeout(() => {
+                    this.showLoading(this.getActionMessage(actionName));
+                }, 200); // Delay loading indicator for quick actions
+            }
             
             this.makeGameAction(actionName)
                 .catch(() => {
@@ -104,6 +116,9 @@ class BlackjackUI {
                 })
                 .finally(() => {
                     this.animating = false;
+                    if (loadingTimeout) {
+                        clearTimeout(loadingTimeout);
+                    }
                     this.hideLoading();
                 });
         }
@@ -133,7 +148,7 @@ class BlackjackUI {
             console.log('Game action response:', data);
             if (data.success) {
                 // Update UI with new game state without page reload
-                this.showSuccess(data.message || 'Action completed successfully');
+                // Removed disruptive success message for smooth gameplay
                 this.updateGameStateFromResponse(data);
             } else {
                 this.showError(data.error || 'An error occurred');
@@ -233,68 +248,62 @@ class BlackjackUI {
             </div>
         `;
         loader.style.display = 'flex';
+        // Force reflow and add show class for animation
+        setTimeout(() => loader.classList.add('show'), 10);
     }
 
     hideLoading() {
         const loader = document.getElementById('game-loader');
         if (loader) {
-            loader.style.display = 'none';
+            loader.classList.remove('show');
+            setTimeout(() => {
+                loader.style.display = 'none';
+            }, 200);
         }
     }
 
     showError(message) {
         this.hideLoading();
-        
-        let errorDiv = document.getElementById('game-error');
-        if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.id = 'game-error';
-            errorDiv.className = 'alert alert-danger game-error';
-            
-            const gameContainer = document.querySelector('.game-container');
-            if (gameContainer) {
-                gameContainer.insertBefore(errorDiv, gameContainer.firstChild);
-            }
-        }
-        
-        errorDiv.textContent = message;
-        errorDiv.style.display = 'block';
-        
-        // Auto-hide after 5 seconds
-        setTimeout(() => this.hideError(), 5000);
+        this.showOverlayMessage(message, 'error');
     }
 
     hideError() {
-        const errorDiv = document.getElementById('game-error');
-        if (errorDiv) {
-            errorDiv.style.display = 'none';
-        }
+        // Errors auto-hide with the overlay system
     }
 
     showSuccess(message) {
         this.hideLoading();
-        
-        let successDiv = document.getElementById('game-success');
-        if (!successDiv) {
-            successDiv = document.createElement('div');
-            successDiv.id = 'game-success';
-            successDiv.className = 'alert alert-success game-success';
-            
-            const gameContainer = document.querySelector('.game-container');
-            if (gameContainer) {
-                gameContainer.insertBefore(successDiv, gameContainer.firstChild);
-            }
+        this.showOverlayMessage(message, 'success');
+    }
+
+    // New non-intrusive overlay message system
+    showOverlayMessage(message, type = 'info') {
+        // Remove any existing overlay messages
+        const existingMessage = document.getElementById('game-overlay-message');
+        if (existingMessage) {
+            existingMessage.remove();
         }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.id = 'game-overlay-message';
+        messageDiv.className = `game-overlay-message ${type}`;
+        messageDiv.textContent = message;
         
-        successDiv.textContent = message;
-        successDiv.style.display = 'block';
+        document.body.appendChild(messageDiv);
         
-        // Auto hide after 3 seconds
+        // Trigger show animation
+        setTimeout(() => messageDiv.classList.add('show'), 10);
+        
+        // Auto-hide after 2 seconds with fade animation
         setTimeout(() => {
-            if (successDiv) {
-                successDiv.style.display = 'none';
-            }
-        }, 3000);
+            messageDiv.classList.remove('show');
+            messageDiv.classList.add('hide');
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 300);
+        }, 2000);
     }
 
     // Card value calculator for client-side display
@@ -704,6 +713,9 @@ class BlackjackUI {
             if (reshuffleIndicator) {
                 reshuffleIndicator.remove();
             }
+            
+            // Ensure shoe section remains visible
+            shoeInfoSection.style.display = '';
         }
     }
 
@@ -733,22 +745,24 @@ class BlackjackUI {
         if (statsElements.lost) statsElements.lost.textContent = ' ' + sessionData.session_games_lost;
         if (statsElements.push) statsElements.push.textContent = ' ' + sessionData.session_games_push;
         
-        // Update total won (net winnings) with color coding
-        const totalWonElement = document.querySelector('.text-right div:nth-child(2) strong').parentElement;
-        if (totalWonElement) {
-            const totalWonAmount = parseFloat(sessionData.session_total_won);
-            const totalWonClass = totalWonAmount >= 0 ? 'text-success' : 'text-danger';
-            totalWonElement.className = totalWonClass;
-            totalWonElement.innerHTML = '<strong>Total Won:</strong> $' + totalWonAmount.toLocaleString('en-US', {
+        // Update Previous Game Won with color coding
+        const previousGameWonElement = document.querySelector('.text-right div:nth-child(2) strong').parentElement;
+        if (previousGameWonElement) {
+            const previousGameWonAmount = parseFloat(sessionData.previous_game_won || 0);
+            const previousGameWonClass = previousGameWonAmount >= 0 ? 'text-success' : 'text-danger';
+            previousGameWonElement.className = previousGameWonClass;
+            previousGameWonElement.innerHTML = '<strong>Previous Game Won:</strong> $' + previousGameWonAmount.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
         }
         
-        // Update net amount with color coding
+        // Update net amount (accumulative total of Previous Game Won) with color coding
         const netElement = document.querySelector('.text-right div:nth-child(3)');
         if (netElement) {
-            const netAmount = parseFloat(sessionData.session_total_won) - parseFloat(sessionData.session_total_loss);
+            const accumulatedPreviousWins = parseFloat(sessionData.accumulated_previous_wins || 0);
+            const previousGameWon = parseFloat(sessionData.previous_game_won || 0);
+            const netAmount = accumulatedPreviousWins + previousGameWon;
             const netClass = netAmount >= 0 ? 'text-success' : 'text-danger';
             netElement.className = netClass;
             netElement.innerHTML = '<strong>Net:</strong> $' + netAmount.toLocaleString('en-US', {
@@ -826,8 +840,8 @@ function newGame() {
             currentGameBetElement.innerHTML = '<strong>Current Game Bet:</strong> $0.00';
         }
         
-        // Reset shoe info immediately
-        window.blackjackGame.resetShoeInfo();
+        // Don't reset shoe info - let the backend response update it correctly
+        // The backend preserves deck state when using manual shuffle method
         
         // Make the new game action
         window.blackjackGame.makeGameAction('new_game')
@@ -838,9 +852,6 @@ function newGame() {
                     
                     // Ensure betting state and reset
                     window.blackjackGame.currentGameState = 'betting';
-                    
-                    // Show success message
-                    window.blackjackGame.showSuccess('New game started!');
                 } else {
                     // Fallback to page reload if there's an error
                     location.reload();
@@ -857,6 +868,12 @@ function newGame() {
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     window.blackjackGame = new BlackjackUI();
+    
+    // Ensure shoe info section is always visible
+    const shoeInfoSection = document.getElementById('shoe-info');
+    if (shoeInfoSection) {
+        shoeInfoSection.style.display = 'block';
+    }
     
     // Add some visual enhancements
     addVisualEnhancements();

@@ -184,6 +184,8 @@ button:hover {
     text-align: center;
     padding: 20px 0;
     margin: 20px 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .game-actions .action-button {
@@ -249,6 +251,100 @@ button:hover {
     border-color: var(--info-color);
 }
 
+/* ===== Non-Intrusive Overlay Message System ===== */
+.game-overlay-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+    font-size: 0.9rem;
+    max-width: 300px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.3s ease-in-out;
+}
+
+.game-overlay-message.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.game-overlay-message.hide {
+    opacity: 0;
+    transform: translateX(100px);
+}
+
+.game-overlay-message.success {
+    background-color: rgba(46, 204, 113, 0.95);
+    color: white;
+    border-left: 4px solid var(--success-color);
+}
+
+.game-overlay-message.error {
+    background-color: rgba(231, 76, 60, 0.95);
+    color: white;
+    border-left: 4px solid var(--danger-color);
+}
+
+.game-overlay-message.info {
+    background-color: rgba(52, 152, 219, 0.95);
+    color: white;
+    border-left: 4px solid var(--info-color);
+}
+
+/* Game loader overlay */
+.game-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.game-loader.show {
+    opacity: 1;
+}
+
+.loader-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loader-message {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
 /* ===== Navigation ===== */
 .navbar {
     background-color: var(--container-bg);
@@ -297,10 +393,14 @@ button:hover {
 /* ===== Game Table Styles ===== */
 .game-container {
     max-width: 1000px;
+    width: 100%;
     margin: 20px auto;
     position: relative;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
+/* Ensure sections don't extend beyond container */
 .dealer-section,
 .player-section {
     background: linear-gradient(135deg, rgba(52, 73, 94, 0.9), rgba(44, 62, 80, 0.9));
@@ -310,6 +410,10 @@ button:hover {
     min-height: 220px;
     position: relative;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden; /* Prevent content overflow */
 }
 
 .dealer-section {
@@ -563,6 +667,18 @@ button:hover {
         height: 84px;
         font-size: 0.7rem;
     }
+    
+    .game-container {
+        max-width: calc(100vw - 20px) !important;
+        width: calc(100vw - 20px) !important;
+    }
+    
+    .dealer-section,
+    .player-section,
+    .shoe-info-section {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -587,6 +703,20 @@ button:hover {
         height: 70px;
         font-size: 0.6rem;
     }
+    
+    .game-container {
+        margin: 5px !important;
+        padding: 0 5px !important;
+        max-width: calc(100vw - 10px) !important;
+        width: calc(100vw - 10px) !important;
+    }
+    
+    .dealer-section,
+    .player-section,
+    .shoe-info-section {
+        padding: 10px !important;
+        margin-bottom: 15px !important;
+    }
 }
 
 /* ===== Blackjack Game Specific Styles ===== */
@@ -604,6 +734,10 @@ button:hover {
     border: 2px solid var(--warning-color);
     margin-bottom: 20px;
     padding: 15px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    display: block !important; /* Always visible */
 }
 
 .shoe-display {
@@ -1006,6 +1140,18 @@ button:hover {
         height: 84px;
         font-size: 0.7rem;
     }
+    
+    .game-container {
+        max-width: calc(100vw - 20px) !important;
+        width: calc(100vw - 20px) !important;
+    }
+    
+    .dealer-section,
+    .player-section,
+    .shoe-info-section {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1029,6 +1175,20 @@ button:hover {
         width: 50px;
         height: 70px;
         font-size: 0.6rem;
+    }
+    
+    .game-container {
+        margin: 5px !important;
+        padding: 0 5px !important;
+        max-width: calc(100vw - 10px) !important;
+        width: calc(100vw - 10px) !important;
+    }
+    
+    .dealer-section,
+    .player-section,
+    .shoe-info-section {
+        padding: 10px !important;
+        margin-bottom: 15px !important;
     }
 }
 

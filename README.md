@@ -1,4 +1,4 @@
-# Blackjack PHP v0.3.1
+# Blackjack PHP v0.3.2
 
 A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management and comprehensive statistics tracking.
 
@@ -98,6 +98,17 @@ Game settings can be configured through the Settings page after logging in:
 - **Shuffling method**: Auto-shuffle (every game) or Shoe method
 - **Deck penetration**: 50-100% (when using shoe method)
 
+#### Shuffle System Details
+The game features two distinct shuffling methods:
+
+1. **Auto-shuffle**: Deck is reshuffled after every game (traditional casino style)
+2. **Shoe method**: Manual shuffle when deck penetration reaches the configured threshold
+   - Penetration percentage tracks how much of the shoe has been dealt
+   - When threshold is exceeded, the deck automatically resets to full size in the next game
+   - Provides more realistic casino-style gameplay with shoe penetration tracking
+
+**Note**: The shoe method was recently fixed (v0.3.2) to properly reset the deck to full size rather than just rearranging remaining cards.
+
 ### Game Rules
 - **Dealer behavior**: Hit on Soft 17 / Stand on All 17s
 - **Blackjack payout**: 3:2 or 1:1 ratios
@@ -136,6 +147,10 @@ Game settings can be configured through the Settings page after logging in:
 3. **File Permissions**: Ensure web server has read/write access
 4. **PHP Extensions**: Verify required extensions are installed
 5. **Session Issues**: Check PHP session configuration
+6. **Shuffle Not Working**: If using shoe method and deck doesn't reset when penetration threshold is reached:
+   - Verify deck penetration setting is between 50-100%
+   - Check that shuffle method is set to "shoe" in game settings
+   - Run test files (`test_simple_shuffle.php` or `test_comprehensive_shuffle.php`) to verify shuffle logic
 
 ### Debug Mode
 Enable debug mode by adding to your configuration:
@@ -157,7 +172,14 @@ define('DEBUG_MODE', true);
 
 ## Version History
 
-**v0.3.1** - Latest stable release (May 25, 2025)
+**v0.3.2** - Latest stable release (May 25, 2025)
+- 🐛 **Fixed**: Critical manual shuffle bug in shoe method - deck now properly resets to full size when penetration threshold is exceeded
+- 🔧 **Improved**: Shuffle logic to use `resetDeck()` instead of `shuffle()` for proper deck restoration
+- ✅ **Added**: Comprehensive shuffle testing suite for verification
+- 🎯 **Enhanced**: Game state management for more reliable shoe penetration handling
+- 📚 **Updated**: Documentation with shuffle system details and troubleshooting
+
+**v0.3.1** - Previous stable release (May 25, 2025)
 - 🐛 **Fixed**: Session restoration bug causing HTTP 500 errors
 - 🔧 **Added**: Missing Hand class methods (`markStood()`, `markDoubled()`, `markSurrendered()`)
 - ✅ **Improved**: Error handling and debugging capabilities
