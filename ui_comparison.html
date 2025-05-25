@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack UI - Before & After Comparison</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .before-section h3 {
+            color: #e74c3c;
+        }
+        
+        .after-section h3 {
+            color: #2ecc71;
+        }
+        
+        /* Old styles for comparison */
+        .old-game-actions {
+            padding: 20px 0;
+            margin: 20px 0;
+        }
+        
+        .old-game-actions .action-button {
+            margin: 0 2px;
+        }
+        
+        .old-shoe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .old-shoe-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .old-penetration-display {
+            flex: 1;
+            max-width: 300px;
+        }
+        
+        .old-penetration-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 5px;
+        }
+        
+        .old-penetration-percentage {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--warning-color);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 8px;
+        }
+        
+        .old-cards-info {
+            text-align: right;
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Blackjack UI Improvements</h1>
+        <p>Comparison of before and after the UI improvements for action buttons and shoe status section.</p>
+        
+        <div class="comparison-container">
+            <!-- BEFORE SECTION -->
+            <div class="before-section">
+                <h3>❌ Before: Cramped & Scattered Layout</h3>
+                
+                <div class="card">
+                    <h4>Action Buttons (Old)</h4>
+                    <div class="old-game-actions">
+                        <button class="btn btn-secondary action-button">Hit</button>
+                        <button class="btn btn-primary action-button">Stand</button>
+                        <button class="btn btn-warning action-button">Double</button>
+                        <button class="btn btn-info action-button">Split</button>
+                        <button class="btn btn-danger action-button">Surrender</button>
+                    </div>
+                    <p><small>❌ No centering, minimal spacing between buttons</small></p>
+                </div>
+                
+                <div class="card shoe-info-section">
+                    <h4>Shoe Status (Old Layout)</h4>
+                    <div class="shoe-display">
+                        <div class="old-shoe-header">
+                            <span class="shoe-title">🂠 Shoe Status</span>
+                            <span class="shuffle-method">🔄 Auto Shuffling Machine</span>
+                        </div>
+                        <div class="old-shoe-stats">
+                            <div class="old-penetration-display">
+                                <div class="old-penetration-label">Penetration:</div>
+                                <div class="old-penetration-percentage">65.2%</div>
+                                <div class="penetration-bar">
+                                    <div class="penetration-progress" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <div class="old-cards-info">
+                                <div class="cards-remaining">
+                                    <strong>112</strong> cards remaining
+                                </div>
+                                <div class="cards-total">
+                                    of 312 total
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p><small>❌ Takes too much vertical space, progress bar separate from title</small></p>
+                </div>
+            </div>
+            
+            <!-- AFTER SECTION -->
+            <div class="after-section">
+                <h3>✅ After: Centered & Compact Layout</h3>
+                
+                <div class="card">
+                    <h4>Action Buttons (New)</h4>
+                    <div class="game-actions">
+                        <button class="btn btn-secondary action-button">Hit</button>
+                        <button class="btn btn-primary action-button">Stand</button>
+                        <button class="btn btn-warning action-button">Double</button>
+                        <button class="btn btn-info action-button">Split</button>
+                        <button class="btn btn-danger action-button">Surrender</button>
+                    </div>
+                    <p><small>✅ Centered alignment, proper spacing, easier to tap</small></p>
+                </div>
+                
+                <div class="card shoe-info-section">
+                    <h4>Shoe Status (New Layout)</h4>
+                    <div class="shoe-display">
+                        <div class="shoe-header">
+                            <span class="shoe-title">🂠 Shoe Status</span>
+                            <div class="penetration-bar">
+                                <div class="penetration-progress" style="width: 65%"></div>
+                            </div>
+                            <span class="shuffle-method">🔄 Auto Shuffling Machine</span>
+                        </div>
+                        <div class="shoe-stats">
+                            <div class="penetration-display">
+                                <span class="penetration-percentage">65.2%</span>
+                            </div>
+                            <div class="cards-info">
+                                <span class="cards-remaining">
+                                    <strong>112</strong> remaining
+                                </span>
+                                <span class="cards-total">
+                                    of 312 total
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <p><small>✅ Compact design, progress bar with title, all info on one row</small></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🔧 Changes Made</h3>
+            <ul style="color: var(--light-text); line-height: 1.8;">
+                <li><strong>Action Buttons:</strong>
+                    <ul>
+                        <li>✅ Added center alignment to <code>.game-actions</code> container</li>
+                        <li>✅ Increased spacing between buttons (8px margin)</li>
+                        <li>✅ Added minimum width and improved padding</li>
+                        <li>✅ Responsive spacing for mobile devices</li>
+                    </ul>
+                </li>
+                <li><strong>Shoe Status Section:</strong>
+                    <ul>
+                        <li>✅ Moved progress bar inline with "Shoe Status" title</li>
+                        <li>✅ Compact single-row layout for penetration %, cards remaining, and total</li>
+                        <li>✅ Reduced overall section height and padding</li>
+                        <li>✅ Improved mobile responsiveness</li>
+                        <li>✅ Updated JavaScript to handle new HTML structure</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h3>📱 Mobile Test</h3>
+            <p>Resize your browser window to see how the new layout adapts to smaller screens.</p>
+            <div class="game-actions">
+                <button class="btn btn-secondary action-button" onclick="alert('Perfect spacing!')">Test Hit</button>
+                <button class="btn btn-primary action-button" onclick="alert('No more mis-taps!')">Test Stand</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate dynamic updates
+        setTimeout(() => {
+            console.log('UI improvements working correctly!');
+        }, 1000);
+    </script>
+</body>
+</html>

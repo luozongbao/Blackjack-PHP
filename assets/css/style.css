@@ -179,6 +179,43 @@ button:hover {
     width: 100%;
 }
 
+/* Game Action Buttons Container */
+.game-actions {
+    text-align: center;
+    padding: 20px 0;
+    margin: 20px 0;
+}
+
+.game-actions .action-button {
+    margin: 0 8px;
+    min-width: 100px;
+    padding: 12px 16px;
+    font-size: 1rem;
+}
+
+/* Responsive spacing for action buttons */
+@media (max-width: 768px) {
+    .game-actions .action-button {
+        margin: 5px 4px;
+        min-width: 90px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .game-actions {
+        padding: 15px 0;
+    }
+    
+    .game-actions .action-button {
+        margin: 3px 2px;
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+
 /* ===== Alert/Message Styles ===== */
 .alert {
     padding: 10px;
@@ -566,7 +603,7 @@ button:hover {
     background: linear-gradient(135deg, var(--container-bg), var(--dark-bg));
     border: 2px solid var(--warning-color);
     margin-bottom: 20px;
-    padding: 20px;
+    padding: 15px;
 }
 
 .shoe-display {
@@ -577,118 +614,147 @@ button:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 10px;
+    gap: 15px;
 }
 
 .shoe-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
     color: var(--warning-color);
+    flex: 0 0 auto;
 }
 
 .shuffle-method {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: bold;
     color: var(--info-color);
-    padding: 5px 12px;
+    padding: 4px 10px;
     background: rgba(52, 152, 219, 0.2);
-    border-radius: 15px;
+    border-radius: 12px;
     border: 1px solid var(--info-color);
+    flex: 0 0 auto;
 }
 
 .shoe-stats {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     gap: 20px;
 }
 
 .penetration-display {
-    flex: 1;
-    max-width: 300px;
-}
-
-.penetration-label {
-    font-size: 0.9rem;
-    color: var(--light-text);
-    margin-bottom: 5px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
 }
 
 .penetration-percentage {
-    font-size: 1.8rem;
+    font-size: 1rem;
     font-weight: bold;
     color: var(--warning-color);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    margin-bottom: 8px;
+    white-space: nowrap;
 }
 
 .penetration-bar {
-    width: 100%;
-    height: 12px;
+    width: 120px;
+    height: 8px;
     background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
+    border-radius: 4px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.3);
+    flex: 1;
+    margin: 0 10px;
 }
 
 .penetration-progress {
     height: 100%;
     background: linear-gradient(90deg, #2ecc71, #f39c12, #e74c3c);
     transition: width 0.5s ease;
-    border-radius: 6px;
+    border-radius: 4px;
 }
 
 .cards-info {
-    text-align: right;
-    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 0 auto;
 }
 
 .cards-remaining {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     color: var(--light-text);
-    margin-bottom: 5px;
+    white-space: nowrap;
 }
 
 .cards-remaining strong {
     color: var(--success-color);
-    font-size: 1.3rem;
+    font-size: 1rem;
 }
 
 .cards-total {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--border-color);
+    white-space: nowrap;
 }
 
 .reshuffle-indicator {
     color: var(--warning-color);
     font-weight: bold;
-    margin-top: 5px;
-    padding: 3px 8px;
+    padding: 2px 6px;
     background: rgba(243, 156, 18, 0.2);
-    border-radius: 10px;
+    border-radius: 8px;
     display: inline-block;
     border: 1px solid var(--warning-color);
+    font-size: 0.8rem;
+    white-space: nowrap;
 }
 
 /* Responsive design for shoe info */
 @media (max-width: 768px) {
     .shoe-stats {
         flex-direction: column;
-        gap: 15px;
+        gap: 8px;
     }
     
     .penetration-display,
     .cards-info {
-        width: 100%;
-        text-align: center;
+        justify-content: center;
+    }
+    
+    .penetration-bar {
+        width: 100px;
+    }
+    
+    .cards-info {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
     
     .shoe-header {
         flex-direction: column;
-        gap: 10px;
-        text-align: center;
+        gap: 8px;
+    }
+    
+    .shoe-header .penetration-bar {
+        width: 150px;
+        order: 1;
+    }
+    
+    .shoe-title {
+        order: 0;
+    }
+    
+    .shuffle-method {
+        order: 2;
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    
+    .shoe-info-section {
+        padding: 12px;
     }
 }
 

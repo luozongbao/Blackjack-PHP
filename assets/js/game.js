@@ -648,6 +648,12 @@ class BlackjackUI {
             cardsRemaining.textContent = shoeData.cardsRemaining;
         }
         
+        // Update cards total
+        const cardsTotal = shoeInfoSection.querySelector('.cards-total');
+        if (cardsTotal && shoeData.totalCards) {
+            cardsTotal.textContent = `of ${shoeData.totalCards} total`;
+        }
+        
         // Update shuffle method indicator
         const shuffleMethod = shoeInfoSection.querySelector('.shuffle-method');
         if (shuffleMethod) {
@@ -660,7 +666,7 @@ class BlackjackUI {
         let reshuffleIndicator = shoeInfoSection.querySelector('.reshuffle-indicator');
         if (shoeData.needsReshuffle) {
             if (!reshuffleIndicator) {
-                reshuffleIndicator = document.createElement('div');
+                reshuffleIndicator = document.createElement('span');
                 reshuffleIndicator.className = 'reshuffle-indicator';
                 shoeInfoSection.querySelector('.cards-info').appendChild(reshuffleIndicator);
             }

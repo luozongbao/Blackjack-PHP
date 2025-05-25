@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack UI Test - Action Buttons & Shoe Status</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Blackjack UI Improvements Test</h1>
+        
+        <!-- Test Shoe Status Section -->
+        <div class="card shoe-info-section" id="shoe-info">
+            <div class="shoe-display">
+                <div class="shoe-header">
+                    <span class="shoe-title">🂠 Shoe Status</span>
+                    <div class="penetration-bar">
+                        <div class="penetration-progress" style="width: 65%"></div>
+                    </div>
+                    <span class="shuffle-method">🔄 Auto Shuffling Machine</span>
+                </div>
+                <div class="shoe-stats">
+                    <div class="penetration-display">
+                        <span class="penetration-percentage">65.2%</span>
+                    </div>
+                    <div class="cards-info">
+                        <span class="cards-remaining">
+                            <strong>112</strong> remaining
+                        </span>
+                        <span class="cards-total">
+                            of 312 total
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Action Buttons Section -->
+        <div class="card">
+            <h3>Action Buttons Test</h3>
+            <div class="game-actions">
+                <button class="btn btn-secondary action-button">Hit</button>
+                <button class="btn btn-primary action-button">Stand</button>
+                <button class="btn btn-warning action-button">Double</button>
+                <button class="btn btn-info action-button">Split</button>
+                <button class="btn btn-danger action-button">Surrender</button>
+            </div>
+        </div>
+
+        <!-- Test Compact Shoe Status (Alternative Layout) -->
+        <div class="card shoe-info-section" id="shoe-info-2">
+            <div class="shoe-display">
+                <div class="shoe-header">
+                    <span class="shoe-title">🂠 Shoe Status</span>
+                    <div class="penetration-bar">
+                        <div class="penetration-progress" style="width: 35%"></div>
+                    </div>
+                    <span class="shuffle-method">🃏 Manual Shuffle</span>
+                </div>
+                <div class="shoe-stats">
+                    <div class="penetration-display">
+                        <span class="penetration-percentage">35.8%</span>
+                    </div>
+                    <div class="cards-info">
+                        <span class="cards-remaining">
+                            <strong>203</strong> remaining
+                        </span>
+                        <span class="cards-total">
+                            of 312 total
+                        </span>
+                        <span class="reshuffle-indicator">
+                            ⚠️ Reshuffle needed
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Test Section -->
+        <div class="card">
+            <h3>Responsive Test</h3>
+            <p>Resize your browser window to test mobile responsiveness of the action buttons and shoe status layout.</p>
+            <div class="game-actions">
+                <button class="btn btn-secondary action-button">Hit</button>
+                <button class="btn btn-primary action-button">Stand</button>
+                <button class="btn btn-warning action-button">Double</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test button interactions
+        document.querySelectorAll('.action-button').forEach(button => {
+            button.addEventListener('click', function() {
+                alert('Button clicked: ' + this.textContent);
+            });
+        });
+
+        // Test dynamic shoe update
+        setTimeout(() => {
+            const progress = document.querySelector('#shoe-info .penetration-progress');
+            const percentage = document.querySelector('#shoe-info .penetration-percentage');
+            const remaining = document.querySelector('#shoe-info .cards-remaining strong');
+            
+            if (progress && percentage && remaining) {
+                progress.style.width = '75%';
+                percentage.textContent = '75.3%';
+                remaining.textContent = '78';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

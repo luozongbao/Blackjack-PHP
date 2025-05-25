@@ -344,6 +344,9 @@ include 'includes/header.php';
             <div class="shoe-display">
                 <div class="shoe-header">
                     <span class="shoe-title">🂠 Shoe Status</span>
+                    <div class="penetration-bar">
+                        <div class="penetration-progress" style="width: <?php echo min(100, $shoeInfo['penetrationPercentage']); ?>%"></div>
+                    </div>
                     <span class="shuffle-method">
                         <?php if ($shoeInfo['shuffleMethod'] === 'auto'): ?>
                             🔄 Auto Shuffling Machine
@@ -354,23 +357,19 @@ include 'includes/header.php';
                 </div>
                 <div class="shoe-stats">
                     <div class="penetration-display">
-                        <div class="penetration-label">Penetration:</div>
-                        <div class="penetration-percentage"><?php echo number_format($shoeInfo['penetrationPercentage'], 1); ?>%</div>
-                        <div class="penetration-bar">
-                            <div class="penetration-progress" style="width: <?php echo min(100, $shoeInfo['penetrationPercentage']); ?>%"></div>
-                        </div>
+                        <span class="penetration-percentage"><?php echo number_format($shoeInfo['penetrationPercentage'], 1); ?>%</span>
                     </div>
                     <div class="cards-info">
-                        <div class="cards-remaining">
-                            <strong><?php echo $shoeInfo['cardsRemaining']; ?></strong> cards remaining
-                        </div>
-                        <div class="cards-total">
+                        <span class="cards-remaining">
+                            <strong><?php echo $shoeInfo['cardsRemaining']; ?></strong> remaining
+                        </span>
+                        <span class="cards-total">
                             of <?php echo $shoeInfo['totalCards']; ?> total
-                        </div>
+                        </span>
                         <?php if ($shoeInfo['needsReshuffle']): ?>
-                            <div class="reshuffle-indicator">
+                            <span class="reshuffle-indicator">
                                 ⚠️ Reshuffle needed
-                            </div>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -379,6 +378,9 @@ include 'includes/header.php';
             <div class="shoe-display">
                 <div class="shoe-header">
                     <span class="shoe-title">🂠 Shoe Status</span>
+                    <div class="penetration-bar">
+                        <div class="penetration-progress" style="width: 0%"></div>
+                    </div>
                     <span class="shuffle-method">
                         <?php if (isset($settings['shuffle_method']) && $settings['shuffle_method'] === 'auto'): ?>
                             🔄 Auto Shuffling Machine
@@ -389,16 +391,18 @@ include 'includes/header.php';
                 </div>
                 <div class="shoe-stats">
                     <div class="penetration-display">
-                        <div class="penetration-label">Penetration:</div>
-                        <div class="penetration-percentage">0.0%</div>
-                        <div class="penetration-bar">
-                            <div class="penetration-progress" style="width: 0%"></div>
-                        </div>
+                        <span class="penetration-percentage">0.0%</span>
                     </div>
                     <div class="cards-info">
-                        <div class="cards-remaining">
-                            <strong>-</strong> cards remaining
-                        </div>
+                        <span class="cards-remaining">
+                            <strong>-</strong> remaining
+                        </span>
+                        <span class="cards-total">
+                            of - total
+                        </span>
+                    </div>
+                </div>
+            </div>
                         <div class="cards-total">
                             Ready for new game
                         </div>
