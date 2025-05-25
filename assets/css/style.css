@@ -467,7 +467,7 @@ button:hover {
 }
 
 .cards-container.player-cards {
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 /* Card placeholder styling */
@@ -881,7 +881,7 @@ button:hover {
 }
 
 .cards-container.player-cards {
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 /* Card placeholder styling */

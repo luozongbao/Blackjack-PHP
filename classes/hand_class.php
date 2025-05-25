@@ -176,6 +176,27 @@ class Hand {
     }
     
     /**
+     * Mark hand as stood (for session restoration)
+     */
+    public function markStood() {
+        $this->isStood = true;
+    }
+    
+    /**
+     * Mark hand as doubled (for session restoration)
+     */
+    public function markDoubled() {
+        $this->isDoubled = true;
+    }
+    
+    /**
+     * Mark hand as surrendered (for session restoration)
+     */
+    public function markSurrendered() {
+        $this->isSurrendered = true;
+    }
+    
+    /**
      * Convert hand to array for JSON serialization
      */
     public function toArray() {

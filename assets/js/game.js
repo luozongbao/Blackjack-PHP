@@ -76,10 +76,17 @@ class BlackjackUI {
     handleActionClick(e) {
         if (this.animating) return;
 
-        const action = e.target.getAttribute('onclick');
-        if (action) {
+        // Get action from data-action attribute or onclick attribute for backward compatibility
+        let actionName = e.target.getAttribute('data-action');
+        if (!actionName) {
+            const action = e.target.getAttribute('onclick');
+            if (action) {
+                actionName = action.match(/gameAction\('(.+?)'\)/)[1];
+            }
+        }
+        
+        if (actionName) {
             e.preventDefault();
-            const actionName = action.match(/gameAction\('(.+?)'\)/)[1];
             
             // Disable button to prevent double clicks
             e.target.disabled = true;
@@ -413,23 +420,23 @@ class BlackjackUI {
         let buttonsHtml = '<div class="game-actions">';
         
         if (gameState.canHit) {
-            buttonsHtml += '<button class="btn btn-secondary action-button" onclick="gameAction(\'hit\')">Hit</button>';
+            buttonsHtml += '<button class="btn btn-secondary action-button" data-action="hit">Hit</button>';
         }
         
         if (gameState.canStand) {
-            buttonsHtml += '<button class="btn btn-primary action-button" onclick="gameAction(\'stand\')">Stand</button>';
+            buttonsHtml += '<button class="btn btn-primary action-button" data-action="stand">Stand</button>';
         }
         
         if (gameState.canDouble) {
-            buttonsHtml += '<button class="btn btn-warning action-button" onclick="gameAction(\'double\')">Double Down</button>';
+            buttonsHtml += '<button class="btn btn-warning action-button" data-action="double">Double Down</button>';
         }
         
         if (gameState.canSplit) {
-            buttonsHtml += '<button class="btn btn-info action-button" onclick="gameAction(\'split\')">Split</button>';
+            buttonsHtml += '<button class="btn btn-info action-button" data-action="split">Split</button>';
         }
         
         if (gameState.canSurrender) {
-            buttonsHtml += '<button class="btn btn-danger action-button" onclick="gameAction(\'surrender\')">Surrender</button>';
+            buttonsHtml += '<button class="btn btn-danger action-button" data-action="surrender">Surrender</button>';
         }
         
         buttonsHtml += '</div>';
