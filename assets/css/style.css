@@ -1454,3 +1454,73 @@ button:hover {
 .w-100 {
     width: 100%;
 }
+
+/* ===== Sound Controls ===== */
+.sound-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    padding: 10px;
+    border-radius: 30px;
+    background-color: rgba(44, 62, 80, 0.5);
+}
+
+.sound-controls:hover {
+    opacity: 1;
+}
+
+.sound-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    color: var(--light-text);
+    border: 2px solid var(--light-text);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    margin: 0 5px;
+    border: 2px solid var(--primary-color);
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.sound-button:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+    background-color: var(--secondary-dark);
+}
+
+.sound-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.sound-button.active {
+    background-color: var(--primary-color);
+    box-shadow: 0 0 8px var(--primary-color), 0 0 15px rgba(26, 188, 156, 0.5);
+}
+
+.sound-button.muted {
+    background-color: var(--border-color);
+    opacity: 0.8;
+}
+
+.sound-button i {
+    line-height: 1;
+}
