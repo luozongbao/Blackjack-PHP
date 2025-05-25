@@ -429,6 +429,7 @@ class BlackjackGame {
                 if ($dealerBlackjack) {
                     $handResult['won'] = $hand->getBet();
                     $handResult['status'] = 'push';
+                    $totalWon += $hand->getBet(); // Return original bet to player on blackjack push
                 } else {
                     $payout = $this->settings['blackjack_payout'] === '3:2' ? 1.5 : 1;
                     $handResult['won'] = $hand->getBet() * (1 + $payout);
@@ -446,6 +447,7 @@ class BlackjackGame {
             } elseif ($hand->getScore() == $dealerScore) {
                 $handResult['won'] = $hand->getBet();
                 $handResult['status'] = 'push';
+                $totalWon += $hand->getBet(); // Return original bet to player on push
             } else {
                 $handResult['status'] = 'lost';
                 $totalLost += $hand->getBet();
@@ -454,12 +456,15 @@ class BlackjackGame {
             $results[] = $handResult;
         }
         
+        // Calculate total bet amount for proper game outcome determination
+        $totalBet = array_sum(array_map(function($hand) { return $hand->getBet(); }, $this->playerHands));
+        
         return [
             'hands' => $results,
             'totalWon' => $totalWon,
             'totalLost' => $totalLost,
             'netResult' => $totalWon - $totalLost,
-            'gameOutcome' => $totalWon > $totalLost ? 'won' : ($totalWon == $totalLost ? 'push' : 'lost')
+            'gameOutcome' => $totalWon > $totalBet ? 'won' : ($totalWon == $totalBet ? 'push' : 'lost')
         ];
     }
     
