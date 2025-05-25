@@ -39,30 +39,30 @@ class BlackjackUI {
         if (this.animating) return;
 
         const form = e.target;
-        const betAmount = parseFloat(form.bet_amount.value);
+        const betAmount = parseInt(form.bet_amount.value, 10);
         const betInput = form.bet_amount;
-        const tableMinBet = parseFloat(betInput.min) || 100;
-        const tableMaxBet = parseFloat(betInput.max) || 10000;
+        const tableMinBet = parseInt(betInput.min, 10) || 100;
+        const tableMaxBet = parseInt(betInput.max, 10) || 10000;
         
-        if (betAmount <= 0) {
+        if (betAmount <= 0 || isNaN(betAmount)) {
             this.showOverlayMessage('Please enter a valid bet amount', 'error');
             return;
         }
         
         // Client-side validation for table limits
         if (betAmount < tableMinBet) {
-            this.showOverlayMessage(`Minimum bet is $${tableMinBet.toFixed(2)}`, 'error');
+            this.showOverlayMessage(`Minimum bet is $${tableMinBet.toLocaleString()}`, 'error');
             return;
         }
         
         if (betAmount > tableMaxBet) {
-            this.showOverlayMessage(`Maximum bet is $${tableMaxBet.toFixed(2)}`, 'error');
+            this.showOverlayMessage(`Maximum bet is $${tableMaxBet.toLocaleString()}`, 'error');
             return;
         }
         
-        // Validate step (multiples of minimum bet)
-        if (betAmount % tableMinBet !== 0) {
-            this.showOverlayMessage(`Bet must be in multiples of $${tableMinBet.toFixed(2)}`, 'error');
+        // Ensure bet is multiple of 100
+        if (betAmount % 100 !== 0) {
+            this.showOverlayMessage('Bet amount must be a multiple of $100', 'error');
             return;
         }
 
