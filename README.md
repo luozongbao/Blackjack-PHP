@@ -1,6 +1,6 @@
-# Blackjack PHP v0.3.3
+# Blackjack PHP v1.0.0
 
-A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, and dynamic betting limits.
+A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, dynamic betting limits, and immersive audio experience.
 
 ## Features
 
@@ -11,6 +11,8 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 - Complete rule customization
 - Comprehensive betting options (Split, Double, Insurance, Surrender)
 - Real-time game statistics
+- Immersive sound effects and background music
+- Customizable audio controls
 
 ### Customizable Game Rules
 - Dealer behavior (Hit on Soft 17 / Stand on All 17s)
@@ -131,6 +133,27 @@ The game features two distinct shuffling methods:
 - **European**: One card dealt, lose all on dealer blackjack
 - **Macau**: One card dealt, lose only original bet on dealer blackjack
 
+### Audio System
+- **Background Music**: Toggleable ambient casino music
+- **Game Action Sounds**: Distinct sound effects for different actions:
+  - **Deal**: Card dealing sound
+  - **Hit**: Card hit sound
+  - **Stand**: Stand action sound
+  - **Double**: Double down action sound with chip sounds
+  - **Split**: Card split sound
+  - **Shuffle**: Deck shuffling sound
+  - **Chips**: Betting sound when placing bets
+- **Result Sounds**: Different sounds for game outcomes:
+  - **Win**: Victory sound
+  - **Lose**: Loss sound
+  - **Push**: Push/tie sound
+  - **Blackjack**: Special blackjack win sound
+- **Audio Controls**: 
+  - Sound toggle button (bottom-right corner)
+  - Music toggle button (bottom-right corner)
+  - Sound settings persist between sessions
+  - Responsive design for controls
+
 ### Betting System
 - **Table minimum bet**: Configurable minimum bet amount (default: $100)
 - **Table maximum bet**: Configurable maximum bet amount (default: $10,000)
@@ -194,7 +217,16 @@ define('DEBUG_MODE', true);
 
 ## Version History
 
-**v0.3.3** - Latest stable release (May 25, 2025)
+**v1.0.0** - First Official Release (May 25, 2025)
+- 🎵 **Added**: Immersive sound effects for all game actions (deal, hit, stand, etc.)
+- 🎶 **Added**: Background music with toggle controls
+- 💿 **Added**: Sound control system with mute functionality
+- 🎮 **Enhanced**: Game interface with sound toggles in bottom-right corner
+- 📊 **Fixed**: All-time statistics tracking and reset functionality
+- 🔍 **Improved**: Game flow and user experience
+- 🏆 **Added**: Full release status with all major features implemented
+
+**v0.3.3** - Previous stable release (May 25, 2025)
 - 💰 **Added**: Dynamic table betting limits - configurable minimum and maximum bet amounts per user
 - 🔧 **Enhanced**: Betting validation system with both client-side and server-side validation
 - ✅ **Improved**: Betting forms now use dynamic values from user settings instead of hardcoded limits
