@@ -143,14 +143,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Restart session
     if (isset($_POST['restart_session'])) {
         try {
-            // End current session
-            $endSessionStmt = $db->prepare("
-                UPDATE game_sessions 
-                SET is_active = 0, end_time = CURRENT_TIMESTAMP 
-                WHERE session_id = :session_id
-            ");
-            $endSessionStmt->bindParam(':session_id', $session['session_id']);
-            $endSessionStmt->execute();
+            // Check if there's an ongoing game
+            $ongoingGame = false;
+            if ($session && $session['game_state']) {
+                $gameStateData = json_decode($session['game_state'], true);
+                if ($gameStateData && isset($gameStateData['gameState']) && 
+                    in_array($gameStateData['gameState'], ['player_turn', 'dealer_turn', 'dealing'])) {
+                    $ongoingGame = true;
+                }
+            }
+            
+            // If ongoing game and no explicit confirmation, return error
+            if ($ongoingGame && !isset($_POST['confirm_ongoing_game'])) {
+                $error = 'There is an ongoing game in progress. Are you sure you want to restart the session? This will forfeit the current game.';
+            } else {
+                // Clear any ongoing game from session
+                if ($ongoingGame) {
+                    // Clear game state
+                    $clearGameStmt = $db->prepare("
+                        UPDATE game_sessions 
+                        SET game_state = NULL
+                        WHERE session_id = :session_id
+                    ");
+                    $clearGameStmt->bindParam(':session_id', $session['session_id']);
+                    $clearGameStmt->execute();
+                }
+                
+                // End current session
+                $endSessionStmt = $db->prepare("
+                    UPDATE game_sessions 
+                    SET is_active = 0, end_time = CURRENT_TIMESTAMP 
+                    WHERE session_id = :session_id
+                ");
+                $endSessionStmt->bindParam(':session_id', $session['session_id']);
+                $endSessionStmt->execute();
             
             // Create new session with initial money
             $createSessionStmt = $db->prepare("
@@ -182,9 +208,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $session = $sessionStmt->fetch();
             
             $success = 'Session restarted successfully! Your balance has been reset to $' . number_format($settings['initial_money'], 2);
+            }
         } catch (PDOException $e) {
             $error = 'Error restarting session: ' . $e->getMessage();
         }
+    }
     }
     
     // Reset all-time stats
@@ -214,7 +242,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'Error resetting statistics: ' . $e->getMessage();
         }
     }
-}
 
 include_once 'includes/header.php';
 ?>
@@ -397,7 +424,8 @@ include_once 'includes/header.php';
         <h3>Session Management</h3>
         <p>Current Money: <span class="text-primary">$<?php echo number_format($session['current_money'], 2); ?></span></p>
         
-        <form method="post" action="" class="mb-3" onsubmit="return confirm('Are you sure you want to restart the session? This will reset your current money to the initial amount and clear all session statistics.');">
+        <form method="post" action="" class="mb-3" onsubmit="return confirmSessionRestart();">
+            <input type="hidden" name="confirm_ongoing_game" id="confirm_ongoing_game" value="">
             <button type="submit" name="restart_session" class="btn btn-secondary">Restart Session</button>
             <small>This will reset your current money to the initial amount and clear all session statistics.</small>
         </form>
@@ -410,6 +438,29 @@ include_once 'includes/header.php';
 </div>
 
 <script>
+// Enhanced session restart confirmation
+function confirmSessionRestart() {
+    <?php if ($session && $session['game_state']): ?>
+        <?php 
+        $gameStateData = json_decode($session['game_state'], true);
+        $isOngoingGame = $gameStateData && isset($gameStateData['gameState']) && 
+                        in_array($gameStateData['gameState'], ['player_turn', 'dealer_turn', 'dealing']);
+        ?>
+        <?php if ($isOngoingGame): ?>
+            const confirmed = confirm('WARNING: You have an ongoing game in progress!\n\nRestarting the session will forfeit your current game and reset your money to the initial amount.\n\nAre you sure you want to continue?');
+            if (confirmed) {
+                document.getElementById('confirm_ongoing_game').value = '1';
+                return true;
+            }
+            return false;
+        <?php else: ?>
+            return confirm('Are you sure you want to restart the session? This will reset your current money to the initial amount and clear all session statistics.');
+        <?php endif; ?>
+    <?php else: ?>
+        return confirm('Are you sure you want to restart the session? This will reset your current money to the initial amount and clear all session statistics.');
+    <?php endif; ?>
+}
+
 // Show/hide deck penetration based on shuffle method
 document.getElementById('shuffle_method').addEventListener('change', function() {
     const penetrationGroup = document.getElementById('penetrationGroup');

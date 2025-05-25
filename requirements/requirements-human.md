@@ -1,3 +1,4 @@
+
 # Black Projects 
     I want to create a blackjack game on PHP Mariadb javascript
 ## Requirements
@@ -103,7 +104,7 @@
             - if it has next hand then move to next hand action and deal a card to that hand and wait for next player action
         - Double: add the same bet amount to the bet, so it become 2 times original bet (deduct from the Session Current Money. If not enough, disable Double Button), then deal one card to the hand and automatically stand
         - Surrender: Lose half the bet, return half bet amount to the Session Current Money
-# Game play 
+## Game play 
 - Card Value
     A = 1 or 11
     2 = 2
@@ -150,8 +151,35 @@
 - After game ends
     - if total in the gameplay, player won money more than losing money in that game, count as won
     - if total in the gameplay, player won money less than losing money in that game, count as lose
-    
 
-
-
-        
+## Workspace Enrironcment Settings
+### Document
+    - Document root: /home/zongbao/var/www/Blackjack-PHP
+    - Document Owner: zongbao
+### Virtual Host Service
+    - Nginx
+    - configure
+        - user: zongbao
+    - Server Name: bj.home
+### Pages
+    - Lobby (Implemented)
+    - Game Table (Please Implement this one)
+    - Setings (Implemented, settings Save in Database)
+        + Game configuration
+        + Game Rules
+        + Dealing Style
+        + Session Management
+    - Profile (Implemented)
+### Folder Structure
+    - api (folder)
+    - database (folder)
+    - assets (folder)
+        - css (folder)
+            - style.css
+        - images (folder)
+            - cards (folder) 
+        - js (folder)
+    - classes (folder)
+    - includes (folder)
+    - logs (folder)
+    - requirements (folder)

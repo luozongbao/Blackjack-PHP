@@ -7,6 +7,6 @@
     </footer>
     
     <!-- JavaScript files -->
-    <script src="../assets/js/game.js"></script>
+    <script src="assets/js/game.js"></script>
 </body>
 </html>
