@@ -733,10 +733,13 @@ class BlackjackUI {
         if (statsElements.lost) statsElements.lost.textContent = ' ' + sessionData.session_games_lost;
         if (statsElements.push) statsElements.push.textContent = ' ' + sessionData.session_games_push;
         
-        // Update total won (net winnings)
+        // Update total won (net winnings) with color coding
         const totalWonElement = document.querySelector('.text-right div:nth-child(2) strong').parentElement;
         if (totalWonElement) {
-            totalWonElement.innerHTML = '<strong>Total Won:</strong> $' + parseFloat(sessionData.session_total_won).toLocaleString('en-US', {
+            const totalWonAmount = parseFloat(sessionData.session_total_won);
+            const totalWonClass = totalWonAmount >= 0 ? 'text-success' : 'text-danger';
+            totalWonElement.className = totalWonClass;
+            totalWonElement.innerHTML = '<strong>Total Won:</strong> $' + totalWonAmount.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
@@ -785,8 +788,8 @@ class BlackjackUI {
                 });
             }
         } else {
-            // Show session total bet when no active game
-            // This will be handled by the server response
+            // Reset to $0.00 when no active game (betting state or new game)
+            currentGameBetElement.innerHTML = '<strong>Current Game Bet:</strong> $0.00';
         }
     }
 
@@ -814,6 +817,18 @@ function newGame() {
             playerHandsContainer.innerHTML = '<div class="card-placeholder">Player Cards</div>';
         }
         
+        // Reset current game state immediately
+        window.blackjackGame.currentGameState = 'betting';
+        
+        // Reset current game bet to $0.00 immediately
+        const currentGameBetElement = document.querySelector('.text-right div:nth-child(1)');
+        if (currentGameBetElement) {
+            currentGameBetElement.innerHTML = '<strong>Current Game Bet:</strong> $0.00';
+        }
+        
+        // Reset shoe info immediately
+        window.blackjackGame.resetShoeInfo();
+        
         // Make the new game action
         window.blackjackGame.makeGameAction('new_game')
             .then(data => {
@@ -821,7 +836,7 @@ function newGame() {
                     // Update UI with new game state
                     window.blackjackGame.updateGameStateFromResponse(data);
                     
-                    // Reset current game state
+                    // Ensure betting state and reset
                     window.blackjackGame.currentGameState = 'betting';
                     
                     // Show success message

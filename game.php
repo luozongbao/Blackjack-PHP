@@ -318,10 +318,12 @@ include 'includes/header.php';
                     ?>
                     <div><strong>Current Game Bet:</strong> $<?php echo number_format($currentGameTotalBet, 2); ?></div>
                 <?php else: ?>
-                    <!-- Show session total bet when no active game -->
-                    <div><strong>Session Total Bet:</strong> $<?php echo number_format($sessionData['session_total_bet'], 2); ?></div>
+                    <!-- Show $0.00 when no active game -->
+                    <div><strong>Current Game Bet:</strong> $0.00</div>
                 <?php endif; ?>
-                <div><strong>Total Won:</strong> $<?php echo number_format($sessionData['session_total_won'], 2); ?></div>
+                <div class="<?php echo $sessionData['session_total_won'] >= 0 ? 'text-success' : 'text-danger'; ?>">
+                    <strong>Total Won:</strong> $<?php echo number_format($sessionData['session_total_won'], 2); ?>
+                </div>
                 <div class="<?php echo ($sessionData['session_total_won'] - $sessionData['session_total_loss']) >= 0 ? 'text-success' : 'text-danger'; ?>">
                     <strong>Net:</strong> $<?php echo number_format($sessionData['session_total_won'] - $sessionData['session_total_loss'], 2); ?>
                 </div>
