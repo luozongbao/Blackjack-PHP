@@ -229,6 +229,10 @@ $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0)
                 <span><?php echo $stats['settings']['decks_per_shoe']; ?></span>
             </div>
             <div class="stat-row">
+                <span>Shuffling Method:</span>
+                <span><?php echo ($stats['settings']['shuffle_method'] === 'auto') ? 'Auto-shuffle Machine' : 'Shuffle Every Shoe'; ?></span>
+            </div>
+            <div class="stat-row">
                 <span>Deal Style:</span>
                 <span><?php echo ucfirst($stats['settings']['deal_style']); ?></span>
             </div>
@@ -239,6 +243,22 @@ $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0)
             <div class="stat-row">
                 <span>Blackjack Payout:</span>
                 <span><?php echo $stats['settings']['blackjack_payout']; ?></span>
+            </div>
+            <div class="stat-row">
+                <span>Allow Double:</span>
+                <span><?php echo ($stats['settings']['double_on'] === 'any') ? 'Any Two Cards' : 'Only 9, 10, 11'; ?></span>
+            </div>
+            <div class="stat-row">
+                <span>Double After Split:</span>
+                <span><?php echo $stats['settings']['double_after_split'] ? 'Yes' : 'No'; ?></span>
+            </div>
+            <div class="stat-row">
+                <span>Table Min Bet:</span>
+                <span>$<?php echo number_format($stats['settings']['table_min_bet'], 2); ?></span>
+            </div>
+            <div class="stat-row">
+                <span>Table Max Bet:</span>
+                <span>$<?php echo number_format($stats['settings']['table_max_bet'], 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>Max Splits:</span>

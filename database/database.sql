@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS user_settings (
     double_on ENUM('any', '9-10-11') NOT NULL DEFAULT 'any',
     max_splits INT NOT NULL DEFAULT 3,
     initial_money DECIMAL(12,2) NOT NULL DEFAULT 10000.00,
+    table_min_bet DECIMAL(12,2) NOT NULL DEFAULT 100.00,
+    table_max_bet DECIMAL(12,2) NOT NULL DEFAULT 10000.00,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 

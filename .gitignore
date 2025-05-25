@@ -1,5 +1,7 @@
 *.bak*
 includes/config.php
 *.log
-test_*.php
+test_*.*
 verify_*.php
+reports/
+reports/*
