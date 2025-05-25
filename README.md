@@ -177,6 +177,8 @@ define('DEBUG_MODE', true);
 - 🔧 **Improved**: Shuffle logic to use `resetDeck()` instead of `shuffle()` for proper deck restoration
 - ✅ **Added**: Comprehensive shuffle testing suite for verification
 - 🎯 **Enhanced**: Game state management for more reliable shoe penetration handling
+- 🔒 **Fixed**: API deck preservation - game API now properly preserves deck state for shoe method like the web interface
+- 🎲 **Enhanced**: Deck creation validation - added proper validation to ensure deck settings are correctly used
 - 📚 **Updated**: Documentation with shuffle system details and troubleshooting
 
 **v0.3.1** - Previous stable release (May 25, 2025)

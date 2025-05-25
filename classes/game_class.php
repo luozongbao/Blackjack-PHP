@@ -26,6 +26,11 @@ class BlackjackGame {
     const STATE_GAME_OVER = 'game_over';
     
     public function __construct($settings, $sessionId, $db) {
+        // Validate deck settings
+        if (!isset($settings['decks_per_shoe']) || $settings['decks_per_shoe'] < 1 || $settings['decks_per_shoe'] > 8) {
+            throw new Exception("Invalid number of decks per shoe. Must be between 1 and 8.");
+        }
+        
         $this->settings = $settings;
         $this->sessionId = $sessionId;
         $this->db = $db;

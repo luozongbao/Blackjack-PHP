@@ -78,7 +78,15 @@ try {
                 throw new Exception("Insufficient funds");
             }
             
-            $game = new BlackjackGame($settings, $sessionId, $db);
+            // Only create new game if none exists or current game is not in betting state
+            if (!$game || ($game->getGameState() && $game->getGameState()['gameState'] !== 'betting')) {
+                $game = new BlackjackGame($settings, $sessionId, $db);
+                // If we had a previous game with shoe shuffle method, preserve the deck
+                if (isset($_SESSION['preserved_deck']) && $settings['shuffle_method'] === 'shoe') {
+                    $game->setDeck($_SESSION['preserved_deck']['deck'], $_SESSION['preserved_deck']['originalSize']);
+                    unset($_SESSION['preserved_deck']); // Clean up after using
+                }
+            }
             $gameState = $game->startGame($betAmount);
             $_SESSION['game'] = $game;
             
@@ -123,6 +131,12 @@ try {
             break;
             
         case 'new_game':
+            if ($game) {
+                // Preserve deck state for shoe shuffle method
+                if ($settings['shuffle_method'] === 'shoe') {
+                    $_SESSION['preserved_deck'] = $game->getDeckState();
+                }
+            }
             $_SESSION['game'] = null;
             $game = null;
             
