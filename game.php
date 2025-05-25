@@ -145,11 +145,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         switch ($action) {
             case 'start_game':
                 $betAmount = (float) ($_POST['bet_amount'] ?? 0);
-                if ($betAmount <= 0 || $betAmount < 100) {
-                    throw new Exception("Minimum bet amount is $100");
+                if ($betAmount <= 0 || $betAmount < $settings['table_min_bet']) {
+                    throw new Exception("Minimum bet amount is $" . number_format($settings['table_min_bet'], 2));
                 }
-                if ($betAmount % 100 !== 0) {
-                    throw new Exception("Bet amount must be in multiples of $100");
+                if ($betAmount > $settings['table_max_bet']) {
+                    throw new Exception("Maximum bet amount is $" . number_format($settings['table_max_bet'], 2));
+                }
+                if ($betAmount % $settings['table_min_bet'] !== 0) {
+                    throw new Exception("Bet amount must be in multiples of $" . number_format($settings['table_min_bet'], 2));
                 }
                 if ($betAmount > $sessionData['current_money']) {
                     throw new Exception("Insufficient funds");
@@ -239,10 +242,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (isset($_POST['ajax'])) {
             header('Content-Type: application/json');
+            
+            // Add current money to game state for frontend
+            if ($gameState) {
+                $gameState['currentMoney'] = $sessionData['current_money'];
+            }
+            
             echo json_encode([
                 'success' => true,
                 'gameState' => $gameState,
-                'sessionData' => $sessionData
+                'sessionData' => $sessionData,
+                'settings' => $settings
             ]);
             exit;
         }
@@ -501,10 +511,10 @@ include 'includes/header.php';
                         <input type="number" 
                                id="bet_amount" 
                                name="bet_amount" 
-                               min="100" 
-                               max="<?php echo $sessionData['current_money']; ?>"
-                               step="100" 
-                               value="100"
+                               min="<?php echo $settings['table_min_bet']; ?>" 
+                               max="<?php echo min($sessionData['current_money'], $settings['table_max_bet']); ?>"
+                               step="<?php echo $settings['table_min_bet']; ?>" 
+                               value="<?php echo $settings['table_min_bet']; ?>"
                                class="form-control"
                                style="width: 120px;">
                     </div>
@@ -863,10 +873,10 @@ function updateGameSections(gameState) {
                     <input type="number" 
                            id="bet_amount" 
                            name="bet_amount" 
-                           min="100" 
-                           max="${gameState.currentMoney || 1000}"
-                           step="100" 
-                           value="100"
+                           min="${gameState.settings?.table_min_bet || 100}" 
+                           max="${Math.min(gameState.currentMoney || 1000, gameState.settings?.table_max_bet || 10000)}"
+                           step="${gameState.settings?.table_min_bet || 100}" 
+                           value="${gameState.settings?.table_min_bet || 100}"
                            class="form-control"
                            style="width: 120px;">
                 </div>

@@ -646,7 +646,11 @@ class BlackjackGame {
             'canDouble' => $this->canDouble(),
             'canSplit' => $this->canSplit(),
             'canSurrender' => $this->canSurrender(),
-            'shoeInfo' => $this->getShoeInfo()
+            'shoeInfo' => $this->getShoeInfo(),
+            'settings' => [
+                'table_min_bet' => $this->settings['table_min_bet'],
+                'table_max_bet' => $this->settings['table_max_bet']
+            ]
         ];
     }
     

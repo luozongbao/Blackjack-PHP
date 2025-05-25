@@ -40,9 +40,29 @@ class BlackjackUI {
 
         const form = e.target;
         const betAmount = parseFloat(form.bet_amount.value);
+        const betInput = form.bet_amount;
+        const tableMinBet = parseFloat(betInput.min) || 100;
+        const tableMaxBet = parseFloat(betInput.max) || 10000;
         
         if (betAmount <= 0) {
             this.showOverlayMessage('Please enter a valid bet amount', 'error');
+            return;
+        }
+        
+        // Client-side validation for table limits
+        if (betAmount < tableMinBet) {
+            this.showOverlayMessage(`Minimum bet is $${tableMinBet.toFixed(2)}`, 'error');
+            return;
+        }
+        
+        if (betAmount > tableMaxBet) {
+            this.showOverlayMessage(`Maximum bet is $${tableMaxBet.toFixed(2)}`, 'error');
+            return;
+        }
+        
+        // Validate step (multiples of minimum bet)
+        if (betAmount % tableMinBet !== 0) {
+            this.showOverlayMessage(`Bet must be in multiples of $${tableMinBet.toFixed(2)}`, 'error');
             return;
         }
 
@@ -380,7 +400,7 @@ class BlackjackUI {
         
         if (gameState.gameState === 'betting') {
             // Show betting form
-            this.showBettingForm(actionSection);
+            this.showBettingForm(actionSection, gameState);
         } else if (gameState.gameState === 'player_turn') {
             // Show action buttons
             this.showActionButtons(actionSection, gameState);
@@ -390,7 +410,13 @@ class BlackjackUI {
         }
     }
     
-    showBettingForm(container) {
+    showBettingForm(container, gameState) {
+        // Get table limits from gameState settings or use defaults
+        const tableMinBet = gameState?.settings?.table_min_bet || 100;
+        const tableMaxBet = gameState?.settings?.table_max_bet || 10000;
+        const currentMoney = gameState?.currentMoney || 1000;
+        const maxAllowedBet = Math.min(currentMoney, tableMaxBet);
+        
         container.innerHTML = `
             <form method="POST" id="bet-form" class="d-flex align-center">
                 <input type="hidden" name="action" value="start_game">
@@ -401,9 +427,10 @@ class BlackjackUI {
                     <input type="number" 
                            id="bet_amount" 
                            name="bet_amount" 
-                           min="100" 
-                           step="100" 
-                           value="100"
+                           min="${tableMinBet}" 
+                           max="${maxAllowedBet}"
+                           step="${tableMinBet}" 
+                           value="${tableMinBet}"
                            class="form-control"
                            style="width: 120px;">
                 </div>

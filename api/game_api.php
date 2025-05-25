@@ -68,11 +68,14 @@ try {
     switch ($action) {
         case 'start_game':
             $betAmount = (float) ($_POST['bet_amount'] ?? 0);
-            if ($betAmount <= 0 || $betAmount < 100) {
-                throw new Exception("Minimum bet amount is $100");
+            if ($betAmount <= 0 || $betAmount < $settings['table_min_bet']) {
+                throw new Exception("Minimum bet amount is $" . number_format($settings['table_min_bet'], 2));
             }
-            if ($betAmount % 100 !== 0) {
-                throw new Exception("Bet amount must be in multiples of $100");
+            if ($betAmount > $settings['table_max_bet']) {
+                throw new Exception("Maximum bet amount is $" . number_format($settings['table_max_bet'], 2));
+            }
+            if ($betAmount % $settings['table_min_bet'] !== 0) {
+                throw new Exception("Bet amount must be in multiples of $" . number_format($settings['table_min_bet'], 2));
             }
             if ($betAmount > $sessionData['current_money']) {
                 throw new Exception("Insufficient funds");
@@ -162,11 +165,17 @@ try {
     $stmt->execute([$sessionId]);
     $updatedSessionData = $stmt->fetch(PDO::FETCH_ASSOC);
     
+    // Add current money to game state for frontend
+    if ($gameState) {
+        $gameState['currentMoney'] = $updatedSessionData['current_money'];
+    }
+    
     echo json_encode([
         'success' => true,
         'gameState' => $gameState,
         'sessionData' => $updatedSessionData,
-        'action' => $action
+        'action' => $action,
+        'settings' => $settings
     ]);
     
 } catch (Exception $e) {
