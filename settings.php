@@ -84,9 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $allowInsurance = isset($_POST['allow_insurance']) ? 1 : 0;
             $doubleOn = $_POST['double_on'];
             $maxSplits = intval($_POST['max_splits']);
-            $initialMoney = floatval($_POST['initial_money']);
-            $tableMinBet = floatval($_POST['table_min_bet']);
-            $tableMaxBet = floatval($_POST['table_max_bet']);
+            $initialMoney = intval($_POST['initial_money']);
+            $tableMinBet = intval($_POST['table_min_bet']);
+            $tableMaxBet = intval($_POST['table_max_bet']);
             
             // Basic validation
             if ($decksPerShoe < 1 || $decksPerShoe > 8) {
@@ -97,10 +97,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Maximum splits must be between 1 and 4.';
             } elseif ($initialMoney < 100 || $initialMoney > 1000000) {
                 $error = 'Initial money must be between $100 and $1,000,000.';
+            } elseif ($initialMoney % 100 !== 0) {
+                $error = 'Initial money must be a multiple of $100.';
             } elseif ($tableMinBet < 100) {
                 $error = 'Table minimum bet must be at least $100.';
+            } elseif ($tableMinBet % 100 !== 0) {
+                $error = 'Table minimum bet must be a multiple of $100.';
             } elseif ($tableMaxBet < (2 * $tableMinBet)) {
                 $error = 'Table maximum bet must be at least 2 times the minimum bet ($' . number_format(2 * $tableMinBet, 2) . ').';
+            } elseif ($tableMaxBet % 100 !== 0) {
+                $error = 'Table maximum bet must be a multiple of $100.';
             } elseif ($tableMinBet > $tableMaxBet) {
                 $error = 'Table minimum bet cannot be greater than maximum bet.';
             } else {
@@ -419,21 +425,21 @@ include_once 'includes/header.php';
                         <label for="initial_money">Initial Money ($):</label>
                         <input type="number" id="initial_money" name="initial_money" value="<?php echo $settings['initial_money']; ?>" 
                                min="100" max="1000000" step="100" class="form-control">
-                        <small>This amount is used when starting a new session.</small>
+                        <small>This amount is used when starting a new session. Must be a multiple of $100.</small>
                     </div>
                     
                     <div class="form-group">
                         <label for="table_min_bet">Table Minimum Bet ($):</label>
                         <input type="number" id="table_min_bet" name="table_min_bet" value="<?php echo $settings['table_min_bet']; ?>" 
-                               min="100" step="25" class="form-control">
-                        <small>Minimum bet allowed at the table (must be at least $100).</small>
+                               min="100" step="100" class="form-control">
+                        <small>Minimum bet allowed at the table (must be at least $100 and a multiple of $100).</small>
                     </div>
                     
                     <div class="form-group">
                         <label for="table_max_bet">Table Maximum Bet ($):</label>
                         <input type="number" id="table_max_bet" name="table_max_bet" value="<?php echo $settings['table_max_bet']; ?>" 
                                min="200" step="100" class="form-control">
-                        <small>Maximum bet allowed at the table (must be at least 2 times the minimum bet).</small>
+                        <small>Maximum bet allowed at the table (must be at least 2 times the minimum bet and a multiple of $100).</small>
                     </div>
                 </div>
             </div>
@@ -489,20 +495,33 @@ function confirmSessionRestart() {
 
 // Validate table betting limits
 function validateTableLimits() {
-    const minBet = parseFloat(document.getElementById('table_min_bet').value) || 0;
-    const maxBet = parseFloat(document.getElementById('table_max_bet').value) || 0;
+    const minBet = parseInt(document.getElementById('table_min_bet').value) || 0;
+    const maxBet = parseInt(document.getElementById('table_max_bet').value) || 0;
+    const initialMoney = parseInt(document.getElementById('initial_money').value) || 0;
     const minBetField = document.getElementById('table_min_bet');
     const maxBetField = document.getElementById('table_max_bet');
+    const initialMoneyField = document.getElementById('initial_money');
     
     // Remove existing error styling
     minBetField.classList.remove('is-invalid');
     maxBetField.classList.remove('is-invalid');
+    initialMoneyField.classList.remove('is-invalid');
     
     // Remove existing error messages
     const existingErrors = document.querySelectorAll('.table-bet-error');
     existingErrors.forEach(error => error.remove());
     
     let isValid = true;
+    
+    // Validate initial money
+    if (initialMoney % 100 !== 0) {
+        initialMoneyField.classList.add('is-invalid');
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'invalid-feedback table-bet-error';
+        errorMsg.textContent = 'Initial money must be a multiple of $100';
+        initialMoneyField.parentNode.appendChild(errorMsg);
+        isValid = false;
+    }
     
     // Validate minimum bet
     if (minBet < 100) {
@@ -514,12 +533,30 @@ function validateTableLimits() {
         isValid = false;
     }
     
+    if (minBet % 100 !== 0) {
+        minBetField.classList.add('is-invalid');
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'invalid-feedback table-bet-error';
+        errorMsg.textContent = 'Minimum bet must be a multiple of $100';
+        minBetField.parentNode.appendChild(errorMsg);
+        isValid = false;
+    }
+    
     // Validate maximum bet
     if (maxBet < (2 * minBet)) {
         maxBetField.classList.add('is-invalid');
         const errorMsg = document.createElement('div');
         errorMsg.className = 'invalid-feedback table-bet-error';
-        errorMsg.textContent = `Maximum bet must be at least $${(2 * minBet).toFixed(2)}`;
+        errorMsg.textContent = `Maximum bet must be at least $${(2 * minBet)}`;
+        maxBetField.parentNode.appendChild(errorMsg);
+        isValid = false;
+    }
+    
+    if (maxBet % 100 !== 0) {
+        maxBetField.classList.add('is-invalid');
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'invalid-feedback table-bet-error';
+        errorMsg.textContent = 'Maximum bet must be a multiple of $100';
         maxBetField.parentNode.appendChild(errorMsg);
         isValid = false;
     }

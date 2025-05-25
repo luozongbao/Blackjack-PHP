@@ -144,15 +144,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         switch ($action) {
             case 'start_game':
-                $betAmount = (float) ($_POST['bet_amount'] ?? 0);
+                $betAmount = (int) ($_POST['bet_amount'] ?? 0);
                 if ($betAmount <= 0 || $betAmount < $settings['table_min_bet']) {
-                    throw new Exception("Minimum bet amount is $" . number_format($settings['table_min_bet'], 2));
+                    throw new Exception("Minimum bet amount is $" . number_format($settings['table_min_bet'], 0));
                 }
                 if ($betAmount > $settings['table_max_bet']) {
-                    throw new Exception("Maximum bet amount is $" . number_format($settings['table_max_bet'], 2));
+                    throw new Exception("Maximum bet amount is $" . number_format($settings['table_max_bet'], 0));
                 }
-                if ($betAmount % $settings['table_min_bet'] !== 0) {
-                    throw new Exception("Bet amount must be in multiples of $" . number_format($settings['table_min_bet'], 2));
+                if ($betAmount % 100 !== 0) {
+                    throw new Exception("Bet amount must be a multiple of $100");
                 }
                 if ($betAmount > $sessionData['current_money']) {
                     throw new Exception("Insufficient funds");
@@ -513,10 +513,11 @@ include 'includes/header.php';
                                name="bet_amount" 
                                min="<?php echo $settings['table_min_bet']; ?>" 
                                max="<?php echo min($sessionData['current_money'], $settings['table_max_bet']); ?>"
-                               step="<?php echo $settings['table_min_bet']; ?>" 
+                               step="100" 
                                value="<?php echo $settings['table_min_bet']; ?>"
                                class="form-control"
                                style="width: 120px;">
+                        <small>Must be a multiple of $100</small>
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Deal Cards</button>
