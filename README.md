@@ -1,6 +1,6 @@
-# Blackjack PHP v1.1.0
+# Blackjack PHP v1.1.1
 
-A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, dynamic betting limits, advanced dealer logic, and immersive audio experience.
+A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic, and immersive audio experience.
 
 ## Features
 
@@ -26,6 +26,7 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 
 ### Player Features
 - User authentication and profile management
+- Revised dashboard statistics with clear financial metrics
 - Comprehensive session statistics
 - All-time statistics tracking
 - Customizable initial bankroll
@@ -288,6 +289,16 @@ define('DEBUG_MODE', true);
 © 2025 Blackjack PHP. All rights reserved.
 
 ## Version History
+
+**v1.1.1** - Dashboard Statistics Revision (May 26, 2025)
+- 📊 **Revised**: Complete dashboard statistics overhaul for improved clarity
+- 💰 **Enhanced**: Separate tracking of positive winnings vs actual losses
+- 🎯 **Added**: Net calculation (Total Won + Total Loss) with proper color coding
+- 📈 **Improved**: ROI calculation using Net/Total Bet formula
+- 🎨 **Enhanced**: Color-coded statistics (Green for positive, Red for negative)
+- ✅ **Added**: Real-time statistics updates in game interface
+- 🧪 **Added**: Comprehensive testing suite for statistics verification
+- 📚 **Updated**: Documentation with detailed implementation report
 
 **v1.1.0** - All-Busted Logic Enhancement (May 26, 2025)
 - 🚫 **Added**: Advanced all-busted logic for optimized dealer behavior
