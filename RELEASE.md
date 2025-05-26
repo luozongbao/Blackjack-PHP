@@ -1,10 +1,47 @@
-# Blackjack PHP v1.1.1 Release Notes
+# Blackjack PHP v1.1.2 Release Notes
 
 **Release Date: May 26, 2025**
 
-We're pleased to announce Blackjack PHP v1.1.1, featuring a comprehensive revision of the dashboard statistics system that provides clearer financial tracking and improved user experience with intuitive metrics.
+We're excited to announce Blackjack PHP v1.1.2, featuring a major enhancement to regional dealing styles with authentic implementation of European and Macau dealer blackjack rules, providing players with genuine casino experiences from different regions worldwide.
 
-## What's New in v1.1.1
+## What's New in v1.1.2
+
+### 🌍 Authentic Regional Dealing Styles
+- **Enhanced European Style**: Implemented authentic European dealer blackjack rules
+  - No hole card dealing until player decisions are complete
+  - When dealer has blackjack, all non-blackjack player hands lose their entire bet
+  - Accurate representation of European casino standards
+  
+- **Authentic Macau Style**: Implemented unique Macau dealer blackjack protection rules
+  - **Original Hand Protection**: When dealer has blackjack, original hand loses only the original bet
+  - **Split Hand Protection**: All split hands get their entire bets returned to the player
+  - **Double Down Protection**: Additional doubled amounts are returned while original bet is lost
+  - Provides partial loss protection unique to Macau casinos
+
+### 🎯 Rule Implementation Details
+- **American Style** (unchanged): Standard Las Vegas rules with immediate dealer blackjack detection
+- **European Style**: 
+  - Dealer receives only one card initially
+  - Second card dealt after all player decisions
+  - Dealer blackjack beats all non-blackjack hands completely
+- **Macau Style**:
+  - Original hand (index 0): Loses original bet, returns doubled amounts
+  - Split hands (index > 0): Full bet refund regardless of doubling
+  - Unique player protection not found in other regions
+
+### 🔧 Technical Enhancements
+- **Unified Logic**: Consolidated dealer blackjack handling into single, efficient code block
+- **Eliminated Duplication**: Removed redundant logic that was handling same scenarios twice
+- **Enhanced Accuracy**: All dealing styles now accurately reflect real-world casino rules
+- **Improved Performance**: Streamlined calculation logic for better game responsiveness
+
+### 🎮 User Experience Improvements
+- **Authentic Feel**: Players can experience genuine regional casino variations
+- **Clear Rule Understanding**: Enhanced tooltips and help text explain regional differences
+- **Consistent Behavior**: All dealing styles work reliably across all game scenarios
+- **Professional Implementation**: Accurate rule implementation builds player confidence
+
+## Previous Release: v1.1.1
 
 ### 📊 Revised Dashboard Statistics System
 - **Clear Financial Metrics**: Complete overhaul of how winnings and losses are displayed
@@ -91,10 +128,10 @@ We're pleased to announce Blackjack PHP v1.1.1, featuring a comprehensive revisi
 
 ## Complete Feature Set
 
-- ♠️ Multiple dealing styles (American, European, Macau)
+- ♠️ **Authentic Regional Dealing Styles** (American, European, Macau) with accurate rule implementations
 - 🎲 Configurable number of decks (1-8)
 - 🔄 Flexible shuffling methods with customizable deck penetration
-- ⚙️ Complete rule customization
+- ⚙️ Complete rule customization including regional variations
 - 💰 Comprehensive betting options (Split, Double, Insurance, Surrender)
 - 📈 Real-time game statistics and history
 - 🎵 Full audio system with game action sounds and music
@@ -105,6 +142,8 @@ We're pleased to announce Blackjack PHP v1.1.1, featuring a comprehensive revisi
 
 ## Technical Implementations
 
+- **Regional Rule Systems**: Implemented authentic dealer blackjack rules for European and Macau styles
+- **Unified Game Logic**: Consolidated dealer blackjack handling for improved maintainability
 - **Sound System**: Implemented using the Web Audio API with preloading for responsive playback
 - **Persistent Settings**: Sound preferences stored in browser localStorage
 - **Responsive Design**: Enhanced for all screen sizes and device types
@@ -122,7 +161,15 @@ For Docker-based installations:
 3. Run `docker-compose up -d`
 4. Visit `http://localhost/includes/install.php` to complete setup
 
-### Upgrading from v0.3.x
+### Upgrading from v1.1.x
+1. Back up your database
+2. Replace all application files with the new version
+3. No database schema changes are required for this update
+4. Clear your browser cache after upgrading
+5. Regional dealing style rules will be automatically available in existing games
+
+### Upgrading from v1.0.x
+### Upgrading from v1.0.x
 1. Back up your database
 2. Replace all application files with the new version
 3. No database schema changes are required for this update
@@ -131,13 +178,14 @@ For Docker-based installations:
 ## Known Issues
 - Sound playback may be delayed on first interaction due to browser autoplay restrictions
 - Background music may not automatically start until user interaction in some browsers
+- Regional dealing style differences should be clearly understood before gameplay
 
 ## What's Next
 We're now working on:
-- Additional card themes and table backgrounds
-- Extended statistics and reporting capabilities
-- Advanced betting strategies implementation
-- Multiplayer functionality
+- Additional regional casino variations (Atlantic City, Monte Carlo)
+- Advanced tournament mode with multiple players
+- Enhanced statistics with regional rule performance tracking
+- Card counting practice modes
 - Advanced Docker configurations for scaling
 
 ## Acknowledgments
