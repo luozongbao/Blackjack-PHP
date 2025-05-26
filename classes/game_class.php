@@ -313,6 +313,9 @@ class BlackjackGame {
         $newHand = new Hand($splitBet);
         $newHand->addCard($secondCard);
         
+        // Mark the new hand as split (both hands should be marked as split)
+        $newHand->markSplit();
+        
         // Insert new hand after current hand
         array_splice($this->playerHands, $this->currentHandIndex + 1, 0, [$newHand]);
         
