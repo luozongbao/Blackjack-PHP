@@ -1,8 +1,31 @@
-# Blackjack PHP v1.0.0 Release Notes
+# Blackjack PHP v1.1.0 Release Notes
 
-**Release Date: May 25, 2025**
+**Release Date: May 26, 2025**
 
-We're excited to announce the first official release of Blackjack PHP, a sophisticated web-based Blackjack game implementation. This release marks our transition from beta to a full production-ready version with all major planned features implemented and thoroughly tested.
+We're pleased to announce Blackjack PHP v1.1.0, featuring advanced all-busted logic that optimizes dealer behavior and enhances game performance across all dealing styles.
+
+## What's New in v1.1.0
+
+### 🚫 Advanced All-Busted Logic
+- **Intelligent Dealer Behavior**: Implemented sophisticated logic to handle scenarios where all player hands are busted
+- **Deal Style Specific Handling**: Different behaviors based on the selected dealing style:
+  - **🇺🇸 American Style**: Dealer reveals hole card but doesn't draw additional cards
+  - **🇪🇺 European/Macau Style**: Dealer doesn't draw any additional cards
+- **Performance Optimization**: Eliminates unnecessary dealer card draws when game outcome is predetermined
+- **Early Game Termination**: Game ends immediately when all player hands are busted, improving user experience
+
+### 🔧 Technical Enhancements
+- **New Helper Method**: Added `areAllPlayerHandsBusted()` for comprehensive hand state checking
+- **Enhanced Game Flow**: Improved `playDealerHand()` method with intelligent decision-making
+- **Comprehensive Testing**: Added thorough test suite for all-busted scenarios
+- **Mixed Scenario Support**: Properly handles combinations of busted and surrendered hands
+
+### 📚 Documentation Updates
+- **Testing Guide**: Updated TESTING_GUIDE.md with all-busted logic verification instructions
+- **Implementation Verification**: Added automated tests to verify proper implementation
+- **Code Documentation**: Enhanced inline documentation for better maintainability
+
+## Previous Release: v1.0.0
 
 ## What's New in v1.0.0
 
