@@ -9,6 +9,7 @@ if (!file_exists(__DIR__ . '/config.php')) {
     exit;
 }
 
+
 require_once __DIR__ . '/config.php';
 
 /**
@@ -16,6 +17,7 @@ require_once __DIR__ . '/config.php';
  * 
  * @return PDO Database connection object
  */
+// Get database connection instance
 function getDb() {
     return getDbConnection();
 }
