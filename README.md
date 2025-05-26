@@ -1,11 +1,14 @@
-# Blackjack PHP v1.1.1
+# Blackjack PHP v1.1.2
 
-A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic, and immersive audio experience.
+A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic with authentic regional dealing styles, and immersive audio experience.
 
 ## Features
 
 ### Game Features
-- Multiple dealing styles (American, European, Macau)
+- **Authentic Regional Dealing Styles** with accurate rule implementations:
+  - **American Style**: Standard Las Vegas rules with hole card dealing
+  - **European Style**: No hole card, dealer blackjack beats all non-blackjack hands
+  - **Macau Style**: Unique dealer blackjack rules with partial loss protection
 - Advanced all-busted logic with deal style specific behavior
 - Configurable number of decks (1-8)
 - Flexible shuffling methods (Auto-shuffle or Shoe with customizable deck penetration)
@@ -16,6 +19,10 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 - Customizable audio controls
 
 ### Customizable Game Rules
+- **Regional Dealing Variations**:
+  - **American**: Dealer receives hole card, immediate blackjack detection
+  - **European**: No hole card until player decisions complete, dealer blackjack beats all non-blackjack hands
+  - **Macau**: Unique dealer blackjack rule - original hand loses original bet only, split hands get full refund
 - Dealer behavior (Hit on Soft 17 / Stand on All 17s)
 - Blackjack payout options (3:2 or 1:1)
 - Surrender options (Early, Late, or None)
