@@ -117,14 +117,15 @@ class BlackjackGame {
             throw new Exception("Insufficient funds");
         }
         
-        // Deduct bet amount from current money and update session_total_bet
+        // Deduct bet amount from current money and update total bet counters
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money - ?,
-                session_total_bet = session_total_bet + ?
+                session_total_bet = session_total_bet + ?,
+                all_time_total_bet = all_time_total_bet + ?
             WHERE session_id = ?
         ");
-        $stmt->execute([$betAmount, $betAmount, $this->sessionId]);
+        $stmt->execute([$betAmount, $betAmount, $betAmount, $this->sessionId]);
         
         // Initialize hands
         $this->dealerHand = new Hand();
@@ -279,14 +280,15 @@ class BlackjackGame {
             throw new Exception("Insufficient funds for double down");
         }
         
-        // Deduct additional bet from current money and update session_total_bet
+        // Deduct additional bet from current money and update total bet counters
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money - ?,
-                session_total_bet = session_total_bet + ?
+                session_total_bet = session_total_bet + ?,
+                all_time_total_bet = all_time_total_bet + ?
             WHERE session_id = ?
         ");
-        $stmt->execute([$additionalBet, $additionalBet, $this->sessionId]);
+        $stmt->execute([$additionalBet, $additionalBet, $additionalBet, $this->sessionId]);
         
         $currentHand->doubleBet();
         $currentHand->addCard($this->deck->dealCard());
@@ -321,14 +323,15 @@ class BlackjackGame {
             throw new Exception("Insufficient funds for split");
         }
         
-        // Deduct split bet from current money and update session_total_bet
+        // Deduct split bet from current money and update total bet counters
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money - ?,
-                session_total_bet = session_total_bet + ?
+                session_total_bet = session_total_bet + ?,
+                all_time_total_bet = all_time_total_bet + ?
             WHERE session_id = ?
         ");
-        $stmt->execute([$splitBet, $splitBet, $this->sessionId]);
+        $stmt->execute([$splitBet, $splitBet, $splitBet, $this->sessionId]);
         
         // Split the hand
         $secondCard = $currentHand->split();
@@ -544,16 +547,19 @@ class BlackjackGame {
         $gameLost = $results['gameOutcome'] === 'lost' ? 1 : 0;
         
         $totalWon = $results['totalWon'];
-        $totalLost = $results['totalLost'];
         
-        // Calculate actual winnings (excluding original bet return)
-        $actualWinnings = $totalWon - $totalBet; // Net winnings only, not including bet return
+        // Calculate actual game outcome for statistics
+        // Net result = total payout minus total bet (profit/loss for the game)
+        $netGameResult = $totalWon - $totalBet;
+        
+        // For dashboard stats tracking:
+        // - If game has positive outcome (profit), add to Total Won
+        // - If game has negative outcome (loss), add to Total Loss
+        $gameWinAmount = $netGameResult > 0 ? $netGameResult : 0;
+        $gameLossAmount = $netGameResult < 0 ? abs($netGameResult) : 0;
         
         // Add total payout to current money (bet was already deducted when placed)
-        // For stats: track actual winnings separately from total payout
-        // Store actual winnings (not including bet return) as previous_game_won
-        // And update accumulated_previous_wins by adding the new previous_game_won
-        // ALSO update all-time stats to accumulate historical data
+        // Note: Total bet is tracked when bet is placed, not when game ends
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money + ?,
@@ -567,7 +573,6 @@ class BlackjackGame {
                 previous_game_won = ?,
                 all_time_total_won = all_time_total_won + ?,
                 all_time_total_loss = all_time_total_loss + ?,
-                all_time_total_bet = all_time_total_bet + ?,
                 all_time_games_played = all_time_games_played + 1,
                 all_time_games_won = all_time_games_won + ?,
                 all_time_games_push = all_time_games_push + ?,
@@ -576,19 +581,18 @@ class BlackjackGame {
         ");
         
         $stmt->execute([
-            $totalWon,  // Add full payout to current money
-            $actualWinnings,  // Track only net winnings for display
-            $totalLost,
+            $totalWon,              // Add full payout to current money
+            $gameWinAmount,         // Track only positive game outcomes for session
+            $gameLossAmount,        // Track only negative game outcomes for session
             $gameWon,
             $gamePush,
             $gameLost,
-            $actualWinnings,  // Store actual winnings (net profit/loss) as previous_game_won
-            $actualWinnings,  // Add to all-time total won
-            $totalLost,       // Add to all-time total loss
-            $totalBet,        // Add to all-time total bet
-            $gameWon,         // Add to all-time games won
-            $gamePush,        // Add to all-time games push
-            $gameLost,        // Add to all-time games lost
+            $netGameResult,         // Store net game result as previous_game_won
+            $gameWinAmount,         // Add only positive game outcomes to all-time total won
+            $gameLossAmount,        // Add only negative game outcomes to all-time total loss
+            $gameWon,               // Add to all-time games won
+            $gamePush,              // Add to all-time games push
+            $gameLost,              // Add to all-time games lost
             $this->sessionId
         ]);
     }
