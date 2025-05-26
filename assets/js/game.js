@@ -676,6 +676,13 @@ class BlackjackUI {
         const currentMoney = gameState?.currentMoney || 1000;
         const maxAllowedBet = Math.min(currentMoney, tableMaxBet);
         
+        // Determine default bet amount
+        let defaultBet = tableMinBet;
+        if (gameState?.defaultBet) {
+            // Use the defaultBet from server (previous game's initial bet or table minimum)
+            defaultBet = gameState.defaultBet;
+        }
+        
         container.innerHTML = `
             <form method="POST" id="bet-form" class="d-flex align-center">
                 <input type="hidden" name="action" value="start_game">
@@ -689,7 +696,7 @@ class BlackjackUI {
                            min="${tableMinBet}" 
                            max="${maxAllowedBet}"
                            step="${tableMinBet}" 
-                           value="${tableMinBet}"
+                           value="${defaultBet}"
                            class="form-control"
                            style="width: 120px;">
                 </div>

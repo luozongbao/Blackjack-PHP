@@ -208,6 +208,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['game'] = null;
                 $game = null;
                 
+                // Get previous game's initial bet for default value
+                $stmt = $db->prepare("
+                    SELECT initial_bet 
+                    FROM game_hands 
+                    WHERE session_id = ? 
+                    ORDER BY game_number DESC 
+                    LIMIT 1
+                ");
+                $stmt->execute([$sessionId]);
+                $previousBet = $stmt->fetchColumn();
+                $defaultBet = $previousBet ?: $settings['table_min_bet'];
+                
                 // Create a new empty game state for betting
                 $gameState = [
                     'gameState' => 'betting',
@@ -218,7 +230,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'canStand' => false,
                     'canDouble' => false,
                     'canSplit' => false,
-                    'canSurrender' => false
+                    'canSurrender' => false,
+                    'defaultBet' => $defaultBet
                 ];
                 
                 // Refresh session data
@@ -502,6 +515,24 @@ include 'includes/header.php';
         <div class="action-section" id="action-section">
             <?php if (!$game || $gameState['gameState'] === 'betting'): ?>
                 <!-- Betting Phase -->
+                <?php 
+                    // Determine default bet amount
+                    $defaultBet = $settings['table_min_bet']; // Start with table minimum
+                    
+                    // Check for previous game's initial bet
+                    $stmt = $db->prepare("
+                        SELECT initial_bet 
+                        FROM game_hands 
+                        WHERE session_id = ? 
+                        ORDER BY game_number DESC 
+                        LIMIT 1
+                    ");
+                    $stmt->execute([$sessionId]);
+                    $previousBet = $stmt->fetchColumn();
+                    if ($previousBet) {
+                        $defaultBet = $previousBet;
+                    }
+                ?>
                 <form method="POST" id="bet-form" class="d-flex align-center">
                     <input type="hidden" name="action" value="start_game">
                     <input type="hidden" name="ajax" value="1">
@@ -514,7 +545,7 @@ include 'includes/header.php';
                                min="<?php echo $settings['table_min_bet']; ?>" 
                                max="<?php echo min($sessionData['current_money'], $settings['table_max_bet']); ?>"
                                step="100" 
-                               value="<?php echo $settings['table_min_bet']; ?>"
+                               value="<?php echo $defaultBet; ?>"
                                class="form-control"
                                style="width: 120px;">
                         <small>Must be a multiple of $100</small>
