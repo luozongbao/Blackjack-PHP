@@ -27,6 +27,13 @@ We're excited to announce the first official release of Blackjack PHP, a sophist
 - **Responsive Design**: Improved mobile responsiveness across all game elements
 - **Visual Feedback**: Enhanced feedback for game actions and results
 
+### 🐳 Docker Compose Support
+- **Containerization**: Added full Docker Compose support for easy deployment
+- **Multi-container Architecture**: Nginx, PHP-FPM, and MariaDB services preconfigured
+- **Environment Variables**: Simple configuration via environment variables
+- **Volume Persistence**: Data and logs persist between container restarts
+- **Zero-configuration Setup**: Ready to run with minimal setup requirements
+
 ## Complete Feature Set
 
 - ♠️ Multiple dealing styles (American, European, Macau)
@@ -39,6 +46,7 @@ We're excited to announce the first official release of Blackjack PHP, a sophist
 - 👤 User authentication and profile management
 - 💾 Session management with restart capability
 - 🔒 Secure implementation with modern web best practices
+- 🐳 Docker Compose support for easy deployment
 
 ## Technical Implementations
 
@@ -46,11 +54,18 @@ We're excited to announce the first official release of Blackjack PHP, a sophist
 - **Persistent Settings**: Sound preferences stored in browser localStorage
 - **Responsive Design**: Enhanced for all screen sizes and device types
 - **Performance Optimizations**: Improved loading times and game responsiveness
+- **Docker Integration**: Optimized container configuration for production use
 
 ## Installation and Upgrade Notes
 
 ### Fresh Installation
 Follow the standard installation procedure outlined in the README.md file.
+
+For Docker-based installations:
+1. Clone the repository
+2. Create a `.env` file with your database credentials
+3. Run `docker-compose up -d`
+4. Visit `http://localhost/includes/install.php` to complete setup
 
 ### Upgrading from v0.3.x
 1. Back up your database
@@ -68,6 +83,7 @@ We're now working on:
 - Extended statistics and reporting capabilities
 - Advanced betting strategies implementation
 - Multiplayer functionality
+- Advanced Docker configurations for scaling
 
 ## Acknowledgments
 Special thanks to all contributors who have helped make this release possible.

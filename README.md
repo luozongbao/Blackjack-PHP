@@ -48,8 +48,11 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 - Web server (Apache/Nginx recommended)
 - Modern web browser with JavaScript enabled
 - PHP extensions: PDO, PDO_MySQL, session, json
+- Docker and Docker Compose (optional, for containerized setup)
 
 ## Installation
+
+### Option 1: Traditional Installation
 
 1. **Clone the repository** to your web server directory:
    ```bash
@@ -72,6 +75,74 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
    ```
 
 5. **Access the application** through your web browser
+
+### Option 2: Docker Compose Installation (Recommended)
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/username/Blackjack-PHP.git
+   cd Blackjack-PHP
+   ```
+
+2. **Create environment variables**:
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   DATABASENAME=blackjack
+   DATABASEUSER=blackjackuser
+   DATABASEPASS=your_secure_password
+   ```
+
+3. **Start the containers**:
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the installation wizard**:
+   - Navigate to `http://localhost/includes/install.php` in your browser
+   - Use the following database details:
+     - Database Host: `db`
+     - Database Name: `blackjack` (or whatever you set in .env)
+     - Database Username: `blackjackuser` (or whatever you set in .env)
+     - Database Password: (the password you set in .env)
+
+5. **Complete the installation** by following the wizard
+
+6. **Access the application** at `http://localhost`
+
+### Docker Compose Structure
+
+The containerized setup includes:
+- **Nginx**: Web server on port 80
+- **PHP-FPM 8.3**: PHP processor with all required extensions
+- **MariaDB**: Database server
+- **Persistent volumes**: For database data and logs
+
+### Docker Commands
+
+- **Start the application**:
+  ```bash
+  docker-compose up -d
+  ```
+
+- **Stop the application**:
+  ```bash
+  docker-compose down
+  ```
+
+- **View logs**:
+  ```bash
+  docker-compose logs
+  ```
+  
+- **Restart a specific service**:
+  ```bash
+  docker-compose restart php
+  ```
+
+- **Access the database**:
+  ```bash
+  docker-compose exec db mysql -u root -p
+  ```
 
 ### Nginx Configuration Example
 ```nginx
