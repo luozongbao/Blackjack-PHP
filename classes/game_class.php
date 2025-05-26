@@ -492,6 +492,39 @@ class BlackjackGame {
                     $handResult['status'] = 'blackjack';
                     $totalWon += $hand->getBet() * (1 + $payout);
                 }
+            } elseif ($dealerBlackjack) {
+                // When dealer has blackjack, handle all non-blackjack player hands
+                if ($this->settings['deal_style'] === 'american') {
+                    // American: Regular loss for all non-blackjack hands
+                    $handResult['status'] = 'lost';
+                    $totalLost += $hand->getBet();
+                } elseif ($this->settings['deal_style'] === 'european') {
+                    // European: Player loses entire bet for all non-blackjack hands
+                    $handResult['status'] = 'lost';
+                    $totalLost += $hand->getBet();
+                } elseif ($this->settings['deal_style'] === 'macau') {
+                    // Macau: Special rules - original hand loses original bet, split hands get bets returned
+                    if ($index === 0) {
+                        // Original hand (first hand): lose original bet only
+                        if ($hand->isDoubled()) {
+                            // Return the additional bet (half of current bet), lose the original bet
+                            $originalBet = $hand->getBet() / 2;
+                            $handResult['won'] = $originalBet; // Return additional bet
+                            $handResult['status'] = 'lost_partial';
+                            $totalWon += $originalBet;
+                            $totalLost += $originalBet;
+                        } else {
+                            // Lose original bet
+                            $handResult['status'] = 'lost';
+                            $totalLost += $hand->getBet();
+                        }
+                    } else {
+                        // Split hands: return entire bet (including any doubling)
+                        $handResult['won'] = $hand->getBet();
+                        $handResult['status'] = 'returned';
+                        $totalWon += $hand->getBet();
+                    }
+                }
             } elseif ($dealerBusted) {
                 $handResult['won'] = $hand->getBet() * 2;
                 $handResult['status'] = 'won';
