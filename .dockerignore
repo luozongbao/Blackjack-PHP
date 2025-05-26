@@ -1,0 +1,35 @@
+.gitignore
+.dockerignore
+
+# docker files
+docker-compose.yml
+dockerfile
+docker/*
+nginx/
+nginx/*
+
+
+
+# Config files that may contain sensitive information
+includes/config.php
+.env
+
+
+# Debug and temporary files
+phpinfo.php
+*.example
+*.bak
+*.log
+*.bak*
+
+# Keep log directory structure but not log files
+logs/*
+!logs/.gitkeep
+
+# IDE and OS generated files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+reports/

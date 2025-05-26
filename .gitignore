@@ -1,0 +1,8 @@
+*.bak*
+includes/config.php
+*.log
+test_*.*
+verify_*.php
+reports/
+reports/*
+.env
