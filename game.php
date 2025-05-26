@@ -144,12 +144,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         switch ($action) {
             case 'start_game':
-                $betAmount = (float) ($_POST['bet_amount'] ?? 0);
-                if ($betAmount <= 0 || $betAmount < 100) {
-                    throw new Exception("Minimum bet amount is $100");
+                $betAmount = (int) ($_POST['bet_amount'] ?? 0);
+                if ($betAmount <= 0 || $betAmount < $settings['table_min_bet']) {
+                    throw new Exception("Minimum bet amount is $" . number_format($settings['table_min_bet'], 0));
+                }
+                if ($betAmount > $settings['table_max_bet']) {
+                    throw new Exception("Maximum bet amount is $" . number_format($settings['table_max_bet'], 0));
                 }
                 if ($betAmount % 100 !== 0) {
-                    throw new Exception("Bet amount must be in multiples of $100");
+                    throw new Exception("Bet amount must be a multiple of $100");
                 }
                 if ($betAmount > $sessionData['current_money']) {
                     throw new Exception("Insufficient funds");
@@ -205,6 +208,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['game'] = null;
                 $game = null;
                 
+                // Get previous game's initial bet for default value
+                $stmt = $db->prepare("
+                    SELECT initial_bet 
+                    FROM game_hands 
+                    WHERE session_id = ? 
+                    ORDER BY game_number DESC 
+                    LIMIT 1
+                ");
+                $stmt->execute([$sessionId]);
+                $previousBet = $stmt->fetchColumn();
+                $defaultBet = $previousBet ?: $settings['table_min_bet'];
+                
                 // Create a new empty game state for betting
                 $gameState = [
                     'gameState' => 'betting',
@@ -215,7 +230,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'canStand' => false,
                     'canDouble' => false,
                     'canSplit' => false,
-                    'canSurrender' => false
+                    'canSurrender' => false,
+                    'defaultBet' => $defaultBet
                 ];
                 
                 // Refresh session data
@@ -239,10 +255,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if (isset($_POST['ajax'])) {
             header('Content-Type: application/json');
+            
+            // Add current money to game state for frontend
+            if ($gameState) {
+                $gameState['currentMoney'] = $sessionData['current_money'];
+            }
+            
             echo json_encode([
                 'success' => true,
                 'gameState' => $gameState,
-                'sessionData' => $sessionData
+                'sessionData' => $sessionData,
+                'settings' => $settings
             ]);
             exit;
         }
@@ -492,6 +515,24 @@ include 'includes/header.php';
         <div class="action-section" id="action-section">
             <?php if (!$game || $gameState['gameState'] === 'betting'): ?>
                 <!-- Betting Phase -->
+                <?php 
+                    // Determine default bet amount
+                    $defaultBet = $settings['table_min_bet']; // Start with table minimum
+                    
+                    // Check for previous game's initial bet
+                    $stmt = $db->prepare("
+                        SELECT initial_bet 
+                        FROM game_hands 
+                        WHERE session_id = ? 
+                        ORDER BY game_number DESC 
+                        LIMIT 1
+                    ");
+                    $stmt->execute([$sessionId]);
+                    $previousBet = $stmt->fetchColumn();
+                    if ($previousBet) {
+                        $defaultBet = $previousBet;
+                    }
+                ?>
                 <form method="POST" id="bet-form" class="d-flex align-center">
                     <input type="hidden" name="action" value="start_game">
                     <input type="hidden" name="ajax" value="1">
@@ -501,12 +542,13 @@ include 'includes/header.php';
                         <input type="number" 
                                id="bet_amount" 
                                name="bet_amount" 
-                               min="100" 
-                               max="<?php echo $sessionData['current_money']; ?>"
+                               min="<?php echo $settings['table_min_bet']; ?>" 
+                               max="<?php echo min($sessionData['current_money'], $settings['table_max_bet']); ?>"
                                step="100" 
-                               value="100"
+                               value="<?php echo $defaultBet; ?>"
                                class="form-control"
                                style="width: 120px;">
+                        <small>Must be a multiple of $100</small>
                     </div>
                     
                     <button type="submit" class="btn btn-primary">Deal Cards</button>
@@ -575,6 +617,16 @@ include 'includes/header.php';
                 </div>
             <?php endif; ?>
         </div>
+    </div>
+    
+    <!-- Sound Controls -->
+    <div class="sound-controls">
+        <button id="sound-toggle" class="sound-button" title="Sound On - Click to Mute" onclick="window.blackjackGame.toggleSound()">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        <button id="music-toggle" class="sound-button" title="Music Off - Click to Play" onclick="window.blackjackGame.toggleBackgroundMusic()">
+            <i class="fas fa-music"></i>
+        </button>
     </div>
 </div>
 
@@ -863,10 +915,10 @@ function updateGameSections(gameState) {
                     <input type="number" 
                            id="bet_amount" 
                            name="bet_amount" 
-                           min="100" 
-                           max="${gameState.currentMoney || 1000}"
-                           step="100" 
-                           value="100"
+                           min="${gameState.settings?.table_min_bet || 100}" 
+                           max="${Math.min(gameState.currentMoney || 1000, gameState.settings?.table_max_bet || 10000)}"
+                           step="${gameState.settings?.table_min_bet || 100}" 
+                           value="${gameState.settings?.table_min_bet || 100}"
                            class="form-control"
                            style="width: 120px;">
                 </div>
@@ -875,10 +927,11 @@ function updateGameSections(gameState) {
             </form>
         `;
         
-        // Re-attach the betting form event listener
+        // Re-attach the betting form event listener (handled by BlackjackUI class)
         const newBetForm = document.getElementById('bet-form');
-        if (newBetForm) {
-            newBetForm.addEventListener('submit', handleBetFormSubmit);
+        if (newBetForm && window.blackjackGame) {
+            // The BlackjackUI class will automatically bind to the new form
+            window.blackjackGame.bindEvents();
         }
     } else if (gameState.gameState === 'player_turn') {
         // Show game actions
@@ -991,54 +1044,7 @@ window.addEventListener('beforeunload', function(e) {
 });
 <?php endif; ?>
 
-// Handle betting form submission
-function handleBetFormSubmit(e) {
-    console.log('Bet form submitted');
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const betAmount = formData.get('bet_amount');
-    console.log('Bet amount:', betAmount);
-    
-    fetch('game.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        console.log('Bet response status:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Bet response data:', data);
-        if (data.success) {
-            updateGameUI(data.gameState);
-            updateShoeInfo(data.gameState);
-        } else {
-            if (data.redirect) {
-                // Handle authentication redirect
-                window.location.href = data.redirect;
-            } else {
-                if (window.blackjackGame) {
-                    window.blackjackGame.showOverlayMessage('Error: ' + data.error, 'error');
-                }
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Bet error:', error);
-        if (window.blackjackGame) {
-            window.blackjackGame.showOverlayMessage('An error occurred. Please try again.', 'error');
-        }
-    });
-}
-
-// Handle betting form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const betForm = document.getElementById('bet-form');
-    if (betForm) {
-        betForm.addEventListener('submit', handleBetFormSubmit);
-    }
-});
+// Bet form submission is now handled by BlackjackUI class in game.js
 </script>
 
 <?php

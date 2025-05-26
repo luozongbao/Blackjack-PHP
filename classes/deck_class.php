@@ -11,6 +11,11 @@ class Deck {
     private $ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
     
     public function __construct($numDecks = 1) {
+        // Validate number of decks
+        if (!is_int($numDecks) || $numDecks < 1 || $numDecks > 8) {
+            throw new Exception("Invalid number of decks. Must be an integer between 1 and 8.");
+        }
+        
         $this->createDeck($numDecks);
         $this->shuffle();
     }
@@ -67,6 +72,11 @@ class Deck {
      * Reset deck with new number of decks
      */
     public function resetDeck($numDecks) {
+        // Validate number of decks
+        if (!is_int($numDecks) || $numDecks < 1 || $numDecks > 8) {
+            throw new Exception("Invalid number of decks. Must be an integer between 1 and 8.");
+        }
+        
         $this->createDeck($numDecks);
         $this->shuffle();
     }

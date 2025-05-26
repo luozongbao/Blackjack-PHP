@@ -26,6 +26,11 @@ class BlackjackGame {
     const STATE_GAME_OVER = 'game_over';
     
     public function __construct($settings, $sessionId, $db) {
+        // Validate deck settings
+        if (!isset($settings['decks_per_shoe']) || $settings['decks_per_shoe'] < 1 || $settings['decks_per_shoe'] > 8) {
+            throw new Exception("Invalid number of decks per shoe. Must be between 1 and 8.");
+        }
+        
         $this->settings = $settings;
         $this->sessionId = $sessionId;
         $this->db = $db;
@@ -424,6 +429,7 @@ class BlackjackGame {
                 if ($dealerBlackjack) {
                     $handResult['won'] = $hand->getBet();
                     $handResult['status'] = 'push';
+                    $totalWon += $hand->getBet(); // Return original bet to player on blackjack push
                 } else {
                     $payout = $this->settings['blackjack_payout'] === '3:2' ? 1.5 : 1;
                     $handResult['won'] = $hand->getBet() * (1 + $payout);
@@ -441,6 +447,7 @@ class BlackjackGame {
             } elseif ($hand->getScore() == $dealerScore) {
                 $handResult['won'] = $hand->getBet();
                 $handResult['status'] = 'push';
+                $totalWon += $hand->getBet(); // Return original bet to player on push
             } else {
                 $handResult['status'] = 'lost';
                 $totalLost += $hand->getBet();
@@ -449,12 +456,15 @@ class BlackjackGame {
             $results[] = $handResult;
         }
         
+        // Calculate total bet amount for proper game outcome determination
+        $totalBet = array_sum(array_map(function($hand) { return $hand->getBet(); }, $this->playerHands));
+        
         return [
             'hands' => $results,
             'totalWon' => $totalWon,
             'totalLost' => $totalLost,
             'netResult' => $totalWon - $totalLost,
-            'gameOutcome' => $totalWon > $totalLost ? 'won' : ($totalWon == $totalLost ? 'push' : 'lost')
+            'gameOutcome' => $totalWon > $totalBet ? 'won' : ($totalWon == $totalBet ? 'push' : 'lost')
         ];
     }
     
@@ -490,6 +500,7 @@ class BlackjackGame {
         // For stats: track actual winnings separately from total payout
         // Store actual winnings (not including bet return) as previous_game_won
         // And update accumulated_previous_wins by adding the new previous_game_won
+        // ALSO update all-time stats to accumulate historical data
         $stmt = $this->db->prepare("
             UPDATE game_sessions 
             SET current_money = current_money + ?,
@@ -500,7 +511,14 @@ class BlackjackGame {
                 session_games_push = session_games_push + ?,
                 session_games_lost = session_games_lost + ?,
                 accumulated_previous_wins = accumulated_previous_wins + previous_game_won,
-                previous_game_won = ?
+                previous_game_won = ?,
+                all_time_total_won = all_time_total_won + ?,
+                all_time_total_loss = all_time_total_loss + ?,
+                all_time_total_bet = all_time_total_bet + ?,
+                all_time_games_played = all_time_games_played + 1,
+                all_time_games_won = all_time_games_won + ?,
+                all_time_games_push = all_time_games_push + ?,
+                all_time_games_lost = all_time_games_lost + ?
             WHERE session_id = ?
         ");
         
@@ -512,6 +530,12 @@ class BlackjackGame {
             $gamePush,
             $gameLost,
             $actualWinnings,  // Store actual winnings (net profit/loss) as previous_game_won
+            $actualWinnings,  // Add to all-time total won
+            $totalLost,       // Add to all-time total loss
+            $totalBet,        // Add to all-time total bet
+            $gameWon,         // Add to all-time games won
+            $gamePush,        // Add to all-time games push
+            $gameLost,        // Add to all-time games lost
             $this->sessionId
         ]);
     }
@@ -641,7 +665,11 @@ class BlackjackGame {
             'canDouble' => $this->canDouble(),
             'canSplit' => $this->canSplit(),
             'canSurrender' => $this->canSurrender(),
-            'shoeInfo' => $this->getShoeInfo()
+            'shoeInfo' => $this->getShoeInfo(),
+            'settings' => [
+                'table_min_bet' => $this->settings['table_min_bet'],
+                'table_max_bet' => $this->settings['table_max_bet']
+            ]
         ];
     }
     

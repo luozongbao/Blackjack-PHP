@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS user_settings (
     double_on ENUM('any', '9-10-11') NOT NULL DEFAULT 'any',
     max_splits INT NOT NULL DEFAULT 3,
     initial_money DECIMAL(12,2) NOT NULL DEFAULT 10000.00,
+    table_min_bet DECIMAL(12,2) NOT NULL DEFAULT 100.00,
+    table_max_bet DECIMAL(12,2) NOT NULL DEFAULT 10000.00,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
@@ -66,7 +68,11 @@ CREATE TABLE IF NOT EXISTS game_sessions (
     all_time_games_won INT NOT NULL DEFAULT 0,
     all_time_games_push INT NOT NULL DEFAULT 0,
     all_time_games_lost INT NOT NULL DEFAULT 0,
-    
+
+    lock_id VARCHAR(64) NULL DEFAULT NULL,  -- For optimistic locking
+    lock_time TIMESTAMP NULL DEFAULT NULL,  -- Timestamp for lock
+    game_state TEXT NULL DEFAULT NULL,  -- JSON object to store game state (e.g., current hand, bets, etc.)
+
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
@@ -77,7 +83,7 @@ CREATE TABLE IF NOT EXISTS game_hands (
     game_number INT NOT NULL,  -- Incremental game number within a session
     start_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     end_time TIMESTAMP NULL,
-    hand_status ENUM('active', 'won', 'lost', 'push', 'blackjack', 'surrender') NULL,
+    hand_status ENUM('active', 'won', 'lost', 'push', 'blackjack', 'surrender', 'finished') NULL,
     
     -- Game state
     dealer_cards TEXT NULL,  -- JSON array of cards
@@ -97,10 +103,10 @@ CREATE TABLE IF NOT EXISTS game_hands (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_sessions_user_id ON game_sessions(user_id);
-CREATE INDEX idx_game_hands_session_id ON game_hands(session_id);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON game_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_game_hands_session_id ON game_hands(session_id);
 
 -- Create password reset attempts table to track and limit attempts
 CREATE TABLE IF NOT EXISTS password_reset_attempts (

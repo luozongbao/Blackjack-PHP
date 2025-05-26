@@ -8,6 +8,8 @@ class BlackjackUI {
         this.gameActive = false;
         this.animating = false;
         this.currentGameState = null;
+        this.soundEnabled = true; // Default sound setting
+        this.sounds = {}; // Will hold our audio objects
         this.init();
     }
 
@@ -15,13 +17,165 @@ class BlackjackUI {
         this.bindEvents();
         this.updateGameState();
         this.addCardAnimations();
+        this.loadSounds();
+        
+        // Start background music on user interaction
+        document.addEventListener('click', () => {
+            // Try to play background music on first user interaction
+            // This addresses autoplay restrictions in browsers
+            if (this.sounds.backgroundMusic && this.sounds.backgroundMusic.paused && this.soundEnabled) {
+                this.toggleBackgroundMusic();
+            }
+        }, { once: true }); // Only trigger once
+    }
+
+    // Load all sound effects and background music
+    loadSounds() {
+        // Background music
+        this.sounds.backgroundMusic = new Audio('/assets/audio/background_music.mp3');
+        this.sounds.backgroundMusic.loop = true;
+        this.sounds.backgroundMusic.volume = 0.3;
+        
+        // Game action sounds
+        this.sounds.deal = new Audio('/assets/audio/deal.mp3');
+        this.sounds.hit = new Audio('/assets/audio/hit.mp3');
+        this.sounds.stand = new Audio('/assets/audio/stand.mp3');
+        this.sounds.double = new Audio('/assets/audio/double.mp3');
+        this.sounds.split = new Audio('/assets/audio/split.mp3');
+        this.sounds.shuffle = new Audio('/assets/audio/shuffle.mp3');
+        this.sounds.chips = new Audio('/assets/audio/chips.mp3');
+        
+        // Result sounds
+        this.sounds.win = new Audio('/assets/audio/win.mp3');
+        this.sounds.lose = new Audio('/assets/audio/lose.mp3');
+        this.sounds.push = new Audio('/assets/audio/push.mp3');
+        this.sounds.blackjack = new Audio('/assets/audio/blackjack.mp3');
+        
+        // Preload sounds
+        this.preloadSounds();
+        
+        // Load sound settings from localStorage if available
+        const soundSetting = localStorage.getItem('blackjackSoundEnabled');
+        if (soundSetting !== null) {
+            this.soundEnabled = soundSetting === 'true';
+        }
+    }
+    
+    // Preload all sounds to ensure they play promptly
+    preloadSounds() {
+        for (const sound in this.sounds) {
+            if (this.sounds[sound] instanceof Audio) {
+                // Load a small part of each audio file
+                this.sounds[sound].load();
+                this.sounds[sound].volume = 0;
+                this.sounds[sound].play().catch(() => {});
+                this.sounds[sound].pause();
+                this.sounds[sound].currentTime = 0;
+                // Reset volume for actual playback
+                if (sound === 'backgroundMusic') {
+                    this.sounds[sound].volume = 0.3;
+                } else {
+                    this.sounds[sound].volume = 1.0;
+                }
+            }
+        }
+    }
+    
+    // Play a sound if sounds are enabled
+    playSound(soundName) {
+        if (this.soundEnabled && this.sounds[soundName]) {
+            // Stop the sound if it's already playing and reset it
+            this.sounds[soundName].pause();
+            this.sounds[soundName].currentTime = 0;
+            
+            // Play the sound
+            this.sounds[soundName].play().catch(error => {
+                console.log('Sound play error:', error);
+                // Often due to user not interacting with page yet
+            });
+        }
+    }
+    
+    // Toggle background music
+    toggleBackgroundMusic() {
+        if (this.soundEnabled) {
+            if (this.sounds.backgroundMusic.paused) {
+                this.sounds.backgroundMusic.play().catch(error => {
+                    console.log('Background music play error:', error);
+                });
+                // Update music button UI
+                const musicButton = document.getElementById('music-toggle');
+                if (musicButton) {
+                    musicButton.innerHTML = '<i class="fas fa-music"></i>';
+                    musicButton.classList.add('active');
+                    musicButton.classList.remove('muted');
+                    musicButton.title = "Music On - Click to Mute";
+                }
+            } else {
+                this.sounds.backgroundMusic.pause();
+                // Update music button UI
+                const musicButton = document.getElementById('music-toggle');
+                if (musicButton) {                musicButton.innerHTML = '<i class="fas fa-volume-xmark"></i>';
+                musicButton.classList.remove('active');
+                    musicButton.classList.add('muted');
+                    musicButton.title = "Music Off - Click to Play";
+                }
+            }
+        } else {
+            this.sounds.backgroundMusic.pause();
+        }
+    }
+    
+    // Toggle all sounds on/off
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        localStorage.setItem('blackjackSoundEnabled', this.soundEnabled);
+        
+        // Update sound button UI
+        const soundButton = document.getElementById('sound-toggle');
+        if (soundButton) {
+            if (this.soundEnabled) {
+                soundButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+                soundButton.classList.remove('muted');
+                soundButton.classList.add('active');
+                soundButton.title = "Sound On - Click to Mute";
+            } else {
+                soundButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                soundButton.classList.add('muted');
+                soundButton.classList.remove('active');
+                soundButton.title = "Sound Off - Click to Enable";
+            }
+        }
+        
+        // Update music button to match sound state
+        const musicButton = document.getElementById('music-toggle');
+        if (musicButton) {
+            if (!this.soundEnabled) {
+                musicButton.classList.add('muted');
+                musicButton.classList.remove('active');
+            } else if (!this.sounds.backgroundMusic.paused) {
+                musicButton.classList.add('active');
+                musicButton.classList.remove('muted');
+            }
+        }
+        
+        // Handle background music based on new setting
+        if (!this.soundEnabled && this.sounds.backgroundMusic) {
+            this.sounds.backgroundMusic.pause();
+        }
+        
+        return this.soundEnabled;
     }
 
     bindEvents() {
+        // Remove existing event listeners to prevent duplicates
+        this.unbindEvents();
+        
         // Bet form submission
         const betForm = document.getElementById('bet-form');
         if (betForm) {
-            betForm.addEventListener('submit', (e) => this.handleBetSubmission(e));
+            this.betFormHandler = (e) => this.handleBetSubmission(e);
+            betForm.addEventListener('submit', this.betFormHandler);
         }
 
         // Action buttons
@@ -29,8 +183,46 @@ class BlackjackUI {
             button.addEventListener('click', (e) => this.handleActionClick(e));
         });
 
+        // Initialize sound buttons
+        const soundButton = document.getElementById('sound-toggle');
+        if (soundButton) {
+            if (this.soundEnabled) {
+                soundButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+                soundButton.classList.remove('muted');
+                soundButton.classList.add('active');
+                soundButton.title = "Sound On - Click to Mute";
+            } else {
+                soundButton.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                soundButton.classList.add('muted');
+                soundButton.classList.remove('active');
+                soundButton.title = "Sound Off - Click to Enable";
+            }
+        }
+        
+        // Initialize music button
+        const musicButton = document.getElementById('music-toggle');
+        if (musicButton) {
+            if (this.soundEnabled && this.sounds.backgroundMusic && !this.sounds.backgroundMusic.paused) {
+                musicButton.classList.add('active');
+                musicButton.classList.remove('muted');
+                musicButton.title = "Music On - Click to Mute";
+            } else {
+                musicButton.classList.add('muted');
+                musicButton.classList.remove('active');
+                musicButton.title = "Music Off - Click to Play";
+            }
+        }
+        
         // Prevent accidental page refresh during game
         this.setupPageLeaveWarning();
+    }
+
+    unbindEvents() {
+        // Remove bet form event listener if it exists
+        const betForm = document.getElementById('bet-form');
+        if (betForm && this.betFormHandler) {
+            betForm.removeEventListener('submit', this.betFormHandler);
+        }
     }
 
     handleBetSubmission(e) {
@@ -39,10 +231,30 @@ class BlackjackUI {
         if (this.animating) return;
 
         const form = e.target;
-        const betAmount = parseFloat(form.bet_amount.value);
+        const betAmount = parseInt(form.bet_amount.value, 10);
+        const betInput = form.bet_amount;
+        const tableMinBet = parseInt(betInput.min, 10) || 100;
+        const tableMaxBet = parseInt(betInput.max, 10) || 10000;
         
-        if (betAmount <= 0) {
+        if (betAmount <= 0 || isNaN(betAmount)) {
             this.showOverlayMessage('Please enter a valid bet amount', 'error');
+            return;
+        }
+        
+        // Client-side validation for table limits
+        if (betAmount < tableMinBet) {
+            this.showOverlayMessage(`Minimum bet is $${tableMinBet.toLocaleString()}`, 'error');
+            return;
+        }
+        
+        if (betAmount > tableMaxBet) {
+            this.showOverlayMessage(`Maximum bet is $${tableMaxBet.toLocaleString()}`, 'error');
+            return;
+        }
+        
+        // Ensure bet is multiple of 100
+        if (betAmount % 100 !== 0) {
+            this.showOverlayMessage('Bet amount must be a multiple of $100', 'error');
             return;
         }
 
@@ -93,6 +305,9 @@ class BlackjackUI {
         if (actionName) {
             e.preventDefault();
             
+            // Play appropriate sound for this action
+            this.playSound(actionName);
+            
             // Disable button to prevent double clicks
             e.target.disabled = true;
             const originalText = e.target.textContent;
@@ -132,6 +347,33 @@ class BlackjackUI {
         Object.keys(data).forEach(key => {
             formData.append(key, data[key]);
         });
+
+        // Play appropriate sound for each action
+        switch(action) {
+            case 'hit':
+                this.playSound('hit');
+                break;
+            case 'stand':
+                this.playSound('stand');
+                break;
+            case 'double':
+                this.playSound('double');
+                break;
+            case 'split':
+                this.playSound('split');
+                break;
+            case 'surrender':
+                this.playSound('lose');
+                break;
+            case 'start_game':
+                this.playSound('deal');
+                break;
+            case 'new_game':
+                this.playSound('shuffle');
+                break;
+            default:
+                break;
+        }
 
         return fetch('game.php', {
             method: 'POST',
@@ -174,10 +416,17 @@ class BlackjackUI {
     }
 
     addDealAnimation() {
+        // Play deal sound
+        this.playSound('deal');
+        
         const cards = document.querySelectorAll('.playing-card:not(.card-back)');
         cards.forEach((card, index) => {
             setTimeout(() => {
                 card.classList.add('deal-animation');
+                // Add card sound with slight delay between each card
+                if (index > 0) {
+                    setTimeout(() => this.playSound('hit'), 100);
+                }
             }, index * 200);
         });
     }
@@ -372,6 +621,36 @@ class BlackjackUI {
         if (gameState.shoeInfo) {
             this.updateShoeInfo(gameState.shoeInfo);
         }
+        
+        // Play sounds based on game results
+        if (gameState.gameState === 'game_over' && gameState.results) {
+            // If there's only one result, play direct sound
+            if (gameState.results.length === 1) {
+                const result = gameState.results[0];
+                if (result.result === 'Blackjack!') {
+                    this.playSound('blackjack');
+                } else if (result.result === 'Win') {
+                    this.playSound('win');
+                } else if (result.result === 'Loss') {
+                    this.playSound('lose');
+                } else if (result.result === 'Push') {
+                    this.playSound('push');
+                }
+            } 
+            // If there are multiple hands, determine overall result
+            else if (gameState.results.length > 1) {
+                const hasWin = gameState.results.some(r => r.result === 'Win' || r.result === 'Blackjack!');
+                const hasLoss = gameState.results.some(r => r.result === 'Loss');
+                
+                if (hasWin && !hasLoss) {
+                    this.playSound('win');
+                } else if (hasLoss && !hasWin) {
+                    this.playSound('lose');
+                } else {
+                    this.playSound('push'); // Mixed results
+                }
+            }
+        }
     }
     
     updateActionButtonsFromState(gameState) {
@@ -380,7 +659,7 @@ class BlackjackUI {
         
         if (gameState.gameState === 'betting') {
             // Show betting form
-            this.showBettingForm(actionSection);
+            this.showBettingForm(actionSection, gameState);
         } else if (gameState.gameState === 'player_turn') {
             // Show action buttons
             this.showActionButtons(actionSection, gameState);
@@ -390,7 +669,20 @@ class BlackjackUI {
         }
     }
     
-    showBettingForm(container) {
+    showBettingForm(container, gameState) {
+        // Get table limits from gameState settings or use defaults
+        const tableMinBet = gameState?.settings?.table_min_bet || 100;
+        const tableMaxBet = gameState?.settings?.table_max_bet || 10000;
+        const currentMoney = gameState?.currentMoney || 1000;
+        const maxAllowedBet = Math.min(currentMoney, tableMaxBet);
+        
+        // Determine default bet amount
+        let defaultBet = tableMinBet;
+        if (gameState?.defaultBet) {
+            // Use the defaultBet from server (previous game's initial bet or table minimum)
+            defaultBet = gameState.defaultBet;
+        }
+        
         container.innerHTML = `
             <form method="POST" id="bet-form" class="d-flex align-center">
                 <input type="hidden" name="action" value="start_game">
@@ -401,9 +693,10 @@ class BlackjackUI {
                     <input type="number" 
                            id="bet_amount" 
                            name="bet_amount" 
-                           min="100" 
-                           step="100" 
-                           value="100"
+                           min="${tableMinBet}" 
+                           max="${maxAllowedBet}"
+                           step="${tableMinBet}" 
+                           value="${defaultBet}"
                            class="form-control"
                            style="width: 120px;">
                 </div>
@@ -807,7 +1100,25 @@ class BlackjackUI {
         }
     }
 
-    // ...existing code...
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        localStorage.setItem('blackjackSoundEnabled', this.soundEnabled);
+        
+        // Update sound button UI
+        const soundButton = document.getElementById('sound-toggle');
+        if (soundButton) {
+            soundButton.innerHTML = this.soundEnabled ? 
+                '<i class="fas fa-volume-up"></i>' : 
+                '<i class="fas fa-volume-mute"></i>';
+        }
+        
+        // Handle background music based on new setting
+        if (!this.soundEnabled && this.sounds.backgroundMusic) {
+            this.sounds.backgroundMusic.pause();
+        }
+        
+        return this.soundEnabled;
+    }
 }
 
 // Global game action functions (called from PHP-generated onclick handlers)
@@ -819,6 +1130,9 @@ function gameAction(action) {
 
 function newGame() {
     if (window.blackjackGame) {
+        // Play shuffle sound
+        window.blackjackGame.playSound('shuffle');
+        
         // Clear dealer cards immediately for better UX
         const dealerCards = document.getElementById('dealer-cards');
         if (dealerCards) {

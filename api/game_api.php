@@ -67,18 +67,29 @@ try {
     
     switch ($action) {
         case 'start_game':
-            $betAmount = (float) ($_POST['bet_amount'] ?? 0);
-            if ($betAmount <= 0 || $betAmount < 100) {
-                throw new Exception("Minimum bet amount is $100");
+            $betAmount = (int) ($_POST['bet_amount'] ?? 0);
+            if ($betAmount <= 0 || $betAmount < $settings['table_min_bet']) {
+                throw new Exception("Minimum bet amount is $" . number_format($settings['table_min_bet'], 0));
+            }
+            if ($betAmount > $settings['table_max_bet']) {
+                throw new Exception("Maximum bet amount is $" . number_format($settings['table_max_bet'], 0));
             }
             if ($betAmount % 100 !== 0) {
-                throw new Exception("Bet amount must be in multiples of $100");
+                throw new Exception("Bet amount must be a multiple of $100");
             }
             if ($betAmount > $sessionData['current_money']) {
                 throw new Exception("Insufficient funds");
             }
             
-            $game = new BlackjackGame($settings, $sessionId, $db);
+            // Only create new game if none exists or current game is not in betting state
+            if (!$game || ($game->getGameState() && $game->getGameState()['gameState'] !== 'betting')) {
+                $game = new BlackjackGame($settings, $sessionId, $db);
+                // If we had a previous game with shoe shuffle method, preserve the deck
+                if (isset($_SESSION['preserved_deck']) && $settings['shuffle_method'] === 'shoe') {
+                    $game->setDeck($_SESSION['preserved_deck']['deck'], $_SESSION['preserved_deck']['originalSize']);
+                    unset($_SESSION['preserved_deck']); // Clean up after using
+                }
+            }
             $gameState = $game->startGame($betAmount);
             $_SESSION['game'] = $game;
             
@@ -123,6 +134,12 @@ try {
             break;
             
         case 'new_game':
+            if ($game) {
+                // Preserve deck state for shoe shuffle method
+                if ($settings['shuffle_method'] === 'shoe') {
+                    $_SESSION['preserved_deck'] = $game->getDeckState();
+                }
+            }
             $_SESSION['game'] = null;
             $game = null;
             
@@ -148,11 +165,17 @@ try {
     $stmt->execute([$sessionId]);
     $updatedSessionData = $stmt->fetch(PDO::FETCH_ASSOC);
     
+    // Add current money to game state for frontend
+    if ($gameState) {
+        $gameState['currentMoney'] = $updatedSessionData['current_money'];
+    }
+    
     echo json_encode([
         'success' => true,
         'gameState' => $gameState,
         'sessionData' => $updatedSessionData,
-        'action' => $action
+        'action' => $action,
+        'settings' => $settings
     ]);
     
 } catch (Exception $e) {
