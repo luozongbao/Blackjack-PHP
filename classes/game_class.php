@@ -367,6 +367,18 @@ class BlackjackGame {
     }
     
     /**
+     * Check if all player hands are busted
+     */
+    private function areAllPlayerHandsBusted() {
+        foreach ($this->playerHands as $hand) {
+            if (!$hand->isBusted() && !$hand->isSurrendered()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Move to next hand or dealer turn
      */
     private function moveToNextHand() {
@@ -383,6 +395,22 @@ class BlackjackGame {
      * Play dealer's hand according to rules
      */
     private function playDealerHand() {
+        // Check if all player hands are busted - different behavior based on deal style
+        if ($this->areAllPlayerHandsBusted()) {
+            if ($this->settings['deal_style'] === 'american') {
+                // American style: Show dealer's hole card but don't draw further
+                // Dealer already has 2 cards, just end the game
+                $this->gameState = self::STATE_GAME_OVER;
+                $this->endGame();
+                return;
+            } else {
+                // European/Macau style: Don't draw any cards, just end the game
+                $this->gameState = self::STATE_GAME_OVER;
+                $this->endGame();
+                return;
+            }
+        }
+        
         // For European/Macau style, deal second card now if dealer doesn't already have 2 cards
         if ($this->settings['deal_style'] !== 'american' && count($this->dealerHand->getCards()) < 2) {
             $this->dealerHand->addCard($this->deck->dealCard());
