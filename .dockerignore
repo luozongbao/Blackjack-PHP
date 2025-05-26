@@ -33,3 +33,7 @@ logs/*
 Thumbs.db
 
 reports/
+
+# Other files
+test_*
+TESTING_GUIDE.md

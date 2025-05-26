@@ -6,3 +6,5 @@ verify_*.php
 reports/
 reports/*
 .env
+
+TESTING_GUIDE.md

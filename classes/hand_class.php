@@ -93,9 +93,13 @@ class Hand {
     }
     
     /**
-     * Check if hand is blackjack (21 with exactly 2 cards)
+     * Check if hand is blackjack (21 with exactly 2 cards, but not after split)
      */
     public function isBlackjack() {
+        // After a split, A-10 doesn't count as blackjack, only as 21
+        if ($this->isSplit) {
+            return false;
+        }
         return count($this->cards) == 2 && $this->getScore() == 21;
     }
     
@@ -157,6 +161,10 @@ class Hand {
     
     public function isSplit() {
         return $this->isSplit;
+    }
+    
+    public function markSplit() {
+        $this->isSplit = true;
     }
     
     public function stand() {
