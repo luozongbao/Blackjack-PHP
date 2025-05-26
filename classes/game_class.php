@@ -178,12 +178,12 @@ class BlackjackGame {
      */
     private function checkForBlackjack() {
         $playerBlackjack = $this->playerHands[0]->isBlackjack();
-        $dealerMightHaveBlackjack = false;
+        $dealerFirstCard = $this->dealerHand->getCards()[0];
+        $dealerMightHaveBlackjack = $dealerFirstCard->getValue() === 10 || $dealerFirstCard->isAce();
         
+        // Handle different dealing styles
         if ($this->settings['deal_style'] === 'american') {
-            $dealerFirstCard = $this->dealerHand->getCards()[0];
-            $dealerMightHaveBlackjack = $dealerFirstCard->getValue() === 10 || $dealerFirstCard->isAce();
-            
+            // American style: Dealer already has 2 cards, check for blackjack if upcard is 10 or A
             if ($dealerMightHaveBlackjack) {
                 $dealerBlackjack = $this->dealerHand->isBlackjack();
                 
@@ -197,12 +197,34 @@ class BlackjackGame {
                     return true;
                 }
             }
-        }
-        
-        if ($playerBlackjack && !$dealerMightHaveBlackjack) {
-            // Player wins with blackjack
-            $this->gameState = self::STATE_GAME_OVER;
-            return true;
+            
+            if ($playerBlackjack && !$dealerMightHaveBlackjack) {
+                // Player wins with blackjack (dealer can't have blackjack)
+                $this->gameState = self::STATE_GAME_OVER;
+                return true;
+            }
+        } else {
+            // European/Macau style: If player has blackjack and dealer upcard is 10 or A, 
+            // deal second card to dealer to check for blackjack
+            if ($playerBlackjack && $dealerMightHaveBlackjack) {
+                // Deal second card to dealer
+                $this->dealerHand->addCard($this->deck->dealCard());
+                $dealerBlackjack = $this->dealerHand->isBlackjack();
+                
+                if ($dealerBlackjack) {
+                    // Push - both have blackjack
+                    $this->gameState = self::STATE_GAME_OVER;
+                    return true;
+                } else {
+                    // Player wins with blackjack (dealer doesn't have blackjack)
+                    $this->gameState = self::STATE_GAME_OVER;
+                    return true;
+                }
+            } elseif ($playerBlackjack && !$dealerMightHaveBlackjack) {
+                // Player wins with blackjack (dealer can't have blackjack)
+                $this->gameState = self::STATE_GAME_OVER;
+                return true;
+            }
         }
         
         return false;
@@ -313,6 +335,9 @@ class BlackjackGame {
         $newHand = new Hand($splitBet);
         $newHand->addCard($secondCard);
         
+        // Mark the new hand as split (both hands should be marked as split)
+        $newHand->markSplit();
+        
         // Insert new hand after current hand
         array_splice($this->playerHands, $this->currentHandIndex + 1, 0, [$newHand]);
         
@@ -342,6 +367,18 @@ class BlackjackGame {
     }
     
     /**
+     * Check if all player hands are busted
+     */
+    private function areAllPlayerHandsBusted() {
+        foreach ($this->playerHands as $hand) {
+            if (!$hand->isBusted() && !$hand->isSurrendered()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Move to next hand or dealer turn
      */
     private function moveToNextHand() {
@@ -358,8 +395,24 @@ class BlackjackGame {
      * Play dealer's hand according to rules
      */
     private function playDealerHand() {
-        // For European/Macau style, deal second card now
-        if ($this->settings['deal_style'] !== 'american') {
+        // Check if all player hands are busted - different behavior based on deal style
+        if ($this->areAllPlayerHandsBusted()) {
+            if ($this->settings['deal_style'] === 'american') {
+                // American style: Show dealer's hole card but don't draw further
+                // Dealer already has 2 cards, just end the game
+                $this->gameState = self::STATE_GAME_OVER;
+                $this->endGame();
+                return;
+            } else {
+                // European/Macau style: Don't draw any cards, just end the game
+                $this->gameState = self::STATE_GAME_OVER;
+                $this->endGame();
+                return;
+            }
+        }
+        
+        // For European/Macau style, deal second card now if dealer doesn't already have 2 cards
+        if ($this->settings['deal_style'] !== 'american' && count($this->dealerHand->getCards()) < 2) {
             $this->dealerHand->addCard($this->deck->dealCard());
         }
         
