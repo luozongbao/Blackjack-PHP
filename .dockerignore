@@ -1,4 +1,5 @@
 .gitignore
+.dockerignore
 
 # docker files
 docker-compose.yml
@@ -8,6 +9,7 @@ nginx/
 nginx/*
 
 
+
 # Config files that may contain sensitive information
 includes/config.php
 .env
@@ -15,6 +17,7 @@ includes/config.php
 
 # Debug and temporary files
 phpinfo.php
+*.example
 *.bak
 *.log
 *.bak*

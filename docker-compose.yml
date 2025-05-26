@@ -38,7 +38,7 @@ services:
       - MYSQL_PASSWORD=$DATABASEPASS
       - MYSQL_ROOT_PASSWORD=rootpassword
     volumes:
-      - mysql_data:/var/lib/mysql
+      - blackjack_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
     networks:
       - blackjack-network
@@ -46,5 +46,4 @@ networks:
   blackjack-network:
     driver: bridge
 volumes:
-  mysql_data:
-  reycrm:
+  blackjack_data:
