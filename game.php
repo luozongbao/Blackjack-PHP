@@ -310,6 +310,14 @@ $stmt = $db->prepare("SELECT * FROM game_sessions WHERE session_id = ?");
 $stmt->execute([$sessionId]);
 $sessionData = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// Calculate session statistics for display
+// Total Won = Sum of all positive game outcomes (wins)
+// Total Loss = Sum of all negative game outcomes (losses)
+// Net = Total Won + Total Loss (ensures Current Balance + Net = Initial Money)
+$sessionTotalWon = abs($sessionData['session_total_won']); // Always positive
+$sessionTotalLoss = -abs($sessionData['session_total_loss']); // Always negative  
+$sessionNet = $sessionTotalWon + $sessionTotalLoss; // Net result
+
 include 'includes/header.php';
 ?>
 
@@ -354,12 +362,8 @@ include 'includes/header.php';
                 <div class="<?php echo $sessionData['previous_game_won'] >= 0 ? 'text-success' : 'text-danger'; ?>">
                     <strong>Previous Game Won:</strong> $<?php echo number_format($sessionData['previous_game_won'], 2); ?>
                 </div>
-                <?php 
-                    // Net is now the accumulative total of all Previous Game Won amounts
-                    $accumulativeTotal = $sessionData['accumulated_previous_wins'] + $sessionData['previous_game_won'];
-                ?>
-                <div class="<?php echo $accumulativeTotal >= 0 ? 'text-success' : 'text-danger'; ?>">
-                    <strong>Net:</strong> $<?php echo number_format($accumulativeTotal, 2); ?>
+                <div class="<?php echo $sessionNet >= 0 ? 'text-success' : 'text-danger'; ?>">
+                    <strong>Net:</strong> $<?php echo number_format($sessionNet, 2); ?>
                 </div>
             </div>
         </div>

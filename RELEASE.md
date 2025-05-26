@@ -1,8 +1,40 @@
-# Blackjack PHP v1.1.0 Release Notes
+# Blackjack PHP v1.1.1 Release Notes
 
 **Release Date: May 26, 2025**
 
-We're pleased to announce Blackjack PHP v1.1.0, featuring advanced all-busted logic that optimizes dealer behavior and enhances game performance across all dealing styles.
+We're pleased to announce Blackjack PHP v1.1.1, featuring a comprehensive revision of the dashboard statistics system that provides clearer financial tracking and improved user experience with intuitive metrics.
+
+## What's New in v1.1.1
+
+### 📊 Revised Dashboard Statistics System
+- **Clear Financial Metrics**: Complete overhaul of how winnings and losses are displayed
+- **Separated Tracking**: Distinct tracking of positive winnings vs actual losses
+- **Intuitive Color Coding**: Green for positive values, red for negative values
+- **Enhanced Clarity**: Eliminated confusion between total payouts and actual winnings
+
+### 💰 New Statistics Structure
+- **Current Balance**: Player's current available money (blue/primary)
+- **Total Won**: Sum of actual positive winnings only (always positive, green)
+- **Total Loss**: Sum of actual losses only (always negative, red)  
+- **Net**: Total Won + Total Loss (green if positive, red if negative)
+- **Total Bet**: Sum of all bets placed across all games
+- **ROI**: Return on Investment = (Net / Total Bet) × 100%
+
+### 🎯 Technical Enhancements
+- **Real-time Updates**: Statistics update immediately during gameplay
+- **Improved Calculations**: More accurate separation of wins vs losses
+- **Consistent Display**: Both current session and all-time statistics use same structure
+- **Enhanced JavaScript**: Real-time calculation and display updates
+
+### 📈 User Experience Improvements
+- **Clearer Financial Picture**: Users can immediately understand their performance
+- **Percentage-based ROI**: Better understanding of investment returns
+- **Intuitive Design**: Color coding makes positive/negative values immediately clear
+- **Consistent Interface**: Same metrics shown in lobby and game interface
+
+## Previous Release: v1.1.0
+
+## Previous Release: v1.1.0
 
 ## What's New in v1.1.0
 

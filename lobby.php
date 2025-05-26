@@ -77,21 +77,35 @@ try {
     error_log('Database error: ' . $e->getMessage());
 }
 
-// Calculate derived stats
+// Calculate derived stats according to clarified specifications:
+// Total Won = Sum of all positive game outcomes (wins)
+// Total Loss = Sum of all negative game outcomes (losses) - stored as positive, displayed as negative
+// Net = Total Won + Total Loss (Total Won - Total Loss amount)
+// This ensures: Current Balance + Net = Initial Money
+
+// Session statistics
+$sessionTotalWon = abs($stats['session']['session_total_won']); // Always positive
+$sessionTotalLoss = -abs($stats['session']['session_total_loss']); // Always negative
+$sessionNet = $sessionTotalWon + $sessionTotalLoss; // Net result
 $sessionROI = ($stats['session']['session_total_bet'] > 0) 
-    ? (($stats['session']['session_total_won'] - $stats['session']['session_total_loss']) / $stats['session']['session_total_bet']) * 100 
+    ? ($sessionNet / $stats['session']['session_total_bet']) * 100 
     : 0;
 
+// All-time statistics  
+$allTimeTotalWon = abs($stats['session']['all_time_total_won']); // Always positive
+$allTimeTotalLoss = -abs($stats['session']['all_time_total_loss']); // Always negative
+$allTimeNet = $allTimeTotalWon + $allTimeTotalLoss; // Net result
 $allTimeROI = ($stats['session']['all_time_total_bet'] > 0) 
-    ? (($stats['session']['all_time_total_won'] - $stats['session']['all_time_total_loss']) / $stats['session']['all_time_total_bet']) * 100 
+    ? ($allTimeNet / $stats['session']['all_time_total_bet']) * 100 
     : 0;
 
+// Win per game calculations using new Net values
 $sessionWinPerGame = ($stats['session']['session_games_played'] > 0) 
-    ? ($stats['session']['session_total_won'] - $stats['session']['session_total_loss']) / $stats['session']['session_games_played'] 
+    ? $sessionNet / $stats['session']['session_games_played'] 
     : 0;
 
 $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0) 
-    ? ($stats['session']['all_time_total_won'] - $stats['session']['all_time_total_loss']) / $stats['session']['all_time_games_played'] 
+    ? $allTimeNet / $stats['session']['all_time_games_played'] 
     : 0;
 ?>
 
@@ -117,24 +131,28 @@ $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0)
             <h4>Money</h4>
             <div class="stat-row">
                 <span>Current Balance:</span>
-                <span class="text-primary"><?php echo number_format($stats['session']['current_money'], 2); ?> $</span>
+                <span class="text-primary">$<?php echo number_format($stats['session']['current_money'], 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>Total Won:</span>
-                <span class="text-success"><?php echo number_format($stats['session']['session_total_won'], 2); ?> $</span>
+                <span class="text-success">$<?php echo number_format($sessionTotalWon, 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>Total Loss:</span>
-                <span class="text-danger"><?php echo number_format($stats['session']['session_total_loss'], 2); ?> $</span>
+                <span class="text-danger">$<?php echo number_format($sessionTotalLoss, 2); ?></span>
+            </div>
+            <div class="stat-row">
+                <span>Net:</span>
+                <span class="<?php echo $sessionNet >= 0 ? 'text-success' : 'text-danger'; ?>">$<?php echo number_format($sessionNet, 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>Total Bet:</span>
-                <span><?php echo number_format($stats['session']['session_total_bet'], 2); ?> $</span>
+                <span>$<?php echo number_format($stats['session']['session_total_bet'], 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>ROI:</span>
                 <span class="<?php echo $sessionROI >= 0 ? 'text-success' : 'text-danger'; ?>">
-                    <?php echo number_format($sessionROI, 2); ?> %
+                    <?php echo number_format($sessionROI, 2); ?>%
                 </span>
             </div>
         </div>
@@ -174,20 +192,24 @@ $allTimeWinPerGame = ($stats['session']['all_time_games_played'] > 0)
             <h4>Money</h4>
             <div class="stat-row">
                 <span>Total Won:</span>
-                <span class="text-success"><?php echo number_format($stats['session']['all_time_total_won'], 2); ?> $</span>
+                <span class="text-success">$<?php echo number_format($allTimeTotalWon, 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>Total Loss:</span>
-                <span class="text-danger"><?php echo number_format($stats['session']['all_time_total_loss'], 2); ?> $</span>
+                <span class="text-danger">$<?php echo number_format($allTimeTotalLoss, 2); ?></span>
+            </div>
+            <div class="stat-row">
+                <span>Net:</span>
+                <span class="<?php echo $allTimeNet >= 0 ? 'text-success' : 'text-danger'; ?>">$<?php echo number_format($allTimeNet, 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>Total Bet:</span>
-                <span><?php echo number_format($stats['session']['all_time_total_bet'], 2); ?> $</span>
+                <span>$<?php echo number_format($stats['session']['all_time_total_bet'], 2); ?></span>
             </div>
             <div class="stat-row">
                 <span>ROI:</span>
                 <span class="<?php echo $allTimeROI >= 0 ? 'text-success' : 'text-danger'; ?>">
-                    <?php echo number_format($allTimeROI, 2); ?> %
+                    <?php echo number_format($allTimeROI, 2); ?>%
                 </span>
             </div>
         </div>

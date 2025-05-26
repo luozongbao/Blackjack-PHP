@@ -1038,6 +1038,11 @@ class BlackjackUI {
         if (statsElements.lost) statsElements.lost.textContent = ' ' + sessionData.session_games_lost;
         if (statsElements.push) statsElements.push.textContent = ' ' + sessionData.session_games_push;
         
+        // Calculate revised statistics for real-time updates
+        const sessionTotalWon = Math.abs(parseFloat(sessionData.session_total_won || 0));
+        const sessionTotalLoss = -Math.abs(parseFloat(sessionData.session_total_loss || 0));
+        const sessionNet = sessionTotalWon + sessionTotalLoss;
+        
         // Update Previous Game Won with color coding
         const previousGameWonElement = document.querySelector('.text-right div:nth-child(2) strong').parentElement;
         if (previousGameWonElement) {
@@ -1050,15 +1055,12 @@ class BlackjackUI {
             });
         }
         
-        // Update net amount (accumulative total of Previous Game Won) with color coding
+        // Update Net with color coding (using new calculation)
         const netElement = document.querySelector('.text-right div:nth-child(3)');
         if (netElement) {
-            const accumulatedPreviousWins = parseFloat(sessionData.accumulated_previous_wins || 0);
-            const previousGameWon = parseFloat(sessionData.previous_game_won || 0);
-            const netAmount = accumulatedPreviousWins + previousGameWon;
-            const netClass = netAmount >= 0 ? 'text-success' : 'text-danger';
+            const netClass = sessionNet >= 0 ? 'text-success' : 'text-danger';
             netElement.className = netClass;
-            netElement.innerHTML = '<strong>Net:</strong> $' + netAmount.toLocaleString('en-US', {
+            netElement.innerHTML = '<strong>Net:</strong> $' + sessionNet.toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             });
