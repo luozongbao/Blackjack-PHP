@@ -1,11 +1,12 @@
-# Blackjack PHP v1.0.0
+# Blackjack PHP v1.1.0
 
-A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, dynamic betting limits, and immersive audio experience.
+A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, dynamic betting limits, advanced dealer logic, and immersive audio experience.
 
 ## Features
 
 ### Game Features
 - Multiple dealing styles (American, European, Macau)
+- Advanced all-busted logic with deal style specific behavior
 - Configurable number of decks (1-8)
 - Flexible shuffling methods (Auto-shuffle or Shoe with customizable deck penetration)
 - Complete rule customization
@@ -287,6 +288,17 @@ define('DEBUG_MODE', true);
 © 2025 Blackjack PHP. All rights reserved.
 
 ## Version History
+
+**v1.1.0** - All-Busted Logic Enhancement (May 26, 2025)
+- 🚫 **Added**: Advanced all-busted logic for optimized dealer behavior
+- 🎯 **Enhanced**: Deal style specific handling when all player hands are busted
+- 🇺🇸 **American Style**: Dealer shows hole card but doesn't draw further when all hands busted
+- 🇪🇺 **European/Macau Style**: Dealer doesn't draw any cards when all hands busted
+- ⚡ **Improved**: Game performance by eliminating unnecessary dealer actions
+- 🔧 **Added**: Helper method `areAllPlayerHandsBusted()` for comprehensive hand checking
+- ✅ **Enhanced**: Early game termination logic for better user experience
+- 🧪 **Added**: Comprehensive testing suite for all-busted scenarios
+- 📚 **Updated**: Testing guide with all-busted logic verification instructions
 
 **v1.0.0** - First Official Release (May 25, 2025)
 - 🎵 **Added**: Immersive sound effects for all game actions (deal, hit, stand, etc.)
