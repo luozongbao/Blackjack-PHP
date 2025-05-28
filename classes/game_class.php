@@ -193,7 +193,11 @@ class BlackjackGame {
                     $this->gameState = self::STATE_GAME_OVER;
                     return true;
                 } elseif ($dealerBlackjack && $playerBlackjack) {
-                    // Push
+                    // Push - both have blackjack
+                    $this->gameState = self::STATE_GAME_OVER;
+                    return true;
+                } elseif (!$dealerBlackjack && $playerBlackjack) {
+                    // Player wins with blackjack (dealer doesn't have blackjack)
                     $this->gameState = self::STATE_GAME_OVER;
                     return true;
                 }
@@ -205,26 +209,27 @@ class BlackjackGame {
                 return true;
             }
         } else {
-            // European/Macau style: If player has blackjack and dealer upcard is 10 or A, 
-            // deal second card to dealer to check for blackjack
-            if ($playerBlackjack && $dealerMightHaveBlackjack) {
-                // Deal second card to dealer
-                $this->dealerHand->addCard($this->deck->dealCard());
-                $dealerBlackjack = $this->dealerHand->isBlackjack();
-                
-                if ($dealerBlackjack) {
-                    // Push - both have blackjack
-                    $this->gameState = self::STATE_GAME_OVER;
-                    return true;
+            // European/Macau style: If player has blackjack, check dealer for blackjack
+            if ($playerBlackjack) {
+                if ($dealerMightHaveBlackjack) {
+                    // Deal second card to dealer to check for blackjack
+                    $this->dealerHand->addCard($this->deck->dealCard());
+                    $dealerBlackjack = $this->dealerHand->isBlackjack();
+                    
+                    if ($dealerBlackjack) {
+                        // Push - both have blackjack
+                        $this->gameState = self::STATE_GAME_OVER;
+                        return true;
+                    } else {
+                        // Player wins with blackjack (dealer doesn't have blackjack)
+                        $this->gameState = self::STATE_GAME_OVER;
+                        return true;
+                    }
                 } else {
-                    // Player wins with blackjack (dealer doesn't have blackjack)
+                    // Player wins with blackjack (dealer can't have blackjack)
                     $this->gameState = self::STATE_GAME_OVER;
                     return true;
                 }
-            } elseif ($playerBlackjack && !$dealerMightHaveBlackjack) {
-                // Player wins with blackjack (dealer can't have blackjack)
-                $this->gameState = self::STATE_GAME_OVER;
-                return true;
             }
         }
         
