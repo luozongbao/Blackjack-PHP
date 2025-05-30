@@ -2035,3 +2035,219 @@ code {
 .auto-refresh-indicator.show {
     opacity: 1;
 }
+
+/* ===== Hall of Fame Styles ===== */
+
+/* Hall of Fame Table Styling */
+.hall-of-fame-table {
+    margin-top: 20px;
+}
+
+/* Top Player Row Styling */
+.top-player {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.top-player:hover {
+    background-color: rgba(26, 188, 156, 0.15) !important;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.top-1 {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.1), rgba(255, 223, 0, 0.05)) !important;
+    border-left: 4px solid gold;
+}
+
+.top-2 {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05)) !important;
+    border-left: 4px solid silver;
+}
+
+.top-3 {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05)) !important;
+    border-left: 4px solid #cd7f32;
+}
+
+/* Rank Badge Styling */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--container-bg), var(--dark-bg));
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #8b4513;
+    border-color: gold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #4a4a4a;
+    border-color: silver;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 12px rgba(192, 192, 192, 0.4);
+}
+
+.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #daa520);
+    color: #2c1810;
+    border-color: #cd7f32;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 10px rgba(205, 127, 50, 0.4);
+}
+
+/* Player Name Styling */
+.player-name {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.top-player .player-name {
+    font-size: 1.2rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Ranking Score Highlight */
+.ranking-score {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--warning-color);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.top-player .ranking-score {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+/* ROI Styling */
+.roi {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Total Bet and Net Winnings */
+.total-bet, .net-winnings {
+    font-weight: 500;
+}
+
+/* Hall of Fame Info Section */
+.hall-of-fame-info {
+    margin-top: 30px;
+}
+
+.info-card {
+    background-color: rgba(26, 188, 156, 0.1);
+    border: 1px solid rgba(26, 188, 156, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.info-card h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+}
+
+.info-card ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.info-card ul li {
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.info-card ul li:before {
+    content: "→";
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+/* Trophy Animation */
+@keyframes trophy-glow {
+    0%, 100% { 
+        text-shadow: 0 0 5px currentColor; 
+    }
+    50% { 
+        text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; 
+    }
+}
+
+.rank-1 i {
+    animation: trophy-glow 2s ease-in-out infinite;
+}
+
+/* Table Responsive Enhancements for Hall of Fame */
+@media (max-width: 768px) {
+    .hall-of-fame-info .info-card {
+        padding: 15px;
+    }
+    
+    .rank-badge {
+        font-size: 0.9rem;
+        padding: 4px 8px;
+    }
+    
+    .player-name {
+        font-size: 1rem;
+    }
+    
+    .top-player .player-name {
+        font-size: 1.1rem;
+    }
+    
+    .ranking-score {
+        font-size: 1rem;
+    }
+    
+    .top-player .ranking-score {
+        font-size: 1.1rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Empty State for Hall of Fame */
+.hall-of-fame-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--border-color);
+}
+
+.hall-of-fame-empty i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.hall-of-fame-empty h3 {
+    color: var(--border-color);
+    margin-bottom: 10px;
+}
+
+.hall-of-fame-empty p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
