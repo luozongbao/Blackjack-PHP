@@ -21,6 +21,9 @@ if ($isLoggedIn):
             <a href="settings.php" class="nav-link <?php echo ($currentPage === 'settings.php') ? 'active' : ''; ?>">Settings</a>
         </li>
         <li class="nav-item">
+            <a href="community.php" class="nav-link <?php echo ($currentPage === 'community.php') ? 'active' : ''; ?>">Community</a>
+        </li>
+        <li class="nav-item">
             <a href="profile.php" class="nav-link <?php echo ($currentPage === 'profile.php') ? 'active' : ''; ?>"><?php echo htmlspecialchars($_SESSION['display_name']); ?></a>
         </li>
         <li class="nav-item">

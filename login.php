@@ -18,6 +18,7 @@ if (isset($_SESSION['user_id'])) {
 
 // Include database connection
 require_once 'includes/database.php';
+require_once 'classes/analytics_class.php';
 
 $error = '';
 $success = '';
@@ -59,8 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $updateStmt->bindParam(':user_id', $user['user_id']);
                 $updateStmt->execute();
                 
+                // Track user analytics
+                $analytics = new Analytics();
+                $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+                $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                $analytics->trackUserSession($user['user_id'], $ipAddress, $userAgent);
+                
                 // Redirect to game page
                 header('Location: lobby.php');
+                exit;
                 exit;
             } else {
                 $error = 'Invalid username or password.';
