@@ -1,6 +1,26 @@
-# Blackjack PHP v1.1.2
+# Blackjack PHP v1.2.0
 
-A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic with authentic regional dealing styles, and immersive audio experience.
+![PHP](https://img.shields.io/badge/PHP-8.0%2B-blue)
+![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-orange)
+![License](https://img.shields.io/badge/License-Proprietary-red)
+![Status](https://img.shields.io/badge/Status-Active-green)
+![Docker](https://img.shields.io/badge/Docker-Supported-blue)
+
+A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic with authentic regional dealing styles, immersive audio experience, and community features including Hall of Fame rankings.
+
+## 📚 Table of Contents
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
+  - [Traditional Installation](#option-1-traditional-installation)
+  - [Docker Installation](#option-2-docker-compose-installation-recommended)
+- [Configuration](#configuration)
+- [Community Features](#community-features)
+- [Security](#security)
+- [Troubleshooting](#troubleshooting)
+- [Project Structure](#project-structure)
+- [Version History](#version-history)
 
 ## Features
 
@@ -39,6 +59,8 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 - Customizable initial bankroll
 - Dynamic table betting limits (minimum and maximum)
 - Session management with restart capability
+- **Community Dashboard** with player analytics and location/browser statistics
+- **Hall of Fame** rankings with performance-based scoring system
 
 ### Technical Features
 - Secure user authentication with session management
@@ -49,6 +71,8 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 - CSRF protection and XSS prevention
 - Nginx web server support with PHP-FPM
 - Error handling and debugging capabilities
+- **Analytics System** with user tracking and location detection
+- **Community Features** with player statistics and leaderboards
 
 ## Requirements
 
@@ -234,6 +258,50 @@ The game features two distinct shuffling methods:
   - Sound settings persist between sessions
   - Responsive design for controls
 
+### Community Features
+
+#### Community Dashboard
+The Community Dashboard provides comprehensive analytics about the player community:
+
+- **Player Locations**: 
+  - Geographic distribution of players with country flags
+  - Percentage breakdown with animated progress bars
+  - Real-time statistics for All Time, This Month, and Today
+- **Browser Usage Statistics**:
+  - Browser distribution among players
+  - Visual progress bars showing usage percentages
+  - Support for major browsers (Chrome, Firefox, Safari, Edge, etc.)
+- **Recent User Activity**:
+  - Table of recent IP addresses and their activity
+  - Location information with city and country details
+  - Browser and platform information
+  - User count per IP and last seen timestamps
+- **Auto-refresh**: Page automatically refreshes every 5 minutes
+- **Responsive Design**: Mobile-friendly layout with collapsible sections
+
+#### Hall of Fame
+The Hall of Fame showcases the top-performing players with a sophisticated ranking system:
+
+- **Ranking Algorithm**: Performance Score = ROI × Total Bet
+  - Rewards both profitability (ROI) and volume of play
+  - Encourages consistent, skilled gameplay over time
+- **Time Periods**: 
+  - **All Time**: Based on lifetime statistics
+  - **This Month**: Current month performance
+  - **Today**: Daily leaderboard
+- **Visual Recognition**:
+  - 🥇 **#1 Player**: Gold crown with animated glow effect
+  - 🥈 **#2 Player**: Silver medal with metallic styling
+  - 🥉 **#3 Player**: Bronze medal with copper accents
+  - Special hover effects and gradient backgrounds for top players
+- **Detailed Statistics**:
+  - Ranking Score (primary sort criteria)
+  - ROI (Return on Investment) percentage
+  - Total Bet amount
+  - Net Winnings with color coding
+- **Information Panel**: Explains ranking calculation methodology
+- **Responsive Design**: Mobile-optimized table and rankings
+
 ### Betting System
 - **Table minimum bet**: Configurable minimum bet amount (default: $100)
 - **Table maximum bet**: Configurable maximum bet amount (default: $10,000)
@@ -276,11 +344,76 @@ The game features two distinct shuffling methods:
    - Verify deck penetration setting is between 50-100%
    - Check that shuffle method is set to "shoe" in game settings
    - Run test files (`test_simple_shuffle.php` or `test_comprehensive_shuffle.php`) to verify shuffle logic
+8. **Hall of Fame HTTP 500 Error**: If the Hall of Fame page shows an error:
+   - Check that the database connection is properly configured
+   - Verify that game_sessions table exists and has the required columns
+   - Ensure user has proper authentication (must be logged in)
+   - Check PHP error logs for specific error details
+9. **Community Dashboard Not Loading**: If community features don't display:
+   - Verify user_analytics table exists in the database
+   - Check that the Analytics class is properly included
+   - Ensure geolocation services are available (for IP location detection)
+   - Clear browser cache and cookies
 
 ### Debug Mode
 Enable debug mode by adding to your configuration:
 ```php
 define('DEBUG_MODE', true);
+```
+
+## Project Structure
+
+```
+Blackjack-PHP/
+├── 📄 Main Pages
+│   ├── index.php              # Landing page and game entry
+│   ├── lobby.php              # User dashboard with statistics
+│   ├── game.php               # Main blackjack game interface
+│   ├── community.php          # Community analytics dashboard
+│   ├── hall_of_fame.php       # Player rankings and leaderboard
+│   ├── profile.php            # User profile management
+│   └── settings.php           # Game configuration settings
+├── 🔐 Authentication
+│   ├── login.php              # User login
+│   ├── register.php           # User registration
+│   ├── logout.php             # Session termination
+│   ├── forget_password.php    # Password reset request
+│   └── reset_password.php     # Password reset form
+├── 🎮 Game Logic
+│   ├── classes/
+│   │   ├── game_class.php     # Core game logic and rules
+│   │   ├── deck_class.php     # Deck management and shuffling
+│   │   ├── card_class.php     # Individual card representation
+│   │   ├── hand_class.php     # Player/dealer hand management
+│   │   └── analytics_class.php # User tracking and statistics
+│   └── api/
+│       └── game_api.php       # AJAX API for game actions
+├── 🎨 Frontend Assets
+│   ├── assets/css/
+│   │   └── style.css          # Main stylesheet with responsive design
+│   ├── assets/js/
+│   │   └── game.js            # Game interface and interaction logic
+│   ├── assets/audio/          # Sound effects and background music
+│   └── assets/images/cards/   # Playing card graphics
+├── 🗄️ Database
+│   └── database/
+│       └── database.sql       # Database schema and table structure
+├── 🔧 Configuration
+│   ├── includes/
+│   │   ├── config.php         # Database and application configuration
+│   │   ├── database.php       # Database connection management
+│   │   ├── header.php         # Common page header
+│   │   ├── footer.php         # Common page footer
+│   │   ├── navigation.php     # Main navigation menu
+│   │   └── install.php        # Installation wizard
+├── 🐳 Deployment
+│   ├── docker-compose.yml     # Docker containerization
+│   └── nginx/
+│       └── nginx.conf         # Web server configuration
+└── 📚 Documentation
+    ├── README.md              # This file
+    ├── RELEASE.md             # Release notes and changelog
+    └── reports/               # Development and testing reports
 ```
 
 ## Contributing
@@ -297,7 +430,21 @@ define('DEBUG_MODE', true);
 
 ## Version History
 
-**v1.1.1** - Dashboard Statistics Revision (May 26, 2025)
+**v1.2.0** - Community Features Release (May 30, 2025)
+- 🏆 **Added**: Hall of Fame with performance-based player rankings
+- 🌍 **Added**: Community Dashboard with player location and browser analytics
+- 📊 **Added**: Advanced analytics system with IP tracking and geolocation
+- 🎯 **Enhanced**: Performance scoring algorithm (ROI × Total Bet)
+- 🥇 **Added**: Special visual recognition for top 3 players with animated effects
+- 📱 **Improved**: Mobile-responsive design for community features
+- 🔄 **Added**: Auto-refresh functionality for real-time data updates
+- 🎨 **Enhanced**: Tab navigation system with modern styling
+- 📈 **Added**: Progress bars for visual statistics representation
+- 🗺️ **Added**: Country flags and location detection for international players
+- 🏅 **Added**: Trophy and medal icons with glow animations
+- 📚 **Updated**: Navigation menu with Hall of Fame and Community links
+
+**v1.1.2** - Previous stable release (May 26, 2025)
 - 📊 **Revised**: Complete dashboard statistics overhaul for improved clarity
 - 💰 **Enhanced**: Separate tracking of positive winnings vs actual losses
 - 🎯 **Added**: Net calculation (Total Won + Total Loss) with proper color coding
