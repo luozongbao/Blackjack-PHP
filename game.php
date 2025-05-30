@@ -7,6 +7,7 @@
 // Load classes BEFORE starting session to avoid deserialization errors
 require_once 'includes/database.php';
 require_once 'classes/game_class.php';
+require_once 'classes/analytics_class.php';
 
 session_start();
 
@@ -29,6 +30,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $db = getDb();
+
+// Track user activity
+$analytics = new Analytics();
+$ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$analytics->trackUserSession($_SESSION['user_id'], $ipAddress, $userAgent);
 $pageTitle = 'Game Table';
 
 // Get or create active session

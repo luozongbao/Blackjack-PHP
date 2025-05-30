@@ -19,6 +19,13 @@ if (!isset($_SESSION['user_id'])) {
 
 // Include database connection
 require_once 'includes/database.php';
+require_once 'classes/analytics_class.php';
+
+// Track user activity
+$analytics = new Analytics();
+$ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_X_REAL_IP'] ?? $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$analytics->trackUserSession($_SESSION['user_id'], $ipAddress, $userAgent);
 
 // Set page title
 $pageTitle = 'Dashboard';
