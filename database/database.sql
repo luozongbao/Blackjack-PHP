@@ -115,3 +115,27 @@ CREATE TABLE IF NOT EXISTS password_reset_attempts (
     attempt_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX (ip_address, attempt_time)
 );
+
+-- Create user analytics table for tracking user data
+CREATE TABLE IF NOT EXISTS user_analytics (
+    analytics_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    ip_address VARCHAR(45) NOT NULL,
+    user_agent TEXT NOT NULL,
+    browser VARCHAR(100) NOT NULL,
+    browser_version VARCHAR(50) NOT NULL,
+    platform VARCHAR(100) NOT NULL,
+    country VARCHAR(100) NULL,
+    region VARCHAR(100) NULL,
+    city VARCHAR(100) NULL,
+    latitude DECIMAL(10, 8) NULL,
+    longitude DECIMAL(11, 8) NULL,
+    session_start TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_activity TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    INDEX idx_user_analytics_user_id (user_id),
+    INDEX idx_user_analytics_session_start (session_start),
+    INDEX idx_user_analytics_ip (ip_address),
+    INDEX idx_user_analytics_country (country),
+    INDEX idx_user_analytics_browser (browser)
+);
