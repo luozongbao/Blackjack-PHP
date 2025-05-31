@@ -27,6 +27,9 @@ if ($isLoggedIn):
             <a href="hall_of_fame.php" class="nav-link <?php echo ($currentPage === 'hall_of_fame.php') ? 'active' : ''; ?>">Hall of Fame</a>
         </li>
         <li class="nav-item">
+            <a href="#" id="about-link" class="nav-link">About</a>
+        </li>
+        <li class="nav-item">
             <a href="profile.php" class="nav-link <?php echo ($currentPage === 'profile.php') ? 'active' : ''; ?>"><?php echo htmlspecialchars($_SESSION['display_name']); ?></a>
         </li>
         <li class="nav-item">
@@ -42,6 +45,9 @@ if ($isLoggedIn):
         </li>
         <li class="nav-item">
             <a href="register.php" class="nav-link <?php echo ($currentPage === 'register.php') ? 'active' : ''; ?>">Register</a>
+        </li>
+        <li class="nav-item">
+            <a href="#" id="about-link" class="nav-link">About</a>
         </li>
     </ul>
 </nav>
