@@ -1232,3 +1232,62 @@ function animateNumber(element, start, end, duration) {
     
     requestAnimationFrame(update);
 }
+
+// ===== About Modal Functionality =====
+class AboutModal {
+    constructor() {
+        this.modal = null;
+        this.init();
+    }
+
+    init() {
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupModal());
+        } else {
+            this.setupModal();
+        }
+    }
+
+    setupModal() {
+        this.modal = document.getElementById('about-modal');
+        const aboutLink = document.getElementById('about-link');
+        
+        if (aboutLink && this.modal) {
+            // Open modal when About link is clicked
+            aboutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.openModal();
+            });
+
+            // Close modal when clicking anywhere on the modal (including content)
+            this.modal.addEventListener('click', () => {
+                this.closeModal();
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.modal.classList.contains('show')) {
+                    this.closeModal();
+                }
+            });
+        }
+    }
+
+    openModal() {
+        if (this.modal) {
+            this.modal.classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+    }
+
+    closeModal() {
+        if (this.modal) {
+            this.modal.classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+    }
+}
+
+// Initialize About Modal
+const aboutModal = new AboutModal();
