@@ -1,3 +1,46 @@
+# Blackjack PHP v1.2.1 Release Notes
+
+**Release Date: May 31, 2025**
+
+We're pleased to announce Blackjack PHP v1.2.1, a focused update that enhances mobile responsiveness and adds an informative About page feature to improve user experience and game accessibility across all devices.
+
+## What's New in v1.2.1
+
+### 📱 Enhanced Mobile Responsiveness
+- **Optimized Game Interface**: Significantly improved mobile experience for game.php
+- **Responsive Playing Cards**: Properly scaled card dimensions for mobile devices
+  - Mobile (768px): Cards reduced to 60x84px for better fit
+  - Small mobile (480px): Cards optimized to 50x70px for compact screens
+- **Mobile-Friendly Game Actions**: Improved button sizing and spacing for touch interfaces
+- **Better Layout Management**: Enhanced container sizing and padding for mobile screens
+- **Responsive Game Sections**: Dealer and player sections optimized for mobile viewing
+
+### ℹ️ About Page Feature
+- **New About Modal**: Comprehensive game information accessible from navigation
+- **Game Information Display**: 
+  - Current version display (v1.2.1)
+  - Detailed feature list with icons
+  - Development credits (Vibe Coding & GitHub Copilot)
+- **User-Friendly Design**: 
+  - Click-anywhere-to-close functionality
+  - Smooth animations and transitions
+  - Mobile-responsive modal design
+- **Enhanced Navigation**: About link added to both logged-in and guest navigation menus
+
+### 🎨 Design & UX Improvements
+- **Mobile-First Approach**: Enhanced responsive design prioritizing mobile experience
+- **Improved Game Layout**: Better spacing and sizing for mobile game interface
+- **Touch-Friendly Interactions**: Optimized button sizes for mobile touch interfaces
+- **Consistent Design Language**: About modal follows existing design patterns
+
+### 🔧 Technical Enhancements
+- **CSS Optimizations**: Enhanced media queries for better mobile responsiveness
+- **JavaScript Improvements**: Added AboutModal class for modal functionality
+- **Navigation Updates**: Seamless integration of About feature across all pages
+- **Performance Optimizations**: Efficient modal handling and responsive styling
+
+---
+
 # Blackjack PHP v1.2.0 Release Notes
 
 **Release Date: May 30, 2025**
