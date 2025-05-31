@@ -1,4 +1,4 @@
-# Blackjack PHP v1.2.0
+# Blackjack PHP v1.2.1
 
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-orange)

@@ -23,7 +23,7 @@
                 
                 <div class="about-section">
                     <h3><i class="fas fa-code"></i> Development Information</h3>
-                    <p><strong>Version:</strong> 2.0.0</p>
+                    <p><strong>Version:</strong> 1.2.1</p>
                     <p><strong>Developed by:</strong> Vibe Coding</p>
                     <p><strong>Powered by:</strong> GitHub Copilot AI Assistant</p>
                     <p><strong>Technology Stack:</strong> PHP, MySQL, HTML5, CSS3, JavaScript</p>
@@ -43,7 +43,7 @@
     
     <footer>
         <div class="container">
-            <p class="text-center">&copy; <?php echo date('Y'); ?> Blackjack PHP. All rights reserved.</p>
+            <p class="text-center">&copy; <?php echo date('Y'); ?> Vibe Blackjack PHP. All rights reserved.</p>
         </div>
     </footer>
     
