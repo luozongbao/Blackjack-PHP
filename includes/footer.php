@@ -26,6 +26,7 @@
                     <p><strong>Version:</strong> 1.2.1</p>
                     <p><strong>Developed by:</strong> Vibe Coding</p>
                     <p><strong>Powered by:</strong> GitHub Copilot AI Assistant</p>
+                    <p><strong>Repository:</strong> <a href="https://github.com/luozongbao/Vibe-Blackjack-PHP" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i> GitHub Repository</a></p>
                     <p><strong>Technology Stack:</strong> PHP, MySQL, HTML5, CSS3, JavaScript</p>
                 </div>
                 

@@ -1,3 +1,61 @@
+# Blackjack PHP v1.2.2 Release Notes
+
+**Release Date: January 2025**
+
+We're excited to announce Blackjack PHP v1.2.2, a performance-focused update that significantly optimizes the application's CSS framework while enhancing the About page with repository access. This release delivers improved loading times, better mai### Upgrading from v1.1.x to v1.2.x
+1. Back up your database
+2. Replace all application files with the new version
+3. No database schema changes are required for this update
+4. Clear your browser cache after upgrading
+5. Hall of Fame page will be automatically available in navigation
+6. Enhanced community dashboard features will be immediately active
+7. Visit `/hall_of_fame.php` to access the new ranking system
+
+### Upgrading from v1.0.x to v1.2.xty, and enhanced community connectivity without compromising the user experience.
+
+## What's New in v1.2.2
+
+### ⚡ Major CSS Performance Optimization
+- **Significant File Size Reduction**: Optimized `style.css` from 2,417 lines to 2,216 lines (8.3% reduction, 201 lines removed)
+- **Consolidated Duplicate Rules**: Merged duplicate CSS selectors and declarations for improved parsing efficiency
+- **Streamlined Animations**: Removed redundant animation keyframes to eliminate duplication:
+  - Consolidated `flipCard`, `shimmer`, `trophy-glow`, `fadeIn`, and `slideInUp` animations
+  - Centralized all keyframes in a single location for better organization
+- **Optimized Vendor Prefixes**: 
+  - Removed unnecessary `-webkit-` prefixes for improved browser compatibility
+  - Enhanced vendor prefix usage for better cross-browser performance
+- **Enhanced Utility Classes**: Compressed syntax for utility classes resulting in cleaner, more efficient CSS
+
+### 🔗 Repository Access Enhancement
+- **GitHub Repository Link**: Added direct access to project repository in About page modal
+  - **Location**: Development Information section of About modal
+  - **Link**: `https://github.com/luozongbao/Vibe-Blackjack-PHP`
+  - **Features**: GitHub icon, opens in new tab with security attributes (`rel="noopener noreferrer"`)
+- **Community Connectivity**: Enhanced developer and user access to project source code
+- **Professional Presentation**: Integrated seamlessly with existing About modal design
+
+### 🎨 Code Quality & Maintainability Improvements
+- **CSS Organization**: Improved structure and organization of stylesheet components
+- **Duplicate Elimination**: Removed duplicate definitions for:
+  - `.playing-card` styles (consolidated multiple definitions)
+  - `.form-control` rules (merged redundant declarations)
+  - Form input selectors (optimized for better performance)
+- **Enhanced Maintainability**: Cleaner codebase for easier future updates and modifications
+- **Zero Breaking Changes**: All optimizations maintain complete visual and functional compatibility
+
+### 📚 Documentation Updates
+- **README.md Enhancement**: Updated with v1.2.2 information and performance improvements
+- **RELEASE.md Update**: Comprehensive release notes documenting all changes and improvements
+- **Technical Documentation**: Enhanced descriptions of optimization benefits and implementation details
+
+### 🔧 Technical Enhancements
+- **Faster CSS Parsing**: Reduced redundancy leads to improved browser parsing performance
+- **Better Caching**: Smaller file size improves caching efficiency and reduces bandwidth usage
+- **Improved Loading Times**: Optimized CSS structure results in faster page load times
+- **Enhanced Performance**: Overall application responsiveness improvements
+
+---
+
 # Blackjack PHP v1.2.1 Release Notes
 
 **Release Date: May 31, 2025**
@@ -237,6 +295,8 @@ We're excited to announce Blackjack PHP v1.2.0, featuring a complete overhaul of
 
 ## Technical Implementations
 
+- **CSS Performance Optimization**: Streamlined stylesheet reducing file size by 8.3% for improved loading times
+- **Repository Integration**: GitHub repository link integration in About modal for enhanced community access
 - **Hall of Fame System**: Advanced ranking algorithm using performance score (ROI × Total Bet) with multi-timeframe support
 - **Enhanced Community Features**: Animated progress bars, 3D tab styling, and comprehensive statistics display
 - **Regional Rule Systems**: Implemented authentic dealer blackjack rules for European and Macau styles
@@ -260,7 +320,15 @@ For Docker-based installations:
 3. Run `docker-compose up -d`
 4. Visit `http://localhost/includes/install.php` to complete setup
 
-### Upgrading from v1.1.x
+### Upgrading from v1.2.1 to v1.2.2
+1. Back up your current installation (optional, but recommended)
+2. Replace all application files with the new version
+3. No database schema changes are required for this update
+4. Clear your browser cache after upgrading to ensure optimized CSS is loaded
+5. Enhanced About page with repository link will be immediately available
+6. Performance improvements will be immediately noticeable
+
+### Upgrading from v1.1.x to v1.2.x
 1. Back up your database
 2. Replace all application files with the new version
 3. No database schema changes are required for this update
@@ -269,8 +337,7 @@ For Docker-based installations:
 6. Enhanced community dashboard features will be immediately active
 7. Visit `/hall_of_fame.php` to access the new ranking system
 
-### Upgrading from v1.0.x to v1.2.0
-### Upgrading from v1.0.x
+### Upgrading from v1.0.x to v1.2.x
 1. Back up your database
 2. Replace all application files with the new version
 3. No database schema changes are required for this update
@@ -280,9 +347,12 @@ For Docker-based installations:
 - Sound playback may be delayed on first interaction due to browser autoplay restrictions
 - Background music may not automatically start until user interaction in some browsers
 - Regional dealing style differences should be clearly understood before gameplay
+- After CSS optimization, ensure browser cache is cleared to load the improved stylesheet
 
 ## What's Next
 We're now working on:
+- **Advanced Performance Optimizations**: JavaScript minification and database query optimization
+- **Enhanced Repository Integration**: Direct issue reporting and feature request integration
 - **Tournament Mode**: Multi-player competitive tournaments with bracket systems
 - **Advanced Hall of Fame**: Additional ranking categories and achievement badges
 - **Social Features**: Player messaging, friend systems, and community challenges
