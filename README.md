@@ -1,4 +1,4 @@
-# Blackjack PHP v1.2.1
+# Blackjack PHP v1.2.2
 
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-orange)
@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/Status-Active-green)
 ![Docker](https://img.shields.io/badge/Docker-Supported-blue)
 
-A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic with authentic regional dealing styles, immersive audio experience, and community features including Hall of Fame rankings.
+A sophisticated web-based Blackjack game implementation using PHP, MySQL, and JavaScript with full session management, comprehensive statistics tracking, revised dashboard metrics, dynamic betting limits, advanced dealer logic with authentic regional dealing styles, immersive audio experience, community features including Hall of Fame rankings, and optimized performance through CSS enhancements.
 
 ## 📚 Table of Contents
 
@@ -73,6 +73,7 @@ A sophisticated web-based Blackjack game implementation using PHP, MySQL, and Ja
 - Error handling and debugging capabilities
 - **Analytics System** with user tracking and location detection
 - **Community Features** with player statistics and leaderboards
+- **Performance Optimizations** with CSS optimization and efficient resource loading
 
 ## Requirements
 
@@ -258,6 +259,25 @@ The game features two distinct shuffling methods:
   - Sound settings persist between sessions
   - Responsive design for controls
 
+### Performance Features
+- **CSS Optimization**: Streamlined stylesheet with reduced file size and improved loading times
+  - Consolidated duplicate CSS rules and selectors
+  - Removed redundant animations and keyframes
+  - Optimized vendor prefixes for better browser compatibility
+  - Enhanced utility classes with compressed syntax
+- **Resource Management**: Efficient loading of assets and improved caching
+- **Code Organization**: Better structured CSS for maintainability and performance
+
+### About Page Features
+- **Comprehensive Information**: Detailed game information accessible via navigation modal
+  - Current version display and feature highlights
+  - Development credits and project information
+  - GitHub repository link for community access
+- **User-Friendly Design**: 
+  - Click-anywhere-to-close functionality
+  - Smooth animations and responsive design
+  - Professional modal presentation
+
 ### Community Features
 
 #### Community Dashboard
@@ -429,6 +449,28 @@ Blackjack-PHP/
 © 2025 Blackjack PHP. All rights reserved.
 
 ## Version History
+
+**v1.2.2** - Performance & Enhancement Update (January 2025)
+- ⚡ **Performance**: Major CSS optimization reducing file size by 8.3% (201 lines removed)
+  - Consolidated duplicate CSS rules and selectors for improved loading times
+  - Removed redundant animation keyframes (`flipCard`, `shimmer`, `trophy-glow`, `fadeIn`, `slideInUp`)
+  - Optimized vendor prefixes and eliminated unnecessary `-webkit-` declarations
+  - Enhanced utility classes with compressed syntax for better performance
+- 🔗 **Enhancement**: Added GitHub repository link to About page modal
+  - Direct access to project repository from Development Information section
+  - Includes GitHub icon and opens in new tab with security attributes
+  - Link: `https://github.com/luozongbao/Vibe-Blackjack-PHP`
+- 🎨 **Code Quality**: Improved CSS maintainability and organization
+  - Centralized animation keyframes location for better structure
+  - Consolidated duplicate `.playing-card` and `.form-control` definitions
+  - No visual or functional changes to user interface
+- 📚 **Documentation**: Updated README.md and RELEASE.md to reflect recent improvements
+
+**v1.2.1** - Mobile Responsiveness & About Page (May 31, 2025)
+- 📱 **Enhanced**: Mobile responsiveness with optimized game interface for mobile devices
+- ℹ️ **Added**: About page modal with comprehensive game information and version display
+- 🎨 **Improved**: Mobile-friendly card dimensions and touch-optimized button sizing
+- 🔧 **Enhanced**: Navigation system with About link integration
 
 **v1.2.0** - Community Features Release (May 30, 2025)
 - 🏆 **Added**: Hall of Fame with performance-based player rankings
