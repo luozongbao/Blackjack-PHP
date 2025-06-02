@@ -118,7 +118,8 @@ input[type="password"],
 input[type="email"],
 input[type="number"],
 select,
-textarea {
+textarea,
+.form-control {
     width: 100%;
     padding: 10px;
     border-radius: 4px;
@@ -335,9 +336,50 @@ button:hover {
     margin: 0 auto 15px;
 }
 
+/* ===== Animations ===== */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes flipCard {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(90deg); }
+    100% { transform: rotateY(0deg); }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes trophy-glow {
+    0%, 100% { 
+        text-shadow: 0 0 5px currentColor; 
+    }
+    50% { 
+        text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; 
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .loader-message {
@@ -477,27 +519,31 @@ button:hover {
 }
 
 .card-rank {
-    font-size: 1rem;
-    font-weight: bold;
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
     line-height: 1;
     align-self: flex-start;
     z-index: 1;
+    color: #1a1a1a !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
 }
 
 .card-suit {
-    font-size: 1.8rem;
+    font-size: 2rem !important;
     line-height: 1;
     align-self: center;
     margin-top: -15px;
     z-index: 1;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
 }
 
 .card-suit.red {
-    color: #e74c3c;
+    color: #c0392b !important;
 }
 
 .card-suit.black {
-    color: #2c3e50;
+    color: #1a1a1a !important;
 }
 
 /* Card rank in bottom right (rotated) */
@@ -564,11 +610,7 @@ button:hover {
     animation: flipCard 0.6s ease-in-out;
 }
 
-@keyframes flipCard {
-    0% { transform: rotateY(0deg); }
-    50% { transform: rotateY(90deg); }
-    100% { transform: rotateY(0deg); }
-}
+/* Card flip animation keyframe moved to animations section */
 
 /* Enhanced card text visibility */
 .playing-card .card-rank {
@@ -626,97 +668,6 @@ button:hover {
     text-align: center;
     padding: 5px;
     margin: 5px;
-}
-
-/* Responsive Design for Game */
-@media (max-width: 768px) {
-    .game-container {
-        margin: 10px;
-        padding: 0 10px;
-    }
-    
-    .dealer-section,
-    .player-section {
-        padding: 15px;
-        min-height: 180px;
-    }
-    
-    .cards-container {
-        gap: 10px;
-        justify-content: center;
-    }
-    
-    .playing-card {
-        width: 60px;
-        height: 84px;
-        font-size: 0.8rem;
-        padding: 4px;
-    }
-    
-    .card-rank {
-        font-size: 0.8rem;
-    }
-    
-    .card-suit {
-        font-size: 1.4rem;
-        margin-top: -12px;
-    }
-    
-    .card-placeholder {
-        width: 60px;
-        height: 84px;
-        font-size: 0.7rem;
-    }
-    
-    .game-container {
-        max-width: calc(100vw - 20px) !important;
-        width: calc(100vw - 20px) !important;
-    }
-    
-    .dealer-section,
-    .player-section,
-    .shoe-info-section {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .playing-card {
-        width: 50px;
-        height: 70px;
-        font-size: 0.7rem;
-        padding: 3px;
-    }
-    
-    .card-rank {
-        font-size: 0.7rem;
-    }
-    
-    .card-suit {
-        font-size: 1.2rem;
-        margin-top: -10px;
-    }
-    
-    .card-placeholder {
-        width: 50px;
-        height: 70px;
-        font-size: 0.6rem;
-    }
-    
-    .game-container {
-        margin: 5px !important;
-        padding: 0 5px !important;
-        max-width: calc(100vw - 10px) !important;
-        width: calc(100vw - 10px) !important;
-    }
-    
-    .dealer-section,
-    .player-section,
-    .shoe-info-section {
-        padding: 10px !important;
-        margin-bottom: 15px !important;
-    }
 }
 
 /* ===== Blackjack Game Specific Styles ===== */
@@ -912,178 +863,6 @@ button:hover {
     font-size: 0.9rem;
 }
 
-/* Playing Cards */
-.playing-card {
-    width: 80px;
-    height: 112px;
-    background: linear-gradient(145deg, #ffffff, #f8f9fa);
-    border: 2px solid #2c3e50;
-    border-radius: 8px;
-    position: relative;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 6px;
-    margin: 5px;
-    cursor: pointer;
-    font-family: 'Arial', sans-serif;
-    font-weight: bold;
-    overflow: hidden;
-}
-
-.playing-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
-    pointer-events: none;
-}
-
-.playing-card:hover {
-    transform: translateY(-8px) scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.card-rank {
-    font-size: 1rem;
-    font-weight: bold;
-    line-height: 1;
-    align-self: flex-start;
-    z-index: 1;
-}
-
-.card-suit {
-    font-size: 1.8rem;
-    line-height: 1;
-    align-self: center;
-    margin-top: -15px;
-    z-index: 1;
-}
-
-.card-suit.red {
-    color: #e74c3c;
-}
-
-.card-suit.black {
-    color: #2c3e50;
-}
-
-/* Card rank in bottom right (rotated) */
-.playing-card::after {
-    content: attr(data-rank) attr(data-suit);
-    position: absolute;
-    bottom: 6px;
-    right: 6px;
-    font-size: 0.7rem;
-    transform: rotate(180deg);
-    color: inherit;
-    z-index: 1;
-}
-
-/* Special styling for face cards */
-.playing-card[data-rank="J"]::before,
-.playing-card[data-rank="Q"]::before,
-.playing-card[data-rank="K"]::before {
-    background: linear-gradient(135deg, rgba(241, 196, 15, 0.2), rgba(243, 156, 18, 0.1));
-}
-
-.playing-card[data-rank="A"]::before {
-    background: linear-gradient(135deg, rgba(26, 188, 156, 0.2), rgba(22, 160, 133, 0.1));
-}
-
-/* Hidden dealer card enhanced */
-.card-back {
-    background: linear-gradient(145deg, #2c3e50, #34495e);
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.card-back::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 60%;
-    height: 80%;
-    background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 2px,
-        var(--primary-color) 2px,
-        var(--primary-color) 4px
-    );
-    transform: translate(-50%, -50%);
-    opacity: 0.3;
-}
-
-.card-back-design {
-    font-size: 2rem;
-    opacity: 0.8;
-    z-index: 1;
-}
-
-/* Card flip animation */
-.card-flip {
-    animation: flipCard 0.6s ease-in-out;
-}
-
-@keyframes flipCard {
-    0% { transform: rotateY(0deg); }
-    50% { transform: rotateY(90deg); }
-    100% { transform: rotateY(0deg); }
-}
-
-/* Enhanced card text visibility */
-.playing-card .card-rank {
-    font-size: 1.2rem !important;
-    font-weight: bold !important;
-    color: #1a1a1a !important;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
-}
-
-.playing-card .card-suit {
-    font-size: 2rem !important;
-    font-weight: bold !important;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8) !important;
-}
-
-.playing-card .card-suit.red {
-    color: #c0392b !important;
-}
-
-.playing-card .card-suit.black {
-    color: #1a1a1a !important;
-}
-
-/* Enhanced card container for better layout */
-.cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 15px 0;
-    min-height: 130px;
-    align-items: flex-start;
-    justify-content: flex-start;
-}
-
-.cards-container.dealer-cards {
-    justify-content: center;
-}
-
-.cards-container.player-cards {
-    justify-content: center;
-}
-
 /* Card placeholder styling */
 .card-placeholder {
     width: 80px;
@@ -1248,6 +1027,104 @@ button:hover {
     .stats-container {
         grid-template-columns: 1fr;
     }
+    
+    .col-md-6 {
+        flex: 0 0 100%;
+    }
+    
+    .game-container {
+        margin: 10px;
+        padding: 0 10px;
+        max-width: calc(100vw - 20px) !important;
+        width: calc(100vw - 20px) !important;
+    }
+    
+    .dealer-section,
+    .player-section,
+    .shoe-info-section {
+        padding: 15px;
+        min-height: 180px;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .cards-container {
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .playing-card {
+        width: 60px;
+        height: 84px;
+        font-size: 0.8rem;
+        padding: 4px;
+    }
+    
+    .card-rank {
+        font-size: 0.8rem;
+    }
+    
+    .card-suit {
+        font-size: 1.4rem;
+        margin-top: -12px;
+    }
+    
+    .card-placeholder {
+        width: 60px;
+        height: 84px;
+        font-size: 0.7rem;
+    }
+    
+    .game-actions .action-button {
+        margin: 5px 4px;
+        min-width: 90px;
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .shoe-stats {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .penetration-display,
+    .cards-info {
+        justify-content: center;
+    }
+    
+    .penetration-bar {
+        width: 100px;
+    }
+    
+    .cards-info {
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .shoe-header {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .shoe-header .penetration-bar {
+        width: 150px;
+        order: 1;
+    }
+    
+    .shoe-title {
+        order: 0;
+    }
+    
+    .shuffle-method {
+        order: 2;
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    
+    .shoe-info-section {
+        padding: 12px;
+    }
 }
 
 /* ===== Profile Page Styles ===== */
@@ -1324,7 +1201,6 @@ button:hover {
 
 .form-range {
     width: 100%;
-    -webkit-appearance: none;
     appearance: none;
     height: 8px;
     border-radius: 5px;  
@@ -1333,7 +1209,6 @@ button:hover {
 }
 
 .form-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
     appearance: none;
     width: 20px;
     height: 20px;
@@ -1348,6 +1223,7 @@ button:hover {
     border-radius: 50%;
     background: var(--primary-color);
     cursor: pointer;
+    border: none;
 }
 
 .range-value {
@@ -1355,17 +1231,6 @@ button:hover {
     text-align: center;
     font-weight: bold;
     color: var(--primary-color);
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    background-color: var(--input-bg);
-    color: var(--input-text);
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
 }
 
 .profile-item label {
@@ -1395,65 +1260,31 @@ button:hover {
 }
 
 /* ===== Utility Classes ===== */
-.text-center {
-    text-align: center;
-}
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-primary { color: var(--primary-color); }
+.text-danger { color: var(--danger-color); }
+.text-success { color: var(--success-color); }
+.text-muted { color: rgba(236, 240, 241, 0.6) !important; }
 
-.text-right {
-    text-align: right;
-}
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
 
-.text-primary {
-    color: var(--primary-color);
-}
+.d-flex { display: flex; }
+.justify-between { justify-content: space-between; }
+.align-center { align-items: center; }
+.w-100 { width: 100%; }
 
-.text-danger {
-    color: var(--danger-color);
-}
-
-.text-success {
-    color: var(--success-color);
-}
-
-.mb-1 {
-    margin-bottom: 0.5rem;
-}
-
-.mb-2 {
-    margin-bottom: 1rem;
-}
-
-.mb-3 {
-    margin-bottom: 1.5rem;
-}
-
-.mt-1 {
-    margin-top: 0.5rem;
-}
-
-.mt-2 {
-    margin-top: 1rem;
-}
-
-.mt-3 {
-    margin-top: 1.5rem;
-}
-
-.d-flex {
-    display: flex;
-}
-
-.justify-between {
-    justify-content: space-between;
-}
-
-.align-center {
-    align-items: center;
-}
-
-.w-100 {
-    width: 100%;
-}
+/* Common Shadow and Border Utilities */
+.shadow-sm { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+.shadow { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+.shadow-lg { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); }
+.rounded { border-radius: 4px; }
+.rounded-lg { border-radius: 8px; }
 
 /* ===== Sound Controls ===== */
 .sound-controls {
@@ -1772,10 +1603,7 @@ button:hover {
     animation: shimmer 2s infinite;
 }
 
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
+/* Shimmer animation keyframe moved to animations section */
 
 .stat-percentage {
     font-weight: bold;
@@ -2181,16 +2009,7 @@ code {
     margin-right: 10px;
 }
 
-/* Trophy Animation */
-@keyframes trophy-glow {
-    0%, 100% { 
-        text-shadow: 0 0 5px currentColor; 
-    }
-    50% { 
-        text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; 
-    }
-}
-
+/* Trophy Animation - keyframe moved to animations section */
 .rank-1 i {
     animation: trophy-glow 2s ease-in-out infinite;
 }
@@ -2371,26 +2190,7 @@ code {
     font-size: 0.9rem;
 }
 
-/* Modal Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
+/* Modal Animations - keyframes moved to animations section */
 
 /* Responsive design for mobile */
 @media (max-width: 768px) {
