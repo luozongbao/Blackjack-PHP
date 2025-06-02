@@ -3,8 +3,8 @@ includes/config.php
 *.log
 test_*.*
 verify_*.php
-reports/
-reports/*
+docs/reports/
+docs/reports/*
 .env
 
-TESTING_GUIDE.md
+
