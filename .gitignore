@@ -5,6 +5,8 @@ test_*.*
 verify_*.php
 docs/reports/
 docs/reports/*
+docs/logs/
+docs/logs/*
 .env
 
 
