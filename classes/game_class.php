@@ -249,6 +249,10 @@ class BlackjackGame {
         
         if ($currentHand->isBusted()) {
             $this->moveToNextHand();
+        } elseif ($currentHand->getScore() == 21) {
+            // Auto-stand when hand reaches exactly 21
+            $currentHand->stand();
+            $this->moveToNextHand();
         }
         
         $this->saveGameState();
